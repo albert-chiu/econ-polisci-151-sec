@@ -1,8 +1,6 @@
 ---
 title: "R Review (ECON/POLISCI 151)"
-output: 
-  html_document:
-    keep_md: true
+output: rmarkdown::github_document
 ---
 
 ```{r setup, include=FALSE}
