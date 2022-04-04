@@ -55,7 +55,7 @@ eg_html %>% rvest::html_elements("p") %>%
   rvest::html_text()
 ```
 
-Or maybe we want one of its descendants:
+Or maybe we want all one of its descendants with a specific tag:
 ```{r}
 eg_html %>% rvest::html_elements("p") %>%
   rvest::html_elements("a")

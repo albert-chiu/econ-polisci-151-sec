@@ -205,7 +205,7 @@ eg_html %&gt;% rvest::html_elements(&quot;p&quot;)</code></pre>
 <pre class="r"><code>eg_html %&gt;% rvest::html_elements(&quot;p&quot;) %&gt;%
   rvest::html_text()</code></pre>
 <pre><code>## [1] &quot;\n        text here \n         link1 &quot;</code></pre>
-<p>Or maybe we want one of its descendants:</p>
+<p>Or maybe we want all one of its descendants with a specific tag:</p>
 <pre class="r"><code>eg_html %&gt;% rvest::html_elements(&quot;p&quot;) %&gt;%
   rvest::html_elements(&quot;a&quot;)</code></pre>
 <pre><code>## {xml_nodeset (1)}
@@ -319,7 +319,7 @@ head(colnames(tw))  </code></pre>
 ## [6] &quot;source&quot;</code></pre>
 <pre class="r"><code># example of the text in a tweet
 tw$text[1]</code></pre>
-<pre><code>## [1] &quot;The Power of the Dog may have lead the pack when it came to nominations, but the big winner of the night was the understated CODA. https://t.co/ljvnU5fxCM&quot;</code></pre>
+<pre><code>## [1] &quot;Will Smith: Netflix And Sony Pause Projects After Oscars Meltdown\nSony’s ‘Bad Boys 4’ And Netflix’s original movie ‘Fast and Loose’ pump the brakes on production. https://t.co/sglKH9nYQ3&quot;</code></pre>
 <p>This is already looking cleaner than our news article example, but let’s still do a bit of pre-processing. We’ll go more in depth during our week on text as data, but for now let’s just define a basic function for removing some (typically) unmeaningful words, as well as punctuation and whitespace, and apply it to each tweet.</p>
 <pre class="r"><code>clean_text &lt;- function(x) {
   x %&gt;% tm::removeWords(stopwords::stopwords(&quot;en&quot;)) %&gt;% 
@@ -333,25 +333,25 @@ tw[, c(&quot;screen_name&quot;, &quot;text&quot;)]</code></pre>
 <pre><code>## # A tibble: 10 × 2
 ##    screen_name     text                                                         
 ##    &lt;chr&gt;           &lt;chr&gt;                                                        
-##  1 ConversationEDU &quot;The Power of the Dog may have lead the pack when it came to…
-##  2 ians_india      &quot;A week after the #Oscars, the 64th Annual #GrammyAwards als…
-##  3 seankmckeever   &quot;Yes, Sean. Time to turn your Oscars to slag. https://t.co/Q…
-##  4 otvnews         &quot;After Oscars, Grammy Awards Leave Out Lata Mangeshkar From …
-##  5 MilesToGo13     &quot;The #GRAMMYs and #WrestleMania happened on the same night, …
-##  6 NBCNewYork      &quot;ICYMI: Here&#39;s how \&quot;SNL\&quot; handled the Will Smith Oscars sla…
-##  7 wnct9           &quot;Netflix and Sony have reportedly put movies Will Smith was …
-##  8 Independent_ie  &quot;Denzel Washington explains why he thinks Will Smith hit Chr…
-##  9 ndtv            &quot;#Grammys2022: After #Oscars, @mangeshkarlata Left Out Of An…
-## 10 usatodaylife    &quot;This year&#39;s #Grammys telecast showcased something industry …</code></pre>
+##  1 sportsguymarv   &quot;Will Smith: Netflix And Sony Pause Projects After Oscars Me…
+##  2 ConversationEDU &quot;The Power of the Dog may have lead the pack when it came to…
+##  3 ians_india      &quot;A week after the #Oscars, the 64th Annual #GrammyAwards als…
+##  4 seankmckeever   &quot;Yes, Sean. Time to turn your Oscars to slag. https://t.co/Q…
+##  5 otvnews         &quot;After Oscars, Grammy Awards Leave Out Lata Mangeshkar From …
+##  6 MilesToGo13     &quot;The #GRAMMYs and #WrestleMania happened on the same night, …
+##  7 NBCNewYork      &quot;ICYMI: Here&#39;s how \&quot;SNL\&quot; handled the Will Smith Oscars sla…
+##  8 wnct9           &quot;Netflix and Sony have reportedly put movies Will Smith was …
+##  9 Independent_ie  &quot;Denzel Washington explains why he thinks Will Smith hit Chr…
+## 10 ndtv            &quot;#Grammys2022: After #Oscars, @mangeshkarlata Left Out Of An…</code></pre>
 <pre class="r"><code># after
 tw_wrds &lt;- unname(sapply(tw$text, clean_text))
 head(tw_wrds)</code></pre>
-<pre><code>## [1] &quot;The Power Dog may lead pack came nominations big winner night understated CODA httpstcoljvnU5fxCM&quot;                                                                                                       
-## [2] &quot;A week Oscars 64th Annual GrammyAwards also omitted legendary Indian playback singer LataMangeshkar In Memoriam section ceremony held MGM Grand Garden Arena LasVegas Photo IANS File httpstcod3sM0bIjeE&quot;
-## [3] &quot;Yes Sean Time turn Oscars slag httpstcoQvpee6wBks&quot;                                                                                                                                                       
-## [4] &quot;After Oscars Grammy Awards Leave Out Lata Mangeshkar From In Memoriam Section Grammys LataMangeshkar httpstcoc7V4s0UIWJ&quot;                                                                                 
-## [5] &quot;The GRAMMYs WrestleMania happened night confused Oscars Wrestlemania occurred stage&quot;                                                                                                                     
-## [6] &quot;ICYMI Heres SNL handled Will Smith Oscars slap httpstcoWl0YjFGZbn&quot;</code></pre>
+<pre><code>## [1] &quot;Will Smith Netflix And Sony Pause Projects After Oscars Meltdown Sony’s ‘Bad Boys 4’ And Netflix’s original movie ‘Fast Loose’ pump brakes production httpstcosglKH9nYQ3&quot;                                
+## [2] &quot;The Power Dog may lead pack came nominations big winner night understated CODA httpstcoljvnU5fxCM&quot;                                                                                                       
+## [3] &quot;A week Oscars 64th Annual GrammyAwards also omitted legendary Indian playback singer LataMangeshkar In Memoriam section ceremony held MGM Grand Garden Arena LasVegas Photo IANS File httpstcod3sM0bIjeE&quot;
+## [4] &quot;Yes Sean Time turn Oscars slag httpstcoQvpee6wBks&quot;                                                                                                                                                       
+## [5] &quot;After Oscars Grammy Awards Leave Out Lata Mangeshkar From In Memoriam Section Grammys LataMangeshkar httpstcoc7V4s0UIWJ&quot;                                                                                 
+## [6] &quot;The GRAMMYs WrestleMania happened night confused Oscars Wrestlemania occurred stage&quot;</code></pre>
 <p>Again, what you do with this data is a different topic. For now, let’s do something simple: see which words appear the most often.</p>
 <pre class="r"><code># split into words
 tw_wrds &lt;- sapply(tw_wrds, FUN=function(x) strsplit(tolower(x), split=&quot; +&quot;))
@@ -359,12 +359,14 @@ tw_wrds &lt;- sapply(tw_wrds, FUN=function(x) strsplit(tolower(x), split=&quot; 
 count &lt;- table(unlist(tw_wrds))
 sort(count[count &gt; 1], decreasing = T)</code></pre>
 <pre><code>## 
-##         oscars        grammys          smith           will          after 
-##              8              3              3              3              2 
-##          chris             in latamangeshkar       memoriam          night 
+##         oscars          smith           will          after            and 
+##              9              4              4              3              2 
+##          chris        grammys             in latamangeshkar       memoriam 
 ##              2              2              2              2              2 
-##            out           rock        section            the   wrestlemania 
-##              2              2              2              2              2</code></pre>
+##        netflix          night            out           rock        section 
+##              2              2              2              2              2 
+##           sony            the   wrestlemania 
+##              2              2              2</code></pre>
 <p>The <tt>rtweet</tt> package has lots of other functions that you may find useful. If you want to use Twitter for your project, I encourage you to read the package’s documentation. I’ll just point out one other function, one which gets tweets from a specific user:</p>
 <pre class="r"><code># last 2 tweets from the UN
 tl &lt;- rtweet::get_timeline(user=&quot;UN&quot;, n=2)

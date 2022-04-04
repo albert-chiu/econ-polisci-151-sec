@@ -62,7 +62,7 @@ eg_html %>% rvest::html_elements("p") %>%
 ## [1] "\n        text here \n         link1 "
 ```
 
-Or maybe we want one of its descendants:
+Or maybe we want all one of its descendants with a specific tag:
 
 ```r
 eg_html %>% rvest::html_elements("p") %>%
@@ -267,7 +267,7 @@ tw$text[1]
 ```
 
 ```
-## [1] "The Power of the Dog may have lead the pack when it came to nominations, but the big winner of the night was the understated CODA. https://t.co/ljvnU5fxCM"
+## [1] "Will Smith: Netflix And Sony Pause Projects After Oscars Meltdown\nSony’s ‘Bad Boys 4’ And Netflix’s original movie ‘Fast and Loose’ pump the brakes on production. https://t.co/sglKH9nYQ3"
 ```
 This is already looking cleaner than our news article example, but let's still do a bit of pre-processing. We'll go more in depth during our week on text as data, but for now let's just define a basic function for removing some (typically) unmeaningful words, as well as punctuation and whitespace, and apply it to each tweet.
 
@@ -287,16 +287,16 @@ tw[, c("screen_name", "text")]
 ## # A tibble: 10 × 2
 ##    screen_name     text                                                         
 ##    <chr>           <chr>                                                        
-##  1 ConversationEDU "The Power of the Dog may have lead the pack when it came to…
-##  2 ians_india      "A week after the #Oscars, the 64th Annual #GrammyAwards als…
-##  3 seankmckeever   "Yes, Sean. Time to turn your Oscars to slag. https://t.co/Q…
-##  4 otvnews         "After Oscars, Grammy Awards Leave Out Lata Mangeshkar From …
-##  5 MilesToGo13     "The #GRAMMYs and #WrestleMania happened on the same night, …
-##  6 NBCNewYork      "ICYMI: Here's how \"SNL\" handled the Will Smith Oscars sla…
-##  7 wnct9           "Netflix and Sony have reportedly put movies Will Smith was …
-##  8 Independent_ie  "Denzel Washington explains why he thinks Will Smith hit Chr…
-##  9 ndtv            "#Grammys2022: After #Oscars, @mangeshkarlata Left Out Of An…
-## 10 usatodaylife    "This year's #Grammys telecast showcased something industry …
+##  1 sportsguymarv   "Will Smith: Netflix And Sony Pause Projects After Oscars Me…
+##  2 ConversationEDU "The Power of the Dog may have lead the pack when it came to…
+##  3 ians_india      "A week after the #Oscars, the 64th Annual #GrammyAwards als…
+##  4 seankmckeever   "Yes, Sean. Time to turn your Oscars to slag. https://t.co/Q…
+##  5 otvnews         "After Oscars, Grammy Awards Leave Out Lata Mangeshkar From …
+##  6 MilesToGo13     "The #GRAMMYs and #WrestleMania happened on the same night, …
+##  7 NBCNewYork      "ICYMI: Here's how \"SNL\" handled the Will Smith Oscars sla…
+##  8 wnct9           "Netflix and Sony have reportedly put movies Will Smith was …
+##  9 Independent_ie  "Denzel Washington explains why he thinks Will Smith hit Chr…
+## 10 ndtv            "#Grammys2022: After #Oscars, @mangeshkarlata Left Out Of An…
 ```
 
 ```r
@@ -306,12 +306,12 @@ head(tw_wrds)
 ```
 
 ```
-## [1] "The Power Dog may lead pack came nominations big winner night understated CODA httpstcoljvnU5fxCM"                                                                                                       
-## [2] "A week Oscars 64th Annual GrammyAwards also omitted legendary Indian playback singer LataMangeshkar In Memoriam section ceremony held MGM Grand Garden Arena LasVegas Photo IANS File httpstcod3sM0bIjeE"
-## [3] "Yes Sean Time turn Oscars slag httpstcoQvpee6wBks"                                                                                                                                                       
-## [4] "After Oscars Grammy Awards Leave Out Lata Mangeshkar From In Memoriam Section Grammys LataMangeshkar httpstcoc7V4s0UIWJ"                                                                                 
-## [5] "The GRAMMYs WrestleMania happened night confused Oscars Wrestlemania occurred stage"                                                                                                                     
-## [6] "ICYMI Heres SNL handled Will Smith Oscars slap httpstcoWl0YjFGZbn"
+## [1] "Will Smith Netflix And Sony Pause Projects After Oscars Meltdown Sony’s ‘Bad Boys 4’ And Netflix’s original movie ‘Fast Loose’ pump brakes production httpstcosglKH9nYQ3"                                
+## [2] "The Power Dog may lead pack came nominations big winner night understated CODA httpstcoljvnU5fxCM"                                                                                                       
+## [3] "A week Oscars 64th Annual GrammyAwards also omitted legendary Indian playback singer LataMangeshkar In Memoriam section ceremony held MGM Grand Garden Arena LasVegas Photo IANS File httpstcod3sM0bIjeE"
+## [4] "Yes Sean Time turn Oscars slag httpstcoQvpee6wBks"                                                                                                                                                       
+## [5] "After Oscars Grammy Awards Leave Out Lata Mangeshkar From In Memoriam Section Grammys LataMangeshkar httpstcoc7V4s0UIWJ"                                                                                 
+## [6] "The GRAMMYs WrestleMania happened night confused Oscars Wrestlemania occurred stage"
 ```
 
 Again, what you do with this data is a different topic. For now, let's do something simple: see which words appear the most often.
@@ -326,12 +326,14 @@ sort(count[count > 1], decreasing = T)
 
 ```
 ## 
-##         oscars        grammys          smith           will          after 
-##              8              3              3              3              2 
-##          chris             in latamangeshkar       memoriam          night 
+##         oscars          smith           will          after            and 
+##              9              4              4              3              2 
+##          chris        grammys             in latamangeshkar       memoriam 
 ##              2              2              2              2              2 
-##            out           rock        section            the   wrestlemania 
-##              2              2              2              2              2
+##        netflix          night            out           rock        section 
+##              2              2              2              2              2 
+##           sony            the   wrestlemania 
+##              2              2              2
 ```
 
 The <tt>rtweet</tt> package has lots of other functions that you may find useful. If you want to use Twitter for your project, I encourage you to read the package's documentation. I'll just point out one other function, one which gets tweets from a specific user:
