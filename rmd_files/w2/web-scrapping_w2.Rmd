@@ -17,15 +17,19 @@ require(magrittr)
 ## A Brief Primer on HTML
 HyperText Markup Language (HTML) is a markup language (similar to LaTeX) and is what most websites are written in. An html document is essentially a tree composed of nodes. Nodes can be text, links, tables, etc., and they themselves can have "descendant" nodes (e.g., a table is itself a node, but inside the table there might be something that makes text italics, and then inside that will be the text itself).
 
-For our purposes, there are a few important terms to introduce. First, and _element_ is a type of node that makes up the document, and it can be used for many different purposes. An element is delimited at the front and the end with a _tag_. Below is an example of an element:
+For our purposes, there are a few important terms to introduce. First, an _element_ is a type of node that makes up the document, and it can be used for many different purposes. An element is delimited at the front and the end with a _tag_. Below is an example of an element:
 
-    <a> text here </a>
+    <p> text here </p>
 
 The <tt>`<p>`</tt> at the beginning and the <tt>`</p>`</tt> at the end are tags. 
 
 Elements can also have _attributes_, which are specified inside the opening tag. For example, we might want our element to be a certain color. We can do this using the <tt>style</tt> attribute:
 
-    <a style="color:#53565A"> text here </a>.
+    <p style="color:#8C1515"> text here </p>.
+
+This will appear to the viewer as:
+
+<p style="color:#8C1515"> text here </p>
 
 ## General Websites
 To do webscrapping in R, we will be using the <tt>rvest</tt> package (a part of <tt>tidyverse</tt>). <tt>rvest</tt> is designed to go with <tt>magrittr</tt> package; you don't need to use the latter, but taking advantage of the pipe <tt>%>%</tt> operator will make your code a lot less verbose. 

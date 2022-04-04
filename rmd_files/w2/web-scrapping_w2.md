@@ -13,15 +13,19 @@ output:
 ## A Brief Primer on HTML
 HyperText Markup Language (HTML) is a markup language (similar to LaTeX) and is what most websites are written in. An html document is essentially a tree composed of nodes. Nodes can be text, links, tables, etc., and they themselves can have "descendant" nodes (e.g., a table is itself a node, but inside the table there might be something that makes text italics, and then inside that will be the text itself).
 
-For our purposes, there are a few important terms to introduce. First, and _element_ is a type of node that makes up the document, and it can be used for many different purposes. An element is delimited at the front and the end with a _tag_. Below is an example of an element:
+For our purposes, there are a few important terms to introduce. First, an _element_ is a type of node that makes up the document, and it can be used for many different purposes. An element is delimited at the front and the end with a _tag_. Below is an example of an element:
 
-    <a> text here </a>
+    <p> text here </p>
 
 The <tt>`<p>`</tt> at the beginning and the <tt>`</p>`</tt> at the end are tags. 
 
 Elements can also have _attributes_, which are specified inside the opening tag. For example, we might want our element to be a certain color. We can do this using the <tt>style</tt> attribute:
 
-    <a style="color:#53565A"> text here </a>.
+    <p style="color:#8C1515"> text here </p>.
+
+This will appear to the viewer as:
+
+<p style="color:#8C1515"> text here </p>
 
 ## General Websites
 To do webscrapping in R, we will be using the <tt>rvest</tt> package (a part of <tt>tidyverse</tt>). <tt>rvest</tt> is designed to go with <tt>magrittr</tt> package; you don't need to use the latter, but taking advantage of the pipe <tt>%>%</tt> operator will make your code a lot less verbose. 
@@ -102,11 +106,11 @@ url <- paste0("https://news.google.com/search?q=", term,
 html_doc <- rvest::read_html(url)
 ```
 
-We want to get the html node that links to the article. To do so, we open Google News and use Chrome's inspection tool under <tt>View > Developer > Inspect Elements</tt> tool.
+We want to get the html node that links to the article. Fortunately for us, Google defines specific classes of elements for different functions. To see which one is used for linking to the articles, we open Google News and use Chrome's inspection tool under <tt>View > Developer > Inspect Elements</tt> tool.
 
 ![](inspect.png){#id .class width=50% height=50%}
 
-The node we want is called "VDXfz", and we want to extract the hyperlink from it.
+The class of elements we want is called "VDXfz", and we want to extract the hyperlink from it, which is specified using the <tt>href</tt> attribute.
 
 ```r
 ## Get links on the page
@@ -133,7 +137,7 @@ links <- gsub("./articles/", "https://news.google.com/articles/", links)
 Let's also record the title of each article. To see how to get this info, let's go back to Google News and open Chromes' Devloper Tools UI (or open the raw html file) and look for the corresponding node:
 ![title](node_title.png)
 
-The node we want seems to be called "DY5T1d". We want to extract the text from this node.
+The class of elements we want seems to be called "DY5T1d". We want to extract the text from this element.
 
 ```r
 titles <- html_doc %>% rvest::html_nodes('.DY5T1d') %>% rvest::html_text()
@@ -149,19 +153,19 @@ head(df[, c("truncated_title", "link")])
 ##      truncated_title                                     
 ## [1,] "Ukraine-Russia Live News: Civilian Victims ..."    
 ## [2,] "Ukraine claims 410 bodies found ..."               
-## [3,] "Russia-Ukraine war live updates: International ..."
-## [4,] "Ukraine updates: Ukrainians returning home ..."    
-## [5,] "Ukraine latest updates: Ukraine says ..."          
-## [6,] "April 3, 2022 Russia-Ukraine news ..."             
-##      link                                                                                                                                                                                                                                                                                                  
-## [1,] "https://news.google.com/articles/CAIiEPrAVhDmFU2aQkYQgMoCQugqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                           
-## [2,] "https://news.google.com/articles/CAIiEMRVBQIidvjPqf8dtOEZEoAqGQgEKhAIACoHCAow2Nb3CjDivdcCMKuvhQY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                        
-## [3,] "https://news.google.com/articles/CAIiEHTSgVW44u_H74H1ErwE_jEqGQgEKhAIACoHCAowvIaCCzDnxf4CMM2F8gU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                        
-## [4,] "https://news.google.com/articles/CAIiECIn-DwmTdlz7v-1DvkCLBAqGQgEKhAIACoHCAowjsP7CjCSpPQCMM_b5QU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                        
-## [5,] "https://news.google.com/articles/CAIiEBYU5ggCGdzmLwkP9S5mMiQqFQgEKgwIACoFCAowhgIwkDgws_qTBw?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                             
-## [6,] "https://news.google.com/articles/CBMiUWh0dHBzOi8vd3d3LmNubi5jb20vZXVyb3BlL2xpdmUtbmV3cy91a3JhaW5lLXJ1c3NpYS1wdXRpbi1uZXdzLTA0LTMtMjIvaW5kZXguaHRtbNIBVWh0dHBzOi8vYW1wLmNubi5jb20vY25uL2V1cm9wZS9saXZlLW5ld3MvdWtyYWluZS1ydXNzaWEtcHV0aW4tbmV3cy0wNC0zLTIyL2luZGV4Lmh0bWw?hl=en-US&gl=US&ceid=US%3Aen"
+## [3,] "Ukraine updates: Ukrainians returning home ..."    
+## [4,] "Ukraine latest updates: Ukraine says ..."          
+## [5,] "Russia-Ukraine war live updates: International ..."
+## [6,] "Russia-Ukraine war: What happened today ..."       
+##      link                                                                                                                                                                                                                                                          
+## [1,] "https://news.google.com/articles/CAIiEPrAVhDmFU2aQkYQgMoCQugqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                   
+## [2,] "https://news.google.com/articles/CAIiEMRVBQIidvjPqf8dtOEZEoAqGQgEKhAIACoHCAow2Nb3CjDivdcCMJ_d7gU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
+## [3,] "https://news.google.com/articles/CAIiECIn-DwmTdlz7v-1DvkCLBAqGQgEKhAIACoHCAowjsP7CjCSpPQCMM_b5QU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
+## [4,] "https://news.google.com/articles/CAIiEBYU5ggCGdzmLwkP9S5mMiQqFQgEKgwIACoFCAowhgIwkDgws_qTBw?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                     
+## [5,] "https://news.google.com/articles/CAIiEHTSgVW44u_H74H1ErwE_jEqGQgEKhAIACoHCAowvIaCCzDnxf4CMM2F8gU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
+## [6,] "https://news.google.com/articles/CAIiEPDe97059SHmXfeVPb7W3JkqFwgEKg4IACoGCAow9vBNMK3UCDCFpJYH?uo=CAUiWGh0dHBzOi8vd3d3Lm5wci5vcmcvMjAyMi8wNC8wMy8xMDkwNTIxNzIxL3J1c3NpYS11a3JhaW5lLXdhci13aGF0LWhhcHBlbmVkLXRvZGF5LWFwcmlsLTPSAQA&hl=en-US&gl=US&ceid=US%3Aen"
 ```
-Now that we have the links to all these web pages, we can just loop through and do what we did in the first section to extract all the text (or whatever information you want).
+Now that we have the links to all these web pages, we can just loop through and do what we did in the first section to extract all the text/images (or whatever information you want).
 
 
 ## APIs: e.g., Twitter
@@ -199,7 +203,7 @@ tw$text[1]
 ```
 
 ```
-## [1] "OMG! Comedian #TrevorNoah made a sly reference to #WillSmith and #ChrisRock's infamous slapgate incident during #Grammy2022 😅  \n\nhttps://t.co/4VHVytQH8w"
+## [1] "WILL SMITH FILMS ON HOLD: Films starring Will Smith reportedly put on hold after Oscars slap. #8NN\nhttps://t.co/VoDVJKd6ND"
 ```
 This is already looking cleaner than our news article example, but let's do a bit of pre-processing. We'll go more in depth during our week on text as data, but for now let's just define a basic function for removing some (typically) unmeaningful words, as well as punctuation and whitespace, and apply it to each tweet.
 
@@ -217,18 +221,18 @@ tw[, c("screen_name", "text")]
 
 ```
 ## # A tibble: 10 × 2
-##    screen_name    text                                                          
-##    <chr>          <chr>                                                         
-##  1 ZoomTV         "OMG! Comedian #TrevorNoah made a sly reference to #WillSmith…
-##  2 FOX29philly    "“Took me a while to get my thoughts together,” “Fresh Prince…
-##  3 BabsVan        "#Grammys really put the toxicity of the Oscars into sharp re…
-##  4 CarmenRodgers  "Grammys were a nice break from the Oscars."                  
-##  5 zeitchikWaPo   "One reason I think the Grammys work so much better than the …
-##  6 mcelarier      "Zelensky speech at the Grammys. got to wonder why the Oscars…
-##  7 Wildaboutmusic "The #GRAMMYs. Like The Oscars. But Classy. https://t.co/6aFt…
-##  8 usweekly       "Chris Rock‘s joke about Jada Pinkett Smith at the 2022 Oscar…
-##  9 girishjohar    "In #Oscars #DilipKumar Sir &amp; #LataMangeshkar ji... both …
-## 10 kathyireland   "#MovieMonday from our archives “Schindler’s List” starring #…
+##    screen_name   text                                                           
+##    <chr>         <chr>                                                          
+##  1 8NewsNow      "WILL SMITH FILMS ON HOLD: Films starring Will Smith reportedl…
+##  2 IndiaToday    "#GrammyAwards 2022: At the 64th Grammy Awards held in Las Veg…
+##  3 BRProudNews   "Films starring Will Smith reportedly put on hold after Oscars…
+##  4 fpjindia      "After #Oscars, #Grammy2022 snubs #LataMangeshkar from 'In Mem…
+##  5 moviesndtv    "#Grammys2022: After #Oscars, @mangeshkarlata Left Out Of Anot…
+##  6 ZoomTV        "OMG! Comedian #TrevorNoah made a sly reference to #WillSmith …
+##  7 FOX29philly   "“Took me a while to get my thoughts together,” “Fresh Prince …
+##  8 BabsVan       "#Grammys really put the toxicity of the Oscars into sharp rel…
+##  9 CarmenRodgers "Grammys were a nice break from the Oscars."                   
+## 10 zeitchikWaPo  "One reason I think the Grammys work so much better than the O…
 ```
 
 ```r
@@ -238,12 +242,12 @@ head(tw_wrds)
 ```
 
 ```
-## [1] "OMG Comedian TrevorNoah made sly reference WillSmith ChrisRocks infamous slapgate incident Grammy2022 😅 httpstco4VHVytQH8w"                                                       
-## [2] "“Took get thoughts together” “Fresh Prince BelAir” star Tatyana Ali wrote social media sharing thoughts happened Oscars httpstcosTfF6O7UoC"                                        
-## [3] "Grammys really put toxicity Oscars sharp relief"                                                                                                                                   
-## [4] "Grammys nice break Oscars"                                                                                                                                                         
-## [5] "One reason I think Grammys work much better Oscars  though viewers shows unfamiliar many nominees Oscars pull many muscles begging approval apologizing Grammys just effortlessly "
-## [6] "Zelensky speech Grammys got wonder Oscars allow instead httpstcod4XfF6UDqs"
+## [1] "WILL SMITH FILMS ON HOLD Films starring Will Smith reportedly put hold Oscars slap 8NN httpstcoVoDVJKd6ND"                                                                              
+## [2] "GrammyAwards 2022 At 64th Grammy Awards held Las Vegas today organisers forgot pay tribute legendary singers LataMangeshkar BappiLahiri This left fans baffled upset httpstcov9HH3uJqfL"
+## [3] "Films starring Will Smith reportedly put hold Oscars slap httpstco7GE3GVgonm"                                                                                                           
+## [4] "After Oscars Grammy2022 snubs LataMangeshkar In Memoriam segment GrammyAwards Grammy httpstcoJxJkuPIkkJ"                                                                                
+## [5] "Grammys2022 After Oscars mangeshkarlata Left Out Of Another Tribute Twitter Is Furious httpstcobzDjLV3Ocx httpstcoKBqkuy5yTD"                                                           
+## [6] "OMG Comedian TrevorNoah made sly reference WillSmith ChrisRocks infamous slapgate incident Grammy2022 😅 httpstco4VHVytQH8w"
 ```
 
 Again, what you do with this data is a different topic. For now, let's do something simple: see which words appear the most often.
@@ -258,10 +262,14 @@ sort(count[count > 1], decreasing = T)
 
 ```
 ## 
-##   oscars  grammys      amp     best comedian  instead       ji     made 
-##       10        7        4        2        2        2        2        2 
-##     many      pay    smith      the thoughts 
-##        2        2        2        2        2
+##         oscars        grammys          films           hold            put 
+##              9              4              3              3              3 
+##          smith           will          after         grammy     grammy2022 
+##              3              3              2              2              2 
+##   grammyawards latamangeshkar           left           many     reportedly 
+##              2              2              2              2              2 
+##           slap       starring       thoughts        tribute 
+##              2              2              2              2
 ```
 
 The <tt>rtweet</tt> package has lots of other functions that you may find useful. If you want to use Twitter for your project, I encourage you to read the package's documentation. I'll just point out one other functionality, which is to get tweets from a specific user:
