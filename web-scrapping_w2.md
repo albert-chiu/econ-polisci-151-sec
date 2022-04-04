@@ -216,7 +216,7 @@ links <- html_doc %>% rvest::html_nodes('.VDXfz') %>% rvest::html_attr('href')
 If we take a look at the html code for the webpage, we can see that the
 link is a relative path (the file name, e.g., “index.html”).
 
-<img src="https://raw.githubusercontent.com/albert-chiu/econ-polisci-151-sec/main/rmd_files/w2/node_href.png">
+<img src="https://raw.githubusercontent.com/albert-chiu/econ-polisci-151-sec/main/rmd_files/w2/node_href_crop.png">
 
 But we want an absolute path (the link you can enter into a web browser,
 e.g., “<https://nytimes.com>”). To get it in this format, we need to
@@ -256,15 +256,15 @@ head(df[, c("truncated_title", "link")])
     ## [1,] "What Happened on Day 39 ..."                       
     ## [2,] "The horrors of Putin's invasion ..."               
     ## [3,] "Ukraine claims 410 bodies found ..."               
-    ## [4,] "Russia-Ukraine war live updates: International ..."
-    ## [5,] "Ukraine updates: Ukrainians returning home ..."    
+    ## [4,] "Ukraine updates: Ukrainians returning home ..."    
+    ## [5,] "Russia-Ukraine war live updates: International ..."
     ## [6,] "Russia-Ukraine war: What happened today ..."       
     ##      link                                                                                                                                                                                                                                                          
     ## [1,] "https://news.google.com/articles/CAIiEPrAVhDmFU2aQkYQgMoCQugqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                   
     ## [2,] "https://news.google.com/articles/CAIiEIqJInbL-tJ9NDOrCDptUjIqGQgEKhAIACoHCAowocv1CjCSptoCMPrTpgU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
     ## [3,] "https://news.google.com/articles/CAIiEMRVBQIidvjPqf8dtOEZEoAqGQgEKhAIACoHCAow2Nb3CjDivdcCMKuvhQY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
-    ## [4,] "https://news.google.com/articles/CAIiEHTSgVW44u_H74H1ErwE_jEqGQgEKhAIACoHCAowvIaCCzDnxf4CMM2F8gU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
-    ## [5,] "https://news.google.com/articles/CAIiECIn-DwmTdlz7v-1DvkCLBAqGQgEKhAIACoHCAowjsP7CjCSpPQCMM_b5QU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
+    ## [4,] "https://news.google.com/articles/CAIiECIn-DwmTdlz7v-1DvkCLBAqGQgEKhAIACoHCAowjsP7CjCSpPQCMM_b5QU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
+    ## [5,] "https://news.google.com/articles/CAIiEHTSgVW44u_H74H1ErwE_jEqGQgEKhAIACoHCAowvIaCCzDnxf4CMM2F8gU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
     ## [6,] "https://news.google.com/articles/CAIiEPDe97059SHmXfeVPb7W3JkqFwgEKg4IACoGCAow9vBNMK3UCDCFpJYH?uo=CAUiWGh0dHBzOi8vd3d3Lm5wci5vcmcvMjAyMi8wNC8wMy8xMDkwNTIxNzIxL3J1c3NpYS11a3JhaW5lLXdhci13aGF0LWhhcHBlbmVkLXRvZGF5LWFwcmlsLTPSAQA&hl=en-US&gl=US&ceid=US%3Aen"
 
 Now that we have the links to all these web pages, we can just loop
