@@ -137,7 +137,7 @@ links <- html_doc %>% rvest::html_nodes('.VDXfz') %>% rvest::html_attr('href')
 ```
 If we take a look at the html code for the webpage, we can see that the link is a relative path (the file name, e.g., "index.html").
 
-<img src="https://raw.githubusercontent.com/albert-chiu/econ-polisci-151-sec/main/rmd_files/w2/node_href_crop.png">
+<img src="https://raw.githubusercontent.com/albert-chiu/econ-polisci-151-sec/main/rmd_files/w2/node_href_crop2.png">
 
 But we want an absolute path (the link you can enter into a web browser, e.g., "https://nytimes.com"). To get it in this format, we need to replace the root.
 ```{r}
