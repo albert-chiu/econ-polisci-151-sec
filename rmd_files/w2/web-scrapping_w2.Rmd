@@ -3,7 +3,8 @@ title: "Web Scrapping (ECON/POLISCI 151, Week 2 Section)"
 author: "Albert Chiu"
 date: ""
 output:
-    rmarkdown::github_document: default
+    rmarkdown::github_document: 
+        keep_html: yes
 ---
 
 ```{r setup, include=FALSE}
