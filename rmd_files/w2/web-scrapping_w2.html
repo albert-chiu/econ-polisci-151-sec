@@ -255,13 +255,13 @@ head(df[, c(&quot;truncated_title&quot;, &quot;link&quot;)])</code></pre>
 ## [4,] &quot;Russia-Ukraine war live updates: International ...&quot;
 ## [5,] &quot;Ukraine updates: Ukrainians returning home ...&quot;    
 ## [6,] &quot;Russia-Ukraine war: What happened today ...&quot;       
-##      link                                                                                                                                                                                                                                                          
-## [1,] &quot;https://news.google.com/articles/CAIiEPrAVhDmFU2aQkYQgMoCQugqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                   
-## [2,] &quot;https://news.google.com/articles/CAIiEIqJInbL-tJ9NDOrCDptUjIqGQgEKhAIACoHCAowocv1CjCSptoCMPrTpgU?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                
-## [3,] &quot;https://news.google.com/articles/CAIiEMRVBQIidvjPqf8dtOEZEoAqGQgEKhAIACoHCAow2Nb3CjDivdcCMKuvhQY?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                
-## [4,] &quot;https://news.google.com/articles/CAIiEHTSgVW44u_H74H1ErwE_jEqGQgEKhAIACoHCAowvIaCCzDnxf4CMM2F8gU?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                
-## [5,] &quot;https://news.google.com/articles/CAIiECIn-DwmTdlz7v-1DvkCLBAqGQgEKhAIACoHCAowjsP7CjCSpPQCMM_b5QU?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                
-## [6,] &quot;https://news.google.com/articles/CAIiEPDe97059SHmXfeVPb7W3JkqFwgEKg4IACoGCAow9vBNMK3UCDCFpJYH?uo=CAUiWGh0dHBzOi8vd3d3Lm5wci5vcmcvMjAyMi8wNC8wMy8xMDkwNTIxNzIxL3J1c3NpYS11a3JhaW5lLXdhci13aGF0LWhhcHBlbmVkLXRvZGF5LWFwcmlsLTPSAQA&amp;hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;</code></pre>
+##      link                                                                                                                          
+## [1,] &quot;https://news.google.com/articles/CAIiEPrAVhDmFU2aQkYQgMoCQugqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;   
+## [2,] &quot;https://news.google.com/articles/CAIiEIqJInbL-tJ9NDOrCDptUjIqGQgEKhAIACoHCAowocv1CjCSptoCMPrTpgU?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;
+## [3,] &quot;https://news.google.com/articles/CAIiEMRVBQIidvjPqf8dtOEZEoAqGQgEKhAIACoHCAow2Nb3CjDivdcCMKuvhQY?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;
+## [4,] &quot;https://news.google.com/articles/CAIiEHTSgVW44u_H74H1ErwE_jEqGQgEKhAIACoHCAowvIaCCzDnxf4CMM2F8gU?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;
+## [5,] &quot;https://news.google.com/articles/CAIiECIn-DwmTdlz7v-1DvkCLBAqGQgEKhAIACoHCAowjsP7CjCSpPQCMM_b5QU?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;
+## [6,] &quot;https://news.google.com/articles/CAIiEPDe97059SHmXfeVPb7W3JkqFwgEKg4IACoGCAow9vBNMK3UCDCFpJYH?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;</code></pre>
 <p>Now that we have the links to all these web pages, we can just loop through and do what we did in the first section to extract all the text (or whatever information you want).</p>
 </div>
 <div id="apis-e.g.-twitter" class="section level2">
@@ -280,30 +280,29 @@ tw &lt;- rtweet::search_tweets(q=&quot;\&quot;oscars\&quot; filter:verified -fil
 <pre><code>## [1] &quot;user_id&quot;     &quot;status_id&quot;   &quot;created_at&quot;  &quot;screen_name&quot; &quot;text&quot;       
 ## [6] &quot;source&quot;</code></pre>
 <pre class="r"><code>tw$text[1]</code></pre>
-<pre><code>## [1] &quot;‘Last Week Tonight’: John Oliver Burns O.J. Simpson Over Oscars Slap Take: “No One Wants To Hear From You” https://t.co/KL1IwJVwOv&quot;</code></pre>
+<pre><code>## [1] &quot;#Grammys really put the toxicity of the Oscars into sharp relief&quot;</code></pre>
 <p>This is already looking cleaner than our news article example, but let’s do a bit of pre-processing. We’ll go more in depth during our week on text as data, but for now let’s just define a basic function for removing some (typically) unmeaningful words, as well as punctuation and whitespace, and apply it to each tweet.</p>
 <pre class="r"><code>clean_text &lt;- function(x) {
-  x &lt;- tm::removeWords(x, stopwords::stopwords(&quot;en&quot;))
-  x &lt;- tm::stripWhitespace(x)
-  x &lt;- tm::removePunctuation(x)
-  return(x)
+  x %&gt;% tm::removeWords(stopwords::stopwords(&quot;en&quot;)) %&gt;% 
+    tm::stripWhitespace() %&gt;%
+    tm::removePunctuation()
 }
 
 ## Clean tweets
 tw[, c(&quot;screen_name&quot;, &quot;text&quot;)]</code></pre>
 <pre><code>## # A tibble: 10 × 2
-##    screen_name     text                                                         
-##    &lt;chr&gt;           &lt;chr&gt;                                                        
-##  1 DEADLINE        ‘Last Week Tonight’: John Oliver Burns O.J. Simpson Over Osc…
-##  2 WhittierNews    Grammys 2022: Twitter talks Oscars versus Grammys with focus…
-##  3 PasStarNews     Grammys 2022: Twitter talks Oscars versus Grammys with focus…
-##  4 EvanRomano      very kind of Japanese Breakfast to bring Kodi Smit-McPhee to…
-##  5 pressenterprise Grammys 2022: Twitter talks Oscars versus Grammys with focus…
-##  6 InsideSoCalENT  Grammys 2022: Twitter talks Oscars versus Grammys with focus…
-##  7 RedlandsNews    Grammys 2022: Twitter talks Oscars versus Grammys with focus…
-##  8 presstelegram   Grammys 2022: Twitter talks Oscars versus Grammys with focus…
-##  9 sbsun           Grammys 2022: Twitter talks Oscars versus Grammys with focus…
-## 10 ladailynews     Grammys 2022: Twitter talks Oscars versus Grammys with focus…</code></pre>
+##    screen_name    text                                                          
+##    &lt;chr&gt;          &lt;chr&gt;                                                         
+##  1 BabsVan        &quot;#Grammys really put the toxicity of the Oscars into sharp re…
+##  2 CarmenRodgers  &quot;Grammys were a nice break from the Oscars.&quot;                  
+##  3 zeitchikWaPo   &quot;One reason I think the Grammys work so much better than the …
+##  4 mcelarier      &quot;Zelensky speech at the Grammys. got to wonder why the Oscars…
+##  5 Wildaboutmusic &quot;The #GRAMMYs. Like The Oscars. But Classy. https://t.co/6aFt…
+##  6 usweekly       &quot;Chris Rock‘s joke about Jada Pinkett Smith at the 2022 Oscar…
+##  7 girishjohar    &quot;In #Oscars #DilipKumar Sir &amp;amp; #LataMangeshkar ji... both …
+##  8 kathyireland   &quot;#MovieMonday from our archives “Schindler’s List” starring #…
+##  9 Independent    &quot;Read ‘heartbroken’ Will Smith’s full statement as actor resi…
+## 10 benparr        &quot;The Grammys is a much better produced show than the Oscars.\…</code></pre>
 <pre class="r"><code>tw_wrds &lt;- sapply(tw$text, clean_text)</code></pre>
 <p>Again, what you do with this data is a different topic. For now, let’s do something simple: see which words appear the most often.</p>
 <pre class="r"><code># split into words
@@ -312,16 +311,16 @@ tw_wrds &lt;- sapply(tw_wrds, FUN=function(x) strsplit(tolower(x), split=&quot; 
 count &lt;- table(unlist(tw_wrds))
 sort(count[count &gt; 1], decreasing = T)</code></pre>
 <pre><code>## 
-##   grammys    oscars         ‘      2022     focus memoriam’  segments     talks 
-##        17        10         8         8         8         8         8         8 
-##   twitter   ukraine    versus 
-##         8         8         8</code></pre>
+##  oscars grammys     amp     the       —    best  better       i instead      ji 
+##      11       8       4       3       2       2       2       2       2       2 
+##    many    much     pay     put   shows   smith    will 
+##       2       2       2       2       2       2       2</code></pre>
 <p>The <tt>rtweet</tt> package has lots of other functions that you may find useful. If you want to use Twitter for your project, I encourage you to read the package’s documentation. I’ll just point out one other functionality, which is to get tweets from a specific user:</p>
 <pre class="r"><code># last 2 tweets from the UN
 tl &lt;- rtweet::get_timeline(user=&quot;UN&quot;, n=2)
 tl$text</code></pre>
-<pre><code>## [1] &quot;Afghanistan: The denial of education violates the human rights of women &amp;amp; girls and can leave them more exposed to violence, poverty and exploitation.\n\nAll students must be allowed to exercise their right to an education. https://t.co/RLTlfBdZAi&quot;                                        
-## [2] &quot;Landmines &amp;amp; explosive remnants of war impede the path to peace &amp;amp; development. \n\nRidding the world of these deadly weapons would allow individuals &amp;amp; communities to live in safety.\n\nMore from @UNMAS on Monday&#39;s #MineAwarenessDay: https://t.co/KmYriwGy50 https://t.co/dqFbuZdgyK&quot;</code></pre>
+<pre><code>## [1] &quot;Despite numerous challenges, our @UNMAS colleagues continue their vital work clearing landmines &amp;amp; explosive remnants of war.\n\nThey are working to create a world where people don&#39;t have to be afraid of their next step.\n\nMore on Monday&#39;s #MineAwarenessDay: https://t.co/KmYriwGy50 https://t.co/61aEt1VrQJ&quot;
+## [2] &quot;Afghanistan: The denial of education violates the human rights of women &amp;amp; girls and can leave them more exposed to violence, poverty and exploitation.\n\nAll students must be allowed to exercise their right to an education. https://t.co/RLTlfBdZAi&quot;</code></pre>
 </div>
 
 

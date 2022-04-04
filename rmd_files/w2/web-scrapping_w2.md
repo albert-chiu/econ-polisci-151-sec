@@ -153,13 +153,13 @@ head(df[, c("truncated_title", "link")])
 ## [4,] "Russia-Ukraine war live updates: International ..."
 ## [5,] "Ukraine updates: Ukrainians returning home ..."    
 ## [6,] "Russia-Ukraine war: What happened today ..."       
-##      link                                                                                                                                                                                                                                                          
-## [1,] "https://news.google.com/articles/CAIiEPrAVhDmFU2aQkYQgMoCQugqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                   
-## [2,] "https://news.google.com/articles/CAIiEIqJInbL-tJ9NDOrCDptUjIqGQgEKhAIACoHCAowocv1CjCSptoCMPrTpgU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
-## [3,] "https://news.google.com/articles/CAIiEMRVBQIidvjPqf8dtOEZEoAqGQgEKhAIACoHCAow2Nb3CjDivdcCMKuvhQY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
-## [4,] "https://news.google.com/articles/CAIiEHTSgVW44u_H74H1ErwE_jEqGQgEKhAIACoHCAowvIaCCzDnxf4CMM2F8gU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
-## [5,] "https://news.google.com/articles/CAIiECIn-DwmTdlz7v-1DvkCLBAqGQgEKhAIACoHCAowjsP7CjCSpPQCMM_b5QU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
-## [6,] "https://news.google.com/articles/CAIiEPDe97059SHmXfeVPb7W3JkqFwgEKg4IACoGCAow9vBNMK3UCDCFpJYH?uo=CAUiWGh0dHBzOi8vd3d3Lm5wci5vcmcvMjAyMi8wNC8wMy8xMDkwNTIxNzIxL3J1c3NpYS11a3JhaW5lLXdhci13aGF0LWhhcHBlbmVkLXRvZGF5LWFwcmlsLTPSAQA&hl=en-US&gl=US&ceid=US%3Aen"
+##      link                                                                                                                          
+## [1,] "https://news.google.com/articles/CAIiEPrAVhDmFU2aQkYQgMoCQugqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&gl=US&ceid=US%3Aen"   
+## [2,] "https://news.google.com/articles/CAIiEIqJInbL-tJ9NDOrCDptUjIqGQgEKhAIACoHCAowocv1CjCSptoCMPrTpgU?hl=en-US&gl=US&ceid=US%3Aen"
+## [3,] "https://news.google.com/articles/CAIiEMRVBQIidvjPqf8dtOEZEoAqGQgEKhAIACoHCAow2Nb3CjDivdcCMKuvhQY?hl=en-US&gl=US&ceid=US%3Aen"
+## [4,] "https://news.google.com/articles/CAIiEHTSgVW44u_H74H1ErwE_jEqGQgEKhAIACoHCAowvIaCCzDnxf4CMM2F8gU?hl=en-US&gl=US&ceid=US%3Aen"
+## [5,] "https://news.google.com/articles/CAIiECIn-DwmTdlz7v-1DvkCLBAqGQgEKhAIACoHCAowjsP7CjCSpPQCMM_b5QU?hl=en-US&gl=US&ceid=US%3Aen"
+## [6,] "https://news.google.com/articles/CAIiEPDe97059SHmXfeVPb7W3JkqFwgEKg4IACoGCAow9vBNMK3UCDCFpJYH?hl=en-US&gl=US&ceid=US%3Aen"
 ```
 Now that we have the links to all these web pages, we can just loop through and do what we did in the first section to extract all the text (or whatever information you want).
 
@@ -198,16 +198,15 @@ tw$text[1]
 ```
 
 ```
-## [1] "‘Last Week Tonight’: John Oliver Burns O.J. Simpson Over Oscars Slap Take: “No One Wants To Hear From You” https://t.co/KL1IwJVwOv"
+## [1] "#Grammys really put the toxicity of the Oscars into sharp relief"
 ```
 This is already looking cleaner than our news article example, but let's do a bit of pre-processing. We'll go more in depth during our week on text as data, but for now let's just define a basic function for removing some (typically) unmeaningful words, as well as punctuation and whitespace, and apply it to each tweet.
 
 ```r
 clean_text <- function(x) {
-  x <- tm::removeWords(x, stopwords::stopwords("en"))
-  x <- tm::stripWhitespace(x)
-  x <- tm::removePunctuation(x)
-  return(x)
+  x %>% tm::removeWords(stopwords::stopwords("en")) %>% 
+    tm::stripWhitespace() %>%
+    tm::removePunctuation()
 }
 
 ## Clean tweets
@@ -216,18 +215,18 @@ tw[, c("screen_name", "text")]
 
 ```
 ## # A tibble: 10 × 2
-##    screen_name     text                                                         
-##    <chr>           <chr>                                                        
-##  1 DEADLINE        ‘Last Week Tonight’: John Oliver Burns O.J. Simpson Over Osc…
-##  2 WhittierNews    Grammys 2022: Twitter talks Oscars versus Grammys with focus…
-##  3 PasStarNews     Grammys 2022: Twitter talks Oscars versus Grammys with focus…
-##  4 EvanRomano      very kind of Japanese Breakfast to bring Kodi Smit-McPhee to…
-##  5 pressenterprise Grammys 2022: Twitter talks Oscars versus Grammys with focus…
-##  6 InsideSoCalENT  Grammys 2022: Twitter talks Oscars versus Grammys with focus…
-##  7 RedlandsNews    Grammys 2022: Twitter talks Oscars versus Grammys with focus…
-##  8 presstelegram   Grammys 2022: Twitter talks Oscars versus Grammys with focus…
-##  9 sbsun           Grammys 2022: Twitter talks Oscars versus Grammys with focus…
-## 10 ladailynews     Grammys 2022: Twitter talks Oscars versus Grammys with focus…
+##    screen_name    text                                                          
+##    <chr>          <chr>                                                         
+##  1 BabsVan        "#Grammys really put the toxicity of the Oscars into sharp re…
+##  2 CarmenRodgers  "Grammys were a nice break from the Oscars."                  
+##  3 zeitchikWaPo   "One reason I think the Grammys work so much better than the …
+##  4 mcelarier      "Zelensky speech at the Grammys. got to wonder why the Oscars…
+##  5 Wildaboutmusic "The #GRAMMYs. Like The Oscars. But Classy. https://t.co/6aFt…
+##  6 usweekly       "Chris Rock‘s joke about Jada Pinkett Smith at the 2022 Oscar…
+##  7 girishjohar    "In #Oscars #DilipKumar Sir &amp; #LataMangeshkar ji... both …
+##  8 kathyireland   "#MovieMonday from our archives “Schindler’s List” starring #…
+##  9 Independent    "Read ‘heartbroken’ Will Smith’s full statement as actor resi…
+## 10 benparr        "The Grammys is a much better produced show than the Oscars.\…
 ```
 
 ```r
@@ -246,10 +245,10 @@ sort(count[count > 1], decreasing = T)
 
 ```
 ## 
-##   grammys    oscars         ‘      2022     focus memoriam’  segments     talks 
-##        17        10         8         8         8         8         8         8 
-##   twitter   ukraine    versus 
-##         8         8         8
+##  oscars grammys     amp     the       —    best  better       i instead      ji 
+##      11       8       4       3       2       2       2       2       2       2 
+##    many    much     pay     put   shows   smith    will 
+##       2       2       2       2       2       2       2
 ```
 
 The <tt>rtweet</tt> package has lots of other functions that you may find useful. If you want to use Twitter for your project, I encourage you to read the package's documentation. I'll just point out one other functionality, which is to get tweets from a specific user:
@@ -261,6 +260,6 @@ tl$text
 ```
 
 ```
-## [1] "Afghanistan: The denial of education violates the human rights of women &amp; girls and can leave them more exposed to violence, poverty and exploitation.\n\nAll students must be allowed to exercise their right to an education. https://t.co/RLTlfBdZAi"                                        
-## [2] "Landmines &amp; explosive remnants of war impede the path to peace &amp; development. \n\nRidding the world of these deadly weapons would allow individuals &amp; communities to live in safety.\n\nMore from @UNMAS on Monday's #MineAwarenessDay: https://t.co/KmYriwGy50 https://t.co/dqFbuZdgyK"
+## [1] "Despite numerous challenges, our @UNMAS colleagues continue their vital work clearing landmines &amp; explosive remnants of war.\n\nThey are working to create a world where people don't have to be afraid of their next step.\n\nMore on Monday's #MineAwarenessDay: https://t.co/KmYriwGy50 https://t.co/61aEt1VrQJ"
+## [2] "Afghanistan: The denial of education violates the human rights of women &amp; girls and can leave them more exposed to violence, poverty and exploitation.\n\nAll students must be allowed to exercise their right to an education. https://t.co/RLTlfBdZAi"
 ```

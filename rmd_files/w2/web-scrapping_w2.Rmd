@@ -143,10 +143,9 @@ tw$text[1]
 This is already looking cleaner than our news article example, but let's do a bit of pre-processing. We'll go more in depth during our week on text as data, but for now let's just define a basic function for removing some (typically) unmeaningful words, as well as punctuation and whitespace, and apply it to each tweet.
 ```{r}
 clean_text <- function(x) {
-  x <- tm::removeWords(x, stopwords::stopwords("en"))
-  x <- tm::stripWhitespace(x)
-  x <- tm::removePunctuation(x)
-  return(x)
+  x %>% tm::removeWords(stopwords::stopwords("en")) %>% 
+    tm::stripWhitespace() %>%
+    tm::removePunctuation()
 }
 
 ## Clean tweets
