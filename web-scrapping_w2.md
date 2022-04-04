@@ -1,38 +1,47 @@
----
-title: "Web Scrapping (ECON/POLISCI 151, Week 2 Section)"
-author: "Albert Chiu"
-date: ""
-output:
-    html_document: 
-        keep_md: yes
-    rmarkdown::github_document: default
----
-
-
+Web Scrapping (ECON/POLISCI 151, Week 2 Section)
+================
+Albert Chiu
 
 ## A Brief Primer on HTML and <tt>rvest</tt>
-HyperText Markup Language (HTML) is a markup language (similar to LaTeX) and is what most websites are written in. An html document is essentially a tree composed of nodes. Nodes can be text, links, tables, etc., and they themselves can have "descendant" nodes (e.g., a table is itself a node, but inside the table there might be something that makes text italics, and then inside that will be the text itself).
 
-For our purposes, there are a few important terms to introduce. First, an _element_ is a type of node that makes up the document, and it can be used for many different purposes. An element is delimited at the front and the end with a _tag_. Below is an example of an element:
+HyperText Markup Language (HTML) is a markup language (similar to LaTeX)
+and is what most websites are written in. An html document is
+essentially a tree composed of nodes. Nodes can be text, links, tables,
+etc., and they themselves can have “descendant” nodes (e.g., a table is
+itself a node, but inside the table there might be something that makes
+text italics, and then inside that will be the text itself).
+
+For our purposes, there are a few important terms to introduce. First,
+an *element* is a type of node that makes up the document, and it can be
+used for many different purposes. An element is delimited at the front
+and the end with a *tag*. Below is an example of an element:
 
     <p> text here </p>
 
-The <tt>`<p>`</tt> at the beginning and the <tt>`</p>`</tt> at the end are tags. 
+The <tt>`<p>`</tt> at the beginning and the <tt>`</p>`</tt> at the end
+are tags.
 
-Elements can also have _attributes_, which are specified inside the opening tag. For example, we might want our element to be a certain color. We can do this using the <tt>style</tt> attribute:
+Elements can also have *attributes*, which are specified inside the
+opening tag. For example, we might want our element to be a certain
+color. We can do this using the <tt>style</tt> attribute:
 
     <p style="color:#8C1515"> text here </p>.
 
 This will appear to the viewer as:
 
-<p style="color:#8C1515"> text here </p>
+<p style="color:#8C1515">
+text here
+</p>
 
-
-To do webscrapping in R, we will be using the <tt>rvest</tt> package (a part of <tt>tidyverse</tt>). <tt>rvest</tt> is designed to go with <tt>magrittr</tt> package; you don't need to use the latter, but taking advantage of the pipe <tt>%>%</tt> operator will make your code a lot less verbose. 
+To do webscrapping in R, we will be using the <tt>rvest</tt> package (a
+part of <tt>tidyverse</tt>). <tt>rvest</tt> is designed to go with
+<tt>magrittr</tt> package; you don’t need to use the latter, but taking
+advantage of the pipe <tt>%>%</tt> operator will make your code a lot
+less verbose.
 
 <tt>rvest</tt> lets you extract nodes corresponding to specific tags:
 
-```r
+``` r
 eg_html <- rvest::read_html(
 "<html>
     <p style=\"color:#8C1515\">
@@ -46,53 +55,49 @@ eg_html <- rvest::read_html(
 eg_html %>% rvest::html_elements("p")
 ```
 
-```
-## {xml_nodeset (1)}
-## [1] <p style="color:#8C1515">\n        text here \n        <a href="page1.htm ...
-```
+    ## {xml_nodeset (1)}
+    ## [1] <p style="color:#8C1515">\n        text here \n        <a href="page1.htm ...
 
 We can then extract all the text inside:
 
-```r
+``` r
 eg_html %>% rvest::html_elements("p") %>%
   rvest::html_text()
 ```
 
-```
-## [1] "\n        text here \n         link1 "
-```
+    ## [1] "\n        text here \n         link1 "
 
 Or maybe we want all one of its descendants with a specific tag:
 
-```r
+``` r
 eg_html %>% rvest::html_elements("p") %>%
   rvest::html_elements("a")
 ```
 
-```
-## {xml_nodeset (1)}
-## [1] <a href="page1.html"> link1 </a>
-```
+    ## {xml_nodeset (1)}
+    ## [1] <a href="page1.html"> link1 </a>
 
-Note that this doesn't extract the <tt>a</tt> tag outside of the <tt>p</tt> tag.
+Note that this doesn’t extract the <tt>a</tt> tag outside of the
+<tt>p</tt> tag.
 
 Instead of text, we can also extract attributes:
 
-```r
+``` r
 eg_html %>% rvest::html_elements("p") %>%
   rvest::html_elements("a") %>% 
   rvest::html_attr("href")
 ```
 
-```
-## [1] "page1.html"
-```
+    ## [1] "page1.html"
 
 ## General Websites
-We will use a CNN page on the war in Ukraine as an example. First, we need to use the <tt>read_html</tt> function to read the html document. In the previous section, we passed it a string with html syntax. We can also pass it a url.
 
+We will use a CNN page on the war in Ukraine as an example. First, we
+need to use the <tt>read_html</tt> function to read the html document.
+In the previous section, we passed it a string with html syntax. We can
+also pass it a url.
 
-```r
+``` r
 # read the documentation to see what we can pass the function
 # ?xml2::read_html  # read_html is actually from xml2, which rvest imports 
 
@@ -100,67 +105,90 @@ cnn_url <- "https://www.cnn.com/europe/live-news/ukraine-russia-putin-news-04-3-
 cnn_page <- cnn_url %>% rvest::read_html()
 ```
 
-There are many types of data you might want from a webpage, and each will require a different method of extraction. In this case, we're looking at an article and most likely will want the contents of that article. As a starting point, we might want to look at text that is sandwiched by p tags,
+There are many types of data you might want from a webpage, and each
+will require a different method of extraction. In this case, we’re
+looking at an article and most likely will want the contents of that
+article. As a starting point, we might want to look at text that is
+sandwiched by p tags,
 
     <p> text here </p>.
 
-
-```r
+``` r
 cnn_text <- cnn_page %>%
   rvest::html_elements("p") %>%  # elements delimited by the p tag
   rvest::html_text()  # text inside the tag
 head(cnn_text)
 ```
 
-```
-## [1] "By Simone McCarthy, Steve George, Sana Noor Haq, Melissa Macaya, Mike Hayes, Maureen Chowdhury and Amir Vera, CNN"                                                                                                                                             
-## [2] "From CNN's Jonny Hallam "                                                                                                                                                                                                                                      
-## [3] ""                                                                                                                                                                                                                                                              
-## [4] "The bodies of at least 20 civilian men have been found lying strewn across the street in the town of Bucha, northwest of Kyiv following the withdrawal of Russian forces from the area in shocking images released by AFP on Saturday. "                       
-## [5] "The dead, all in civilian clothing, are found in a variety of awkward poses, some face down against the pavement, others facing upwards with mouths open.  "                                                                                                   
-## [6] "\"Three of them are tangled up in bicycles after taking their final ride, while others, with waxy skin, have fallen next to bullet-ridden and crushed cars,\" according to AFP journalists who accessed the town after it had been cut off for nearly a month."
-```
+    ## [1] "By Simone McCarthy, Steve George, Sana Noor Haq, Melissa Macaya, Mike Hayes, Maureen Chowdhury and Amir Vera, CNN"                                                                                                                                             
+    ## [2] "From CNN's Jonny Hallam "                                                                                                                                                                                                                                      
+    ## [3] ""                                                                                                                                                                                                                                                              
+    ## [4] "The bodies of at least 20 civilian men have been found lying strewn across the street in the town of Bucha, northwest of Kyiv following the withdrawal of Russian forces from the area in shocking images released by AFP on Saturday. "                       
+    ## [5] "The dead, all in civilian clothing, are found in a variety of awkward poses, some face down against the pavement, others facing upwards with mouths open.  "                                                                                                   
+    ## [6] "\"Three of them are tangled up in bicycles after taking their final ride, while others, with waxy skin, have fallen next to bullet-ridden and crushed cars,\" according to AFP journalists who accessed the town after it had been cut off for nearly a month."
 
-This gives us a vector of all the text in each of the paragraph elements on the webpage. 
+This gives us a vector of all the text in each of the paragraph elements
+on the webpage.
 
-(Alternatively, you can look try other tags, like "body" -- just note that using a different tag will also mean the output is formated differently (and all the paragraphs will be smooshed together).)
+(Alternatively, you can look try other tags, like “body” – just note
+that using a different tag will also mean the output is formated
+differently (and all the paragraphs will be smooshed together).)
 
-Another example is images: Perhaps we are interested in seeing what types of images news organizations with different political leanings tend to use when covering a given subject (e.g., are more right-leaning news organizations more likely to include pictures of violence/destruction of property when reporting on BLM?). To do this, we will retrieve the <tt>src</tt> attribute of the <tt>img</tt> element.
+Another example is images: Perhaps we are interested in seeing what
+types of images news organizations with different political leanings
+tend to use when covering a given subject (e.g., are more right-leaning
+news organizations more likely to include pictures of
+violence/destruction of property when reporting on BLM?). To do this, we
+will retrieve the <tt>src</tt> attribute of the <tt>img</tt> element.
 
-
-```r
+``` r
 cnn_img <- cnn_page %>% 
   rvest::html_elements("img") %>%  # img elements
   rvest::html_attr("src")  # the src attribute
 ```
 
+This gives us links to the images, which we can then feed to whatever
+learner (or human coder) we want. Maybe we also want to store the
+captions for these photos:
 
-This gives us links to the images, which we can then feed to whatever learner (or human coder) we want. Maybe we also want to store the captions for these photos:
-
-
-```r
+``` r
 cnn_cap <- cnn_page %>% rvest::html_elements("figcaption") %>% rvest::html_text()
 cnn_img_df <- cbind(link_to_img = cnn_img, caption = cnn_cap)
 cnn_img_df[1:2, ]  # first two examples
 ```
 
-```
-##      link_to_img                                                                                     
-## [1,] "https://dynaimage.cdn.cnn.com/cnn/digital-images/org/a34e1e33-dff8-478a-ac2e-7d523421b67f.jpeg"
-## [2,] "https://dynaimage.cdn.cnn.com/cnn/digital-images/org/c793ffa3-2eba-4dc9-ac37-304305383611.jpeg"
-##      caption                                                                                                                                                                                                                         
-## [1,] "A man walks with bags of food given to him by the Ukrainian Army in Bucha, Ukraine on April 2. (Ronaldo Schemidt/AFP/Getty Images)"                                                                                            
-## [2,] "David Arakhamia, left, Mykhailo Podolyak, center and Crimean Tatar leader Mustafa Dzhemilev speak with the media after their meeting with Russian negotiators in Istanbul, Turkey on March 29.  (Mehmet Emin Caliskan/Reuters)"
-```
+    ##      link_to_img                                                                                     
+    ## [1,] "https://dynaimage.cdn.cnn.com/cnn/digital-images/org/a34e1e33-dff8-478a-ac2e-7d523421b67f.jpeg"
+    ## [2,] "https://dynaimage.cdn.cnn.com/cnn/digital-images/org/c793ffa3-2eba-4dc9-ac37-304305383611.jpeg"
+    ##      caption                                                                                                                                                                                                                         
+    ## [1,] "A man walks with bags of food given to him by the Ukrainian Army in Bucha, Ukraine on April 2. (Ronaldo Schemidt/AFP/Getty Images)"                                                                                            
+    ## [2,] "David Arakhamia, left, Mykhailo Podolyak, center and Crimean Tatar leader Mustafa Dzhemilev speak with the media after their meeting with Russian negotiators in Istanbul, Turkey on March 29.  (Mehmet Emin Caliskan/Reuters)"
 
-What you do with this information is a whole 'nother story. We will learn a bit about how to use text as data in a future section, but computer vision is beyond the scope of this class. 
+What you do with this information is a whole ’nother story. We will
+learn a bit about how to use text as data in a future section, but
+computer vision is beyond the scope of this class.
 
-There is, however, one concern that we can address now: What if we can't/don't want to collect the url of potentially thousands of websites? In some circumstances, there will be websites that aggregate other websites, and we can scrape urls from such aggregators. In this case, we can use Google News, which aggregates links to news articles.
+There is, however, one concern that we can address now: What if we
+can’t/don’t want to collect the url of potentially thousands of
+websites? In some circumstances, there will be websites that aggregate
+other websites, and we can scrape urls from such aggregators. In this
+case, we can use Google News, which aggregates links to news articles.
 
 ## Aggregation Websites: e.g., Google News
-This section will walk you through the process of scraping Google News for articles on a specific topic. We will use "ukraine" as the example, but this code can be readily repurposed for search term(s). This is because Google News uses a fixed url format that varies only in the search term, which makes it easy for us to write flexible code. To see what this url is, you can just go to the Google News page and search for something. The url will have a field beggining with <tt>q</tt> (for query), followed by whatever you search for. (This doesn't just have to be a set of words; you can look up Google url search parameters to see how else you can narrow your search. For the purposes of this demonstration, though, let's keep it simple.)
 
-```r
+This section will walk you through the process of scraping Google News
+for articles on a specific topic. We will use “ukraine” as the example,
+but this code can be readily repurposed for search term(s). This is
+because Google News uses a fixed url format that varies only in the
+search term, which makes it easy for us to write flexible code. To see
+what this url is, you can just go to the Google News page and search for
+something. The url will have a field beggining with <tt>q</tt> (for
+query), followed by whatever you search for. (This doesn’t just have to
+be a set of words; you can look up Google url search parameters to see
+how else you can narrow your search. For the purposes of this
+demonstration, though, let’s keep it simple.)
+
+``` r
 ## Get the search result page
 term <- "ukraine"
 url <- paste0("https://news.google.com/search?q=", term, 
@@ -168,40 +196,50 @@ url <- paste0("https://news.google.com/search?q=", term,
 html_doc <- rvest::read_html(url)
 ```
 
-We want to get the html node that links to the article. Fortunately for us, Google defines specific classes of elements for different functions. To see which one is used for linking to the articles, we open Google News and use Chrome's inspection tool under <tt>View > Developer > Inspect Elements</tt> tool.
+We want to get the html node that links to the article. Fortunately for
+us, Google defines specific classes of elements for different functions.
+To see which one is used for linking to the articles, we open Google
+News and use Chrome’s inspection tool under <tt>View \> Developer \>
+Inspect Elements</tt> tool.
 
-![](inspect.png){#id .class width=50% height=50%}
+<img src="inspect.png" id="id" class="class" style="width:50.0%;height:50.0%" />
 
-The class of elements we want is called "VDXfz", and we want to extract the hyperlink from it, which is specified using the <tt>href</tt> attribute.
+The class of elements we want is called “VDXfz”, and we want to extract
+the hyperlink from it, which is specified using the <tt>href</tt>
+attribute.
 
-```r
+``` r
 ## Get links on the page
 links <- html_doc %>% rvest::html_nodes('.VDXfz') %>% rvest::html_attr('href')
 ```
-If we take a look at the html code for the webpage, we can see that the link is a relative path (the file name, e.g., "index.html").
-![href](node_href.png)
-But we want an absolute path (the link you can enter into a web browser, e.g., "https://nytimes.com"). To get it in this format, we need to replace the root.
 
-```r
+If we take a look at the html code for the webpage, we can see that the
+link is a relative path (the file name, e.g., “index.html”).
+![href](node_href.png) But we want an absolute path (the link you can
+enter into a web browser, e.g., “<https://nytimes.com>”). To get it in
+this format, we need to replace the root.
+
+``` r
 # this will give us urls in the following format:
 links[1]
 ```
 
-```
-## [1] "./articles/CAIiEPrAVhDmFU2aQkYQgMoCQugqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&gl=US&ceid=US%3Aen"
-```
+    ## [1] "./articles/CAIiEPrAVhDmFU2aQkYQgMoCQugqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&gl=US&ceid=US%3Aen"
 
-```r
+``` r
 # we want them instead to begin with the Google News address
 links <- gsub("./articles/", "https://news.google.com/articles/", links)
 ```
 
-Let's also record the title of each article. To see how to get this info, let's go back to Google News and open Chromes' Devloper Tools UI (or open the raw html file) and look for the corresponding node:
+Let’s also record the title of each article. To see how to get this
+info, let’s go back to Google News and open Chromes’ Devloper Tools UI
+(or open the raw html file) and look for the corresponding node:
 ![title](node_title.png)
 
-The class of elements we want seems to be called "DY5T1d". We want to extract the text from this element.
+The class of elements we want seems to be called “DY5T1d”. We want to
+extract the text from this element.
 
-```r
+``` r
 titles <- html_doc %>% rvest::html_nodes('.DY5T1d') %>% rvest::html_text()
 
 # take the first five words
@@ -211,37 +249,47 @@ df <- cbind(title = titles, truncated_title = unname(trunc), link = links)
 head(df[, c("truncated_title", "link")])
 ```
 
-```
-##      truncated_title                                     
-## [1,] "Ukraine-Russia Live News: Civilian Victims ..."    
-## [2,] "The horrors of Putin's invasion ..."               
-## [3,] "Ukraine claims 410 bodies found ..."               
-## [4,] "Ukraine updates: Ukrainians returning home ..."    
-## [5,] "Russia-Ukraine war live updates: International ..."
-## [6,] "Russia-Ukraine war: What happened today ..."       
-##      link                                                                                                                                                                                                                                                          
-## [1,] "https://news.google.com/articles/CAIiEPrAVhDmFU2aQkYQgMoCQugqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                   
-## [2,] "https://news.google.com/articles/CAIiEIqJInbL-tJ9NDOrCDptUjIqGQgEKhAIACoHCAowocv1CjCSptoCMPrTpgU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
-## [3,] "https://news.google.com/articles/CAIiEMRVBQIidvjPqf8dtOEZEoAqGQgEKhAIACoHCAow2Nb3CjDivdcCMKuvhQY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
-## [4,] "https://news.google.com/articles/CAIiECIn-DwmTdlz7v-1DvkCLBAqGQgEKhAIACoHCAowjsP7CjCSpPQCMM_b5QU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
-## [5,] "https://news.google.com/articles/CAIiEHTSgVW44u_H74H1ErwE_jEqGQgEKhAIACoHCAowvIaCCzDnxf4CMM2F8gU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
-## [6,] "https://news.google.com/articles/CAIiEPDe97059SHmXfeVPb7W3JkqFwgEKg4IACoGCAow9vBNMK3UCDCFpJYH?uo=CAUiWGh0dHBzOi8vd3d3Lm5wci5vcmcvMjAyMi8wNC8wMy8xMDkwNTIxNzIxL3J1c3NpYS11a3JhaW5lLXdhci13aGF0LWhhcHBlbmVkLXRvZGF5LWFwcmlsLTPSAQA&hl=en-US&gl=US&ceid=US%3Aen"
-```
-Now that we have the links to all these web pages, we can just loop through and do what we did in the first section to extract all the text/images (or whatever information you want).
+    ##      truncated_title                                     
+    ## [1,] "Ukraine-Russia Live News: Civilian Victims ..."    
+    ## [2,] "The horrors of Putin's invasion ..."               
+    ## [3,] "Ukraine claims 410 bodies found ..."               
+    ## [4,] "Ukraine updates: Ukrainians returning home ..."    
+    ## [5,] "Russia-Ukraine war live updates: International ..."
+    ## [6,] "Russia-Ukraine war: What happened today ..."       
+    ##      link                                                                                                                                                                                                                                                          
+    ## [1,] "https://news.google.com/articles/CAIiEPrAVhDmFU2aQkYQgMoCQugqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                   
+    ## [2,] "https://news.google.com/articles/CAIiEIqJInbL-tJ9NDOrCDptUjIqGQgEKhAIACoHCAowocv1CjCSptoCMPrTpgU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
+    ## [3,] "https://news.google.com/articles/CAIiEMRVBQIidvjPqf8dtOEZEoAqGQgEKhAIACoHCAow2Nb3CjDivdcCMKuvhQY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
+    ## [4,] "https://news.google.com/articles/CAIiECIn-DwmTdlz7v-1DvkCLBAqGQgEKhAIACoHCAowjsP7CjCSpPQCMM_b5QU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
+    ## [5,] "https://news.google.com/articles/CAIiEHTSgVW44u_H74H1ErwE_jEqGQgEKhAIACoHCAowvIaCCzDnxf4CMM2F8gU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
+    ## [6,] "https://news.google.com/articles/CAIiEPDe97059SHmXfeVPb7W3JkqFwgEKg4IACoGCAow9vBNMK3UCDCFpJYH?uo=CAUiWGh0dHBzOi8vd3d3Lm5wci5vcmcvMjAyMi8wNC8wMy8xMDkwNTIxNzIxL3J1c3NpYS11a3JhaW5lLXdhci13aGF0LWhhcHBlbmVkLXRvZGF5LWFwcmlsLTPSAQA&hl=en-US&gl=US&ceid=US%3Aen"
 
+Now that we have the links to all these web pages, we can just loop
+through and do what we did in the first section to extract all the
+text/images (or whatever information you want).
 
 ## APIs: e.g., Twitter
-What we did in the previous section is a bit cumbersom and the results messy. For example, though our intention was only to gather the body of the article, our data also includes author names.
 
-Sometimes, it's much easier. Some websites have application programming interfaces (APIs), which you can query for specific and well-structured information. Twitter is one such website.
+What we did in the previous section is a bit cumbersom and the results
+messy. For example, though our intention was only to gather the body of
+the article, our data also includes author names.
 
-This time let's use a timely but lighter subject as an example: the Oscars.
+Sometimes, it’s much easier. Some websites have application programming
+interfaces (APIs), which you can query for specific and well-structured
+information. Twitter is one such website.
 
-To access Twitter's API, you need to [register as a devloper](https://developer.twitter.com/). 
+This time let’s use a timely but lighter subject as an example: the
+Oscars.
 
-We'll use the <tt>rtweet</tt> package. The <tt>search_tweets()</tt> function allows you to search for tweets, and you can specify a number of parameters or filters. We can be quite specific with what types of tweets we want to query.
+To access Twitter’s API, you need to [register as a
+devloper](https://developer.twitter.com/).
 
-```r
+We’ll use the <tt>rtweet</tt> package. The <tt>search_tweets()</tt>
+function allows you to search for tweets, and you can specify a number
+of parameters or filters. We can be quite specific with what types of
+tweets we want to query.
+
+``` r
 # tweets that: mention the oscars & are from verified users & are not replies
 tw <- rtweet::search_tweets(q="\"oscars\" filter:verified -filter:replies",
                             include_rts = F,  # exclude retweets
@@ -251,27 +299,28 @@ tw <- rtweet::search_tweets(q="\"oscars\" filter:verified -filter:replies",
 
 The information is also organized nicely:
 
-```r
+``` r
 # what type of information do we have
 head(colnames(tw))  
 ```
 
-```
-## [1] "user_id"     "status_id"   "created_at"  "screen_name" "text"       
-## [6] "source"
-```
+    ## [1] "user_id"     "status_id"   "created_at"  "screen_name" "text"       
+    ## [6] "source"
 
-```r
+``` r
 # example of the text in a tweet
 tw$text[1]
 ```
 
-```
-## [1] "Will Smith: Netflix And Sony Pause Projects After Oscars Meltdown\nSony’s ‘Bad Boys 4’ And Netflix’s original movie ‘Fast and Loose’ pump the brakes on production. https://t.co/sglKH9nYQ3"
-```
-This is already looking cleaner than our news article example, but let's still do a bit of pre-processing. We'll go more in depth during our week on text as data, but for now let's just define a basic function for removing some (typically) unmeaningful words, as well as punctuation and whitespace, and apply it to each tweet.
+    ## [1] "After #Oscars, #GrammyAwards leave out #LataMangeshkar from 'In Memoriam' section\nhttps://t.co/FLNsGjihkD"
 
-```r
+This is already looking cleaner than our news article example, but let’s
+still do a bit of pre-processing. We’ll go more in depth during our week
+on text as data, but for now let’s just define a basic function for
+removing some (typically) unmeaningful words, as well as punctuation and
+whitespace, and apply it to each tweet.
+
+``` r
 clean_text <- function(x) {
   x %>% tm::removeWords(stopwords::stopwords("en")) %>% 
     tm::stripWhitespace() %>%
@@ -283,40 +332,37 @@ clean_text <- function(x) {
 tw[, c("screen_name", "text")]
 ```
 
-```
-## # A tibble: 10 × 2
-##    screen_name     text                                                         
-##    <chr>           <chr>                                                        
-##  1 sportsguymarv   "Will Smith: Netflix And Sony Pause Projects After Oscars Me…
-##  2 ConversationEDU "The Power of the Dog may have lead the pack when it came to…
-##  3 ians_india      "A week after the #Oscars, the 64th Annual #GrammyAwards als…
-##  4 seankmckeever   "Yes, Sean. Time to turn your Oscars to slag. https://t.co/Q…
-##  5 otvnews         "After Oscars, Grammy Awards Leave Out Lata Mangeshkar From …
-##  6 MilesToGo13     "The #GRAMMYs and #WrestleMania happened on the same night, …
-##  7 NBCNewYork      "ICYMI: Here's how \"SNL\" handled the Will Smith Oscars sla…
-##  8 wnct9           "Netflix and Sony have reportedly put movies Will Smith was …
-##  9 Independent_ie  "Denzel Washington explains why he thinks Will Smith hit Chr…
-## 10 ndtv            "#Grammys2022: After #Oscars, @mangeshkarlata Left Out Of An…
-```
+    ## # A tibble: 10 × 2
+    ##    screen_name     text                                                         
+    ##    <chr>           <chr>                                                        
+    ##  1 thetribunechd   "After #Oscars, #GrammyAwards leave out #LataMangeshkar from…
+    ##  2 Kashmir_Monitor "After Oscars, Grammy Awards leave out Lata Mangeshkar from …
+    ##  3 FOX5Atlanta     "“Took me a while to get my thoughts together,” “Fresh Princ…
+    ##  4 latimes         "Jon Batiste, Olivia Rodrigo and Silk Sonic each took home b…
+    ##  5 sportsguymarv   "Will Smith: Netflix And Sony Pause Projects After Oscars Me…
+    ##  6 ConversationEDU "The Power of the Dog may have lead the pack when it came to…
+    ##  7 ians_india      "A week after the #Oscars, the 64th Annual #GrammyAwards als…
+    ##  8 seankmckeever   "Yes, Sean. Time to turn your Oscars to slag. https://t.co/Q…
+    ##  9 otvnews         "After Oscars, Grammy Awards Leave Out Lata Mangeshkar From …
+    ## 10 MilesToGo13     "The #GRAMMYs and #WrestleMania happened on the same night, …
 
-```r
+``` r
 # after
 tw_wrds <- unname(sapply(tw$text, clean_text))
 head(tw_wrds)
 ```
 
-```
-## [1] "Will Smith Netflix And Sony Pause Projects After Oscars Meltdown Sony’s ‘Bad Boys 4’ And Netflix’s original movie ‘Fast Loose’ pump brakes production httpstcosglKH9nYQ3"                                
-## [2] "The Power Dog may lead pack came nominations big winner night understated CODA httpstcoljvnU5fxCM"                                                                                                       
-## [3] "A week Oscars 64th Annual GrammyAwards also omitted legendary Indian playback singer LataMangeshkar In Memoriam section ceremony held MGM Grand Garden Arena LasVegas Photo IANS File httpstcod3sM0bIjeE"
-## [4] "Yes Sean Time turn Oscars slag httpstcoQvpee6wBks"                                                                                                                                                       
-## [5] "After Oscars Grammy Awards Leave Out Lata Mangeshkar From In Memoriam Section Grammys LataMangeshkar httpstcoc7V4s0UIWJ"                                                                                 
-## [6] "The GRAMMYs WrestleMania happened night confused Oscars Wrestlemania occurred stage"
-```
+    ## [1] "After Oscars GrammyAwards leave LataMangeshkar In Memoriam section httpstcoFLNsGjihkD"                                                                                   
+    ## [2] "After Oscars Grammy Awards leave Lata Mangeshkar ‘In Memoriam’ section httpstcogGjnPeQawI"                                                                               
+    ## [3] "“Took get thoughts together” “Fresh Prince BelAir” star Tatyana Ali wrote social media sharing thoughts happened Oscars httpstcornSeC2goyd"                              
+    ## [4] "Jon Batiste Olivia Rodrigo Silk Sonic took home big prizes 64th annual Grammys upbeat dramafree ceremony chaos Oscars last week httpstcoO34en5sJTF"                      
+    ## [5] "Will Smith Netflix And Sony Pause Projects After Oscars Meltdown Sony’s ‘Bad Boys 4’ And Netflix’s original movie ‘Fast Loose’ pump brakes production httpstcosglKH9nYQ3"
+    ## [6] "The Power Dog may lead pack came nominations big winner night understated CODA httpstcoljvnU5fxCM"
 
-Again, what you do with this data is a different topic. For now, let's do something simple: see which words appear the most often.
+Again, what you do with this data is a different topic. For now, let’s
+do something simple: see which words appear the most often.
 
-```r
+``` r
 # split into words
 tw_wrds <- sapply(tw_wrds, FUN=function(x) strsplit(tolower(x), split=" +"))
 
@@ -324,27 +370,28 @@ count <- table(unlist(tw_wrds))
 sort(count[count > 1], decreasing = T)
 ```
 
-```
-## 
-##         oscars          smith           will          after            and 
-##              9              4              4              3              2 
-##          chris        grammys             in latamangeshkar       memoriam 
-##              2              2              2              2              2 
-##        netflix          night            out           rock        section 
-##              2              2              2              2              2 
-##           sony            the   wrestlemania 
-##              2              2              2
-```
+    ## 
+    ##         oscars          after        grammys             in latamangeshkar 
+    ##              9              4              3              3              3 
+    ##          leave       memoriam        section           64th            and 
+    ##              3              3              3              2              2 
+    ##         annual         awards            big       ceremony         grammy 
+    ##              2              2              2              2              2 
+    ##   grammyawards       happened           lata     mangeshkar          night 
+    ##              2              2              2              2              2 
+    ##            the       thoughts           week   wrestlemania 
+    ##              2              2              2              2
 
-The <tt>rtweet</tt> package has lots of other functions that you may find useful. If you want to use Twitter for your project, I encourage you to read the package's documentation. I'll just point out one other function, one which gets tweets from a specific user:
+The <tt>rtweet</tt> package has lots of other functions that you may
+find useful. If you want to use Twitter for your project, I encourage
+you to read the package’s documentation. I’ll just point out one other
+function, one which gets tweets from a specific user:
 
-```r
+``` r
 # last 2 tweets from the UN
 tl <- rtweet::get_timeline(user="UN", n=2)
 tl$text
 ```
 
-```
-## [1] "Despite numerous challenges, our @UNMAS colleagues continue their vital work clearing landmines &amp; explosive remnants of war.\n\nThey are working to create a world where people don't have to be afraid of their next step.\n\nMore on Monday's #MineAwarenessDay: https://t.co/KmYriwGy50 https://t.co/61aEt1VrQJ"
-## [2] "Afghanistan: The denial of education violates the human rights of women &amp; girls and can leave them more exposed to violence, poverty and exploitation.\n\nAll students must be allowed to exercise their right to an education. https://t.co/RLTlfBdZAi"
-```
+    ## [1] "Despite numerous challenges, our @UNMAS colleagues continue their vital work clearing landmines &amp; explosive remnants of war.\n\nThey are working to create a world where people don't have to be afraid of their next step.\n\nMore on Monday's #MineAwarenessDay: https://t.co/KmYriwGy50 https://t.co/61aEt1VrQJ"
+    ## [2] "Afghanistan: The denial of education violates the human rights of women &amp; girls and can leave them more exposed to violence, poverty and exploitation.\n\nAll students must be allowed to exercise their right to an education. https://t.co/RLTlfBdZAi"
