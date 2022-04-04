@@ -174,8 +174,8 @@ pre code {
 </div>
 
 
-<div id="a-brief-primer-on-html" class="section level2">
-<h2>A Brief Primer on HTML</h2>
+<div id="a-brief-primer-on-html-and-rvest" class="section level2">
+<h2>A Brief Primer on HTML and <tt>rvest</tt></h2>
 <p>HyperText Markup Language (HTML) is a markup language (similar to LaTeX) and is what most websites are written in. An html document is essentially a tree composed of nodes. Nodes can be text, links, tables, etc., and they themselves can have “descendant” nodes (e.g., a table is itself a node, but inside the table there might be something that makes text italics, and then inside that will be the text itself).</p>
 <p>For our purposes, there are a few important terms to introduce. First, an <em>element</em> is a type of node that makes up the document, and it can be used for many different purposes. An element is delimited at the front and the end with a <em>tag</em>. Below is an example of an element:</p>
 <pre><code>&lt;p&gt; text here &lt;/p&gt;</code></pre>
@@ -186,13 +186,45 @@ pre code {
 <p style="color:#8C1515">
 text here
 </p>
+<p>To do webscrapping in R, we will be using the <tt>rvest</tt> package (a part of <tt>tidyverse</tt>). <tt>rvest</tt> is designed to go with <tt>magrittr</tt> package; you don’t need to use the latter, but taking advantage of the pipe <tt>%&gt;%</tt> operator will make your code a lot less verbose.</p>
+<p><tt>rvest</tt> lets you extract nodes corresponding to specific tags:</p>
+<pre class="r"><code>eg_html &lt;- rvest::read_html(
+&quot;&lt;html&gt;
+    &lt;p style=\&quot;color:#8C1515\&quot;&gt;
+        text here 
+        &lt;a href=\&quot;page1.html\&quot;&gt; link1 &lt;/p&gt;
+    &lt;/p&gt;
+    &lt;a href=\&quot;page2.html\&quot;&gt; link2 &lt;/p&gt;
+&lt;/html&gt;&quot;
+)
+
+eg_html %&gt;% rvest::html_elements(&quot;p&quot;)</code></pre>
+<pre><code>## {xml_nodeset (1)}
+## [1] &lt;p style=&quot;color:#8C1515&quot;&gt;\n        text here \n        &lt;a href=&quot;page1.htm ...</code></pre>
+<p>We can then extract all the text inside:</p>
+<pre class="r"><code>eg_html %&gt;% rvest::html_elements(&quot;p&quot;) %&gt;%
+  rvest::html_text()</code></pre>
+<pre><code>## [1] &quot;\n        text here \n         link1 &quot;</code></pre>
+<p>Or maybe we want one of its descendants:</p>
+<pre class="r"><code>eg_html %&gt;% rvest::html_elements(&quot;p&quot;) %&gt;%
+  rvest::html_elements(&quot;a&quot;)</code></pre>
+<pre><code>## {xml_nodeset (1)}
+## [1] &lt;a href=&quot;page1.html&quot;&gt; link1 &lt;/a&gt;</code></pre>
+<p>Note that this doesn’t extract the <tt>a</tt> tag outside of the <tt>p</tt> tag.</p>
+<p>Instead of text, we can also extract attributes:</p>
+<pre class="r"><code>eg_html %&gt;% rvest::html_elements(&quot;p&quot;) %&gt;%
+  rvest::html_elements(&quot;a&quot;) %&gt;% 
+  rvest::html_attr(&quot;href&quot;)</code></pre>
+<pre><code>## [1] &quot;page1.html&quot;</code></pre>
 </div>
 <div id="general-websites" class="section level2">
 <h2>General Websites</h2>
-<p>To do webscrapping in R, we will be using the <tt>rvest</tt> package (a part of <tt>tidyverse</tt>). <tt>rvest</tt> is designed to go with <tt>magrittr</tt> package; you don’t need to use the latter, but taking advantage of the pipe <tt>%&gt;%</tt> operator will make your code a lot less verbose.</p>
-<p>We will use a CNN page on the war in Ukraine as an example. First, we need to use the <tt>read_html</tt> function to read the html document (the function returns an xml file, a format which <tt>rvest</tt>’s other functions will need).</p>
-<pre class="r"><code>cnn_url &lt;- &quot;https://www.cnn.com/europe/live-news/ukraine-russia-putin-news-04-3-22/h_4d0118cfd6f30770be0f8f54e041f9d2&quot;
-cnn_page &lt;- cnn_url %&gt;% rvest::read_html() # read_html is actually from xml2, which rvest imports </code></pre>
+<p>We will use a CNN page on the war in Ukraine as an example. First, we need to use the <tt>read_html</tt> function to read the html document. In the previous section, we passed it a string with html syntax. We can also pass it a url.</p>
+<pre class="r"><code># read the documentation to see what we can pass the function
+# ?xml2::read_html  # read_html is actually from xml2, which rvest imports 
+
+cnn_url &lt;- &quot;https://www.cnn.com/europe/live-news/ukraine-russia-putin-news-04-3-22/h_4d0118cfd6f30770be0f8f54e041f9d2&quot;
+cnn_page &lt;- cnn_url %&gt;% rvest::read_html()</code></pre>
 <p>There are many types of data you might want from a webpage, and each will require a different method of extraction. In this case, we’re looking at an article and most likely will want the contents of that article. As a starting point, we might want to look at text that is sandwiched by p tags,</p>
 <pre><code>&lt;p&gt; text here &lt;/p&gt;.</code></pre>
 <pre class="r"><code>cnn_text &lt;- cnn_page %&gt;%
@@ -254,18 +286,18 @@ df &lt;- cbind(title = titles, truncated_title = unname(trunc), link = links)
 head(df[, c(&quot;truncated_title&quot;, &quot;link&quot;)])</code></pre>
 <pre><code>##      truncated_title                                     
 ## [1,] &quot;Ukraine-Russia Live News: Civilian Victims ...&quot;    
-## [2,] &quot;Ukraine claims 410 bodies found ...&quot;               
-## [3,] &quot;Ukraine updates: Ukrainians returning home ...&quot;    
-## [4,] &quot;Ukraine latest updates: Ukraine says ...&quot;          
+## [2,] &quot;The horrors of Putin&#39;s invasion ...&quot;               
+## [3,] &quot;Ukraine claims 410 bodies found ...&quot;               
+## [4,] &quot;Ukraine updates: Ukrainians returning home ...&quot;    
 ## [5,] &quot;Russia-Ukraine war live updates: International ...&quot;
-## [6,] &quot;April 3, 2022 Russia-Ukraine news ...&quot;             
-##      link                                                                                                                                                                                                                                                                                                  
-## [1,] &quot;https://news.google.com/articles/CAIiEPrAVhDmFU2aQkYQgMoCQugqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                                                           
-## [2,] &quot;https://news.google.com/articles/CAIiEMRVBQIidvjPqf8dtOEZEoAqGQgEKhAIACoHCAow2Nb3CjDivdcCMKuvhQY?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                                                        
-## [3,] &quot;https://news.google.com/articles/CAIiECIn-DwmTdlz7v-1DvkCLBAqGQgEKhAIACoHCAowjsP7CjCSpPQCMM_b5QU?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                                                        
-## [4,] &quot;https://news.google.com/articles/CAIiEBYU5ggCGdzmLwkP9S5mMiQqFQgEKgwIACoFCAowhgIwkDgws_qTBw?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                                                             
-## [5,] &quot;https://news.google.com/articles/CAIiEHTSgVW44u_H74H1ErwE_jEqGQgEKhAIACoHCAowvIaCCzDnxf4CMM2F8gU?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                                                        
-## [6,] &quot;https://news.google.com/articles/CBMiUWh0dHBzOi8vd3d3LmNubi5jb20vZXVyb3BlL2xpdmUtbmV3cy91a3JhaW5lLXJ1c3NpYS1wdXRpbi1uZXdzLTA0LTMtMjIvaW5kZXguaHRtbNIBVWh0dHBzOi8vYW1wLmNubi5jb20vY25uL2V1cm9wZS9saXZlLW5ld3MvdWtyYWluZS1ydXNzaWEtcHV0aW4tbmV3cy0wNC0zLTIyL2luZGV4Lmh0bWw?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;</code></pre>
+## [6,] &quot;Russia-Ukraine war: What happened today ...&quot;       
+##      link                                                                                                                                                                                                                                                          
+## [1,] &quot;https://news.google.com/articles/CAIiEPrAVhDmFU2aQkYQgMoCQugqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                   
+## [2,] &quot;https://news.google.com/articles/CAIiEIqJInbL-tJ9NDOrCDptUjIqGQgEKhAIACoHCAowocv1CjCSptoCMPrTpgU?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                
+## [3,] &quot;https://news.google.com/articles/CAIiEMRVBQIidvjPqf8dtOEZEoAqGQgEKhAIACoHCAow2Nb3CjDivdcCMKuvhQY?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                
+## [4,] &quot;https://news.google.com/articles/CAIiECIn-DwmTdlz7v-1DvkCLBAqGQgEKhAIACoHCAowjsP7CjCSpPQCMM_b5QU?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                
+## [5,] &quot;https://news.google.com/articles/CAIiEHTSgVW44u_H74H1ErwE_jEqGQgEKhAIACoHCAowvIaCCzDnxf4CMM2F8gU?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                
+## [6,] &quot;https://news.google.com/articles/CAIiEPDe97059SHmXfeVPb7W3JkqFwgEKg4IACoGCAow9vBNMK3UCDCFpJYH?uo=CAUiWGh0dHBzOi8vd3d3Lm5wci5vcmcvMjAyMi8wNC8wMy8xMDkwNTIxNzIxL3J1c3NpYS11a3JhaW5lLXdhci13aGF0LWhhcHBlbmVkLXRvZGF5LWFwcmlsLTPSAQA&amp;hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;</code></pre>
 <p>Now that we have the links to all these web pages, we can just loop through and do what we did in the first section to extract all the text/images (or whatever information you want).</p>
 </div>
 <div id="apis-e.g.-twitter" class="section level2">
@@ -287,7 +319,7 @@ head(colnames(tw))  </code></pre>
 ## [6] &quot;source&quot;</code></pre>
 <pre class="r"><code># example of the text in a tweet
 tw$text[1]</code></pre>
-<pre><code>## [1] &quot;We Celebrate the artist of New Orleans Center of Creative Arts. Grammys, Oscars, Peabodys, Pulitzers @NOCCA Jon Batiste https://t.co/ajJIhddcWV&quot;</code></pre>
+<pre><code>## [1] &quot;The Power of the Dog may have lead the pack when it came to nominations, but the big winner of the night was the understated CODA. https://t.co/ljvnU5fxCM&quot;</code></pre>
 <p>This is already looking cleaner than our news article example, but let’s still do a bit of pre-processing. We’ll go more in depth during our week on text as data, but for now let’s just define a basic function for removing some (typically) unmeaningful words, as well as punctuation and whitespace, and apply it to each tweet.</p>
 <pre class="r"><code>clean_text &lt;- function(x) {
   x %&gt;% tm::removeWords(stopwords::stopwords(&quot;en&quot;)) %&gt;% 
@@ -299,27 +331,27 @@ tw$text[1]</code></pre>
 # before
 tw[, c(&quot;screen_name&quot;, &quot;text&quot;)]</code></pre>
 <pre><code>## # A tibble: 10 × 2
-##    screen_name   text                                                           
-##    &lt;chr&gt;         &lt;chr&gt;                                                          
-##  1 WendellPierce &quot;We Celebrate the artist of New Orleans Center of Creative Art…
-##  2 HowardCohen   &quot;Music industry&#39;s MVP, most compassionate soul, has to be @lad…
-##  3 fox7austin    &quot;“Took me a while to get my thoughts together,” &#39;Fresh Prince …
-##  4 extratv       &quot;#Grammys host Trevor Noah dropped a subtle joke about the Osc…
-##  5 latestly      &quot;#GRAMMYs2022: After #Oscars, #LataMangeshkar Left Out of ‘#In…
-##  6 NBCNewYork    &quot;ICYMI: Here&#39;s how \&quot;SNL\&quot; handled the Will Smith Oscars slap …
-##  7 Independent   &quot;After an action-packed Oscars, the Grammys seems majorly dull…
-##  8 cmolanphy     &quot;Genuine kudos to @HarveyMasonjr for a #GRAMMYs show that was …
-##  9 THR           &quot;John Oliver Criticizes O.J. Simpson for Weighing In on Will S…
-## 10 8NewsNow      &quot;WILL SMITH FILMS ON HOLD: Films starring Will Smith reportedl…</code></pre>
+##    screen_name     text                                                         
+##    &lt;chr&gt;           &lt;chr&gt;                                                        
+##  1 ConversationEDU &quot;The Power of the Dog may have lead the pack when it came to…
+##  2 ians_india      &quot;A week after the #Oscars, the 64th Annual #GrammyAwards als…
+##  3 seankmckeever   &quot;Yes, Sean. Time to turn your Oscars to slag. https://t.co/Q…
+##  4 otvnews         &quot;After Oscars, Grammy Awards Leave Out Lata Mangeshkar From …
+##  5 MilesToGo13     &quot;The #GRAMMYs and #WrestleMania happened on the same night, …
+##  6 NBCNewYork      &quot;ICYMI: Here&#39;s how \&quot;SNL\&quot; handled the Will Smith Oscars sla…
+##  7 wnct9           &quot;Netflix and Sony have reportedly put movies Will Smith was …
+##  8 Independent_ie  &quot;Denzel Washington explains why he thinks Will Smith hit Chr…
+##  9 ndtv            &quot;#Grammys2022: After #Oscars, @mangeshkarlata Left Out Of An…
+## 10 usatodaylife    &quot;This year&#39;s #Grammys telecast showcased something industry …</code></pre>
 <pre class="r"><code># after
 tw_wrds &lt;- unname(sapply(tw$text, clean_text))
 head(tw_wrds)</code></pre>
-<pre><code>## [1] &quot;We Celebrate artist New Orleans Center Creative Arts Grammys Oscars Peabodys Pulitzers NOCCA Jon Batiste httpstcoajJIhddcWV&quot;                                                                                                        
-## [2] &quot;Music industrys MVP compassionate soul ladygaga Last year assisted Tony Bennett concert She helped Liza Minnelli present Oscars I got  After losing popduo Grammys many figured amp Tonys aided winner SZA Sweet httpstcoWh4qGbrigj&quot;
-## [3] &quot;“Took get thoughts together” Fresh Prince BelAir star Tatyana Ali wrote social media sharing thoughts happened Oscars httpstcoMbWwZ6XheU&quot;                                                                                           
-## [4] &quot;Grammys host Trevor Noah dropped subtle joke Oscars slap monologue 😯 httpstcoq9EokKTfd3&quot;                                                                                                                                           
-## [5] &quot;GRAMMYs2022 After Oscars LataMangeshkar Left Out ‘InMemoriam’ Segment 64thAnnualGRAMMYAwards Leaves Indian Fans Annoyed RecordingAcad Grammys Grammys2022 GrammyAwards GrammyAwards2022 httpstcoL7CRbvR2sa&quot;                         
-## [6] &quot;ICYMI Heres SNL handled Will Smith Oscars slap httpstcoJKzIGhdGCc&quot;</code></pre>
+<pre><code>## [1] &quot;The Power Dog may lead pack came nominations big winner night understated CODA httpstcoljvnU5fxCM&quot;                                                                                                       
+## [2] &quot;A week Oscars 64th Annual GrammyAwards also omitted legendary Indian playback singer LataMangeshkar In Memoriam section ceremony held MGM Grand Garden Arena LasVegas Photo IANS File httpstcod3sM0bIjeE&quot;
+## [3] &quot;Yes Sean Time turn Oscars slag httpstcoQvpee6wBks&quot;                                                                                                                                                       
+## [4] &quot;After Oscars Grammy Awards Leave Out Lata Mangeshkar From In Memoriam Section Grammys LataMangeshkar httpstcoc7V4s0UIWJ&quot;                                                                                 
+## [5] &quot;The GRAMMYs WrestleMania happened night confused Oscars Wrestlemania occurred stage&quot;                                                                                                                     
+## [6] &quot;ICYMI Heres SNL handled Will Smith Oscars slap httpstcoWl0YjFGZbn&quot;</code></pre>
 <p>Again, what you do with this data is a different topic. For now, let’s do something simple: see which words appear the most often.</p>
 <pre class="r"><code># split into words
 tw_wrds &lt;- sapply(tw_wrds, FUN=function(x) strsplit(tolower(x), split=&quot; +&quot;))
@@ -327,12 +359,12 @@ tw_wrds &lt;- sapply(tw_wrds, FUN=function(x) strsplit(tolower(x), split=&quot; 
 count &lt;- table(unlist(tw_wrds))
 sort(count[count &gt; 1], decreasing = T)</code></pre>
 <pre><code>## 
-##      oscars     grammys        slap        will       after       smith 
-##          10           6           4           4           3           3 
-##         amp       films grammys2022        hold           i         one 
-##           2           2           2           2           2           2 
-##    thoughts 
-##           2</code></pre>
+##         oscars        grammys          smith           will          after 
+##              8              3              3              3              2 
+##          chris             in latamangeshkar       memoriam          night 
+##              2              2              2              2              2 
+##            out           rock        section            the   wrestlemania 
+##              2              2              2              2              2</code></pre>
 <p>The <tt>rtweet</tt> package has lots of other functions that you may find useful. If you want to use Twitter for your project, I encourage you to read the package’s documentation. I’ll just point out one other function, one which gets tweets from a specific user:</p>
 <pre class="r"><code># last 2 tweets from the UN
 tl &lt;- rtweet::get_timeline(user=&quot;UN&quot;, n=2)

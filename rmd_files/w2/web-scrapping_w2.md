@@ -10,7 +10,7 @@ output:
 
 
 
-## A Brief Primer on HTML
+## A Brief Primer on HTML and <tt>rvest</tt>
 HyperText Markup Language (HTML) is a markup language (similar to LaTeX) and is what most websites are written in. An html document is essentially a tree composed of nodes. Nodes can be text, links, tables, etc., and they themselves can have "descendant" nodes (e.g., a table is itself a node, but inside the table there might be something that makes text italics, and then inside that will be the text itself).
 
 For our purposes, there are a few important terms to introduce. First, an _element_ is a type of node that makes up the document, and it can be used for many different purposes. An element is delimited at the front and the end with a _tag_. Below is an example of an element:
@@ -27,15 +27,77 @@ This will appear to the viewer as:
 
 <p style="color:#8C1515"> text here </p>
 
-## General Websites
+
 To do webscrapping in R, we will be using the <tt>rvest</tt> package (a part of <tt>tidyverse</tt>). <tt>rvest</tt> is designed to go with <tt>magrittr</tt> package; you don't need to use the latter, but taking advantage of the pipe <tt>%>%</tt> operator will make your code a lot less verbose. 
 
-We will use a CNN page on the war in Ukraine as an example. First, we need to use the <tt>read_html</tt> function to read the html document (the function returns an xml file, a format which <tt>rvest</tt>'s other functions will need).
+<tt>rvest</tt> lets you extract nodes corresponding to specific tags:
+
+```r
+eg_html <- rvest::read_html(
+"<html>
+    <p style=\"color:#8C1515\">
+        text here 
+        <a href=\"page1.html\"> link1 </p>
+    </p>
+    <a href=\"page2.html\"> link2 </p>
+</html>"
+)
+
+eg_html %>% rvest::html_elements("p")
+```
+
+```
+## {xml_nodeset (1)}
+## [1] <p style="color:#8C1515">\n        text here \n        <a href="page1.htm ...
+```
+
+We can then extract all the text inside:
+
+```r
+eg_html %>% rvest::html_elements("p") %>%
+  rvest::html_text()
+```
+
+```
+## [1] "\n        text here \n         link1 "
+```
+
+Or maybe we want one of its descendants:
+
+```r
+eg_html %>% rvest::html_elements("p") %>%
+  rvest::html_elements("a")
+```
+
+```
+## {xml_nodeset (1)}
+## [1] <a href="page1.html"> link1 </a>
+```
+
+Note that this doesn't extract the <tt>a</tt> tag outside of the <tt>p</tt> tag.
+
+Instead of text, we can also extract attributes:
+
+```r
+eg_html %>% rvest::html_elements("p") %>%
+  rvest::html_elements("a") %>% 
+  rvest::html_attr("href")
+```
+
+```
+## [1] "page1.html"
+```
+
+## General Websites
+We will use a CNN page on the war in Ukraine as an example. First, we need to use the <tt>read_html</tt> function to read the html document. In the previous section, we passed it a string with html syntax. We can also pass it a url.
 
 
 ```r
+# read the documentation to see what we can pass the function
+# ?xml2::read_html  # read_html is actually from xml2, which rvest imports 
+
 cnn_url <- "https://www.cnn.com/europe/live-news/ukraine-russia-putin-news-04-3-22/h_4d0118cfd6f30770be0f8f54e041f9d2"
-cnn_page <- cnn_url %>% rvest::read_html() # read_html is actually from xml2, which rvest imports 
+cnn_page <- cnn_url %>% rvest::read_html()
 ```
 
 There are many types of data you might want from a webpage, and each will require a different method of extraction. In this case, we're looking at an article and most likely will want the contents of that article. As a starting point, we might want to look at text that is sandwiched by p tags,
@@ -152,18 +214,18 @@ head(df[, c("truncated_title", "link")])
 ```
 ##      truncated_title                                     
 ## [1,] "Ukraine-Russia Live News: Civilian Victims ..."    
-## [2,] "Ukraine claims 410 bodies found ..."               
-## [3,] "Ukraine updates: Ukrainians returning home ..."    
-## [4,] "Ukraine latest updates: Ukraine says ..."          
+## [2,] "The horrors of Putin's invasion ..."               
+## [3,] "Ukraine claims 410 bodies found ..."               
+## [4,] "Ukraine updates: Ukrainians returning home ..."    
 ## [5,] "Russia-Ukraine war live updates: International ..."
-## [6,] "April 3, 2022 Russia-Ukraine news ..."             
-##      link                                                                                                                                                                                                                                                                                                  
-## [1,] "https://news.google.com/articles/CAIiEPrAVhDmFU2aQkYQgMoCQugqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                           
-## [2,] "https://news.google.com/articles/CAIiEMRVBQIidvjPqf8dtOEZEoAqGQgEKhAIACoHCAow2Nb3CjDivdcCMKuvhQY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                        
-## [3,] "https://news.google.com/articles/CAIiECIn-DwmTdlz7v-1DvkCLBAqGQgEKhAIACoHCAowjsP7CjCSpPQCMM_b5QU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                        
-## [4,] "https://news.google.com/articles/CAIiEBYU5ggCGdzmLwkP9S5mMiQqFQgEKgwIACoFCAowhgIwkDgws_qTBw?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                             
-## [5,] "https://news.google.com/articles/CAIiEHTSgVW44u_H74H1ErwE_jEqGQgEKhAIACoHCAowvIaCCzDnxf4CMM2F8gU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                        
-## [6,] "https://news.google.com/articles/CBMiUWh0dHBzOi8vd3d3LmNubi5jb20vZXVyb3BlL2xpdmUtbmV3cy91a3JhaW5lLXJ1c3NpYS1wdXRpbi1uZXdzLTA0LTMtMjIvaW5kZXguaHRtbNIBVWh0dHBzOi8vYW1wLmNubi5jb20vY25uL2V1cm9wZS9saXZlLW5ld3MvdWtyYWluZS1ydXNzaWEtcHV0aW4tbmV3cy0wNC0zLTIyL2luZGV4Lmh0bWw?hl=en-US&gl=US&ceid=US%3Aen"
+## [6,] "Russia-Ukraine war: What happened today ..."       
+##      link                                                                                                                                                                                                                                                          
+## [1,] "https://news.google.com/articles/CAIiEPrAVhDmFU2aQkYQgMoCQugqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                   
+## [2,] "https://news.google.com/articles/CAIiEIqJInbL-tJ9NDOrCDptUjIqGQgEKhAIACoHCAowocv1CjCSptoCMPrTpgU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
+## [3,] "https://news.google.com/articles/CAIiEMRVBQIidvjPqf8dtOEZEoAqGQgEKhAIACoHCAow2Nb3CjDivdcCMKuvhQY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
+## [4,] "https://news.google.com/articles/CAIiECIn-DwmTdlz7v-1DvkCLBAqGQgEKhAIACoHCAowjsP7CjCSpPQCMM_b5QU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
+## [5,] "https://news.google.com/articles/CAIiEHTSgVW44u_H74H1ErwE_jEqGQgEKhAIACoHCAowvIaCCzDnxf4CMM2F8gU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
+## [6,] "https://news.google.com/articles/CAIiEPDe97059SHmXfeVPb7W3JkqFwgEKg4IACoGCAow9vBNMK3UCDCFpJYH?uo=CAUiWGh0dHBzOi8vd3d3Lm5wci5vcmcvMjAyMi8wNC8wMy8xMDkwNTIxNzIxL3J1c3NpYS11a3JhaW5lLXdhci13aGF0LWhhcHBlbmVkLXRvZGF5LWFwcmlsLTPSAQA&hl=en-US&gl=US&ceid=US%3Aen"
 ```
 Now that we have the links to all these web pages, we can just loop through and do what we did in the first section to extract all the text/images (or whatever information you want).
 
@@ -205,7 +267,7 @@ tw$text[1]
 ```
 
 ```
-## [1] "We Celebrate the artist of New Orleans Center of Creative Arts. Grammys, Oscars, Peabodys, Pulitzers @NOCCA Jon Batiste https://t.co/ajJIhddcWV"
+## [1] "The Power of the Dog may have lead the pack when it came to nominations, but the big winner of the night was the understated CODA. https://t.co/ljvnU5fxCM"
 ```
 This is already looking cleaner than our news article example, but let's still do a bit of pre-processing. We'll go more in depth during our week on text as data, but for now let's just define a basic function for removing some (typically) unmeaningful words, as well as punctuation and whitespace, and apply it to each tweet.
 
@@ -223,18 +285,18 @@ tw[, c("screen_name", "text")]
 
 ```
 ## # A tibble: 10 × 2
-##    screen_name   text                                                           
-##    <chr>         <chr>                                                          
-##  1 WendellPierce "We Celebrate the artist of New Orleans Center of Creative Art…
-##  2 HowardCohen   "Music industry's MVP, most compassionate soul, has to be @lad…
-##  3 fox7austin    "“Took me a while to get my thoughts together,” 'Fresh Prince …
-##  4 extratv       "#Grammys host Trevor Noah dropped a subtle joke about the Osc…
-##  5 latestly      "#GRAMMYs2022: After #Oscars, #LataMangeshkar Left Out of ‘#In…
-##  6 NBCNewYork    "ICYMI: Here's how \"SNL\" handled the Will Smith Oscars slap …
-##  7 Independent   "After an action-packed Oscars, the Grammys seems majorly dull…
-##  8 cmolanphy     "Genuine kudos to @HarveyMasonjr for a #GRAMMYs show that was …
-##  9 THR           "John Oliver Criticizes O.J. Simpson for Weighing In on Will S…
-## 10 8NewsNow      "WILL SMITH FILMS ON HOLD: Films starring Will Smith reportedl…
+##    screen_name     text                                                         
+##    <chr>           <chr>                                                        
+##  1 ConversationEDU "The Power of the Dog may have lead the pack when it came to…
+##  2 ians_india      "A week after the #Oscars, the 64th Annual #GrammyAwards als…
+##  3 seankmckeever   "Yes, Sean. Time to turn your Oscars to slag. https://t.co/Q…
+##  4 otvnews         "After Oscars, Grammy Awards Leave Out Lata Mangeshkar From …
+##  5 MilesToGo13     "The #GRAMMYs and #WrestleMania happened on the same night, …
+##  6 NBCNewYork      "ICYMI: Here's how \"SNL\" handled the Will Smith Oscars sla…
+##  7 wnct9           "Netflix and Sony have reportedly put movies Will Smith was …
+##  8 Independent_ie  "Denzel Washington explains why he thinks Will Smith hit Chr…
+##  9 ndtv            "#Grammys2022: After #Oscars, @mangeshkarlata Left Out Of An…
+## 10 usatodaylife    "This year's #Grammys telecast showcased something industry …
 ```
 
 ```r
@@ -244,12 +306,12 @@ head(tw_wrds)
 ```
 
 ```
-## [1] "We Celebrate artist New Orleans Center Creative Arts Grammys Oscars Peabodys Pulitzers NOCCA Jon Batiste httpstcoajJIhddcWV"                                                                                                        
-## [2] "Music industrys MVP compassionate soul ladygaga Last year assisted Tony Bennett concert She helped Liza Minnelli present Oscars I got  After losing popduo Grammys many figured amp Tonys aided winner SZA Sweet httpstcoWh4qGbrigj"
-## [3] "“Took get thoughts together” Fresh Prince BelAir star Tatyana Ali wrote social media sharing thoughts happened Oscars httpstcoMbWwZ6XheU"                                                                                           
-## [4] "Grammys host Trevor Noah dropped subtle joke Oscars slap monologue 😯 httpstcoq9EokKTfd3"                                                                                                                                           
-## [5] "GRAMMYs2022 After Oscars LataMangeshkar Left Out ‘InMemoriam’ Segment 64thAnnualGRAMMYAwards Leaves Indian Fans Annoyed RecordingAcad Grammys Grammys2022 GrammyAwards GrammyAwards2022 httpstcoL7CRbvR2sa"                         
-## [6] "ICYMI Heres SNL handled Will Smith Oscars slap httpstcoJKzIGhdGCc"
+## [1] "The Power Dog may lead pack came nominations big winner night understated CODA httpstcoljvnU5fxCM"                                                                                                       
+## [2] "A week Oscars 64th Annual GrammyAwards also omitted legendary Indian playback singer LataMangeshkar In Memoriam section ceremony held MGM Grand Garden Arena LasVegas Photo IANS File httpstcod3sM0bIjeE"
+## [3] "Yes Sean Time turn Oscars slag httpstcoQvpee6wBks"                                                                                                                                                       
+## [4] "After Oscars Grammy Awards Leave Out Lata Mangeshkar From In Memoriam Section Grammys LataMangeshkar httpstcoc7V4s0UIWJ"                                                                                 
+## [5] "The GRAMMYs WrestleMania happened night confused Oscars Wrestlemania occurred stage"                                                                                                                     
+## [6] "ICYMI Heres SNL handled Will Smith Oscars slap httpstcoWl0YjFGZbn"
 ```
 
 Again, what you do with this data is a different topic. For now, let's do something simple: see which words appear the most often.
@@ -264,12 +326,12 @@ sort(count[count > 1], decreasing = T)
 
 ```
 ## 
-##      oscars     grammys        slap        will       after       smith 
-##          10           6           4           4           3           3 
-##         amp       films grammys2022        hold           i         one 
-##           2           2           2           2           2           2 
-##    thoughts 
-##           2
+##         oscars        grammys          smith           will          after 
+##              8              3              3              3              2 
+##          chris             in latamangeshkar       memoriam          night 
+##              2              2              2              2              2 
+##            out           rock        section            the   wrestlemania 
+##              2              2              2              2              2
 ```
 
 The <tt>rtweet</tt> package has lots of other functions that you may find useful. If you want to use Twitter for your project, I encourage you to read the package's documentation. I'll just point out one other function, one which gets tweets from a specific user:

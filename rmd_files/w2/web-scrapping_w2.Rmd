@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 require(magrittr)
 ```
 
-## A Brief Primer on HTML
+## A Brief Primer on HTML and <tt>rvest</tt>
 HyperText Markup Language (HTML) is a markup language (similar to LaTeX) and is what most websites are written in. An html document is essentially a tree composed of nodes. Nodes can be text, links, tables, etc., and they themselves can have "descendant" nodes (e.g., a table is itself a node, but inside the table there might be something that makes text italics, and then inside that will be the text itself).
 
 For our purposes, there are a few important terms to introduce. First, an _element_ is a type of node that makes up the document, and it can be used for many different purposes. An element is delimited at the front and the end with a _tag_. Below is an example of an element:
@@ -31,14 +31,54 @@ This will appear to the viewer as:
 
 <p style="color:#8C1515"> text here </p>
 
-## General Websites
+
 To do webscrapping in R, we will be using the <tt>rvest</tt> package (a part of <tt>tidyverse</tt>). <tt>rvest</tt> is designed to go with <tt>magrittr</tt> package; you don't need to use the latter, but taking advantage of the pipe <tt>%>%</tt> operator will make your code a lot less verbose. 
 
-We will use a CNN page on the war in Ukraine as an example. First, we need to use the <tt>read_html</tt> function to read the html document (the function returns an xml file, a format which <tt>rvest</tt>'s other functions will need).
+<tt>rvest</tt> lets you extract nodes corresponding to specific tags:
+```{r}
+eg_html <- rvest::read_html(
+"<html>
+    <p style=\"color:#8C1515\">
+        text here 
+        <a href=\"page1.html\"> link1 </p>
+    </p>
+    <a href=\"page2.html\"> link2 </p>
+</html>"
+)
+
+eg_html %>% rvest::html_elements("p")
+```
+
+We can then extract all the text inside:
+```{r}
+eg_html %>% rvest::html_elements("p") %>%
+  rvest::html_text()
+```
+
+Or maybe we want one of its descendants:
+```{r}
+eg_html %>% rvest::html_elements("p") %>%
+  rvest::html_elements("a")
+```
+
+Note that this doesn't extract the <tt>a</tt> tag outside of the <tt>p</tt> tag.
+
+Instead of text, we can also extract attributes:
+```{r}
+eg_html %>% rvest::html_elements("p") %>%
+  rvest::html_elements("a") %>% 
+  rvest::html_attr("href")
+```
+
+## General Websites
+We will use a CNN page on the war in Ukraine as an example. First, we need to use the <tt>read_html</tt> function to read the html document. In the previous section, we passed it a string with html syntax. We can also pass it a url.
 
 ```{r}
+# read the documentation to see what we can pass the function
+# ?xml2::read_html  # read_html is actually from xml2, which rvest imports 
+
 cnn_url <- "https://www.cnn.com/europe/live-news/ukraine-russia-putin-news-04-3-22/h_4d0118cfd6f30770be0f8f54e041f9d2"
-cnn_page <- cnn_url %>% rvest::read_html() # read_html is actually from xml2, which rvest imports 
+cnn_page <- cnn_url %>% rvest::read_html()
 ```
 
 There are many types of data you might want from a webpage, and each will require a different method of extraction. In this case, we're looking at an article and most likely will want the contents of that article. As a starting point, we might want to look at text that is sandwiched by p tags,
