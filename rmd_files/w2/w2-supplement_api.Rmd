@@ -1,0 +1,67 @@
+---
+title: "API (ECON/POLISCI 151, Week 2 Section Supplement)"
+author: "Albert Chiu"
+date: ""
+output:
+    rmarkdown::github_document: 
+        keep_html: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("_auth.R")
+```
+
+Useful source: https://github.com/twitterdev/Twitter-API-v2-sample-code
+
+### Check your authentification credentials work
+```{r}
+url_test <- "https://api.twitter.com/2/tweets/search/recent?query=from:twitterdev"
+
+# keep your bearer_token private
+headers <- c(`Authorization` = sprintf('Bearer %s', bearer_token))
+
+# you want to see status: 200
+httr::GET(dev_test, config=httr::add_headers(.headers=headers))
+```
+### Searching for Tweets
+
+```{r}
+params_recent = list(
+  `query` = 'oscars',
+  `max_results` = '10',
+  `tweet.fields` = 'created_at,lang,conversation_id'
+)
+
+url_recent <- 'https://api.twitter.com/2/tweets/search/recent'
+
+resp <- httr::GET(url_recent, 
+                  config=httr::add_headers(.headers=headers),
+                  query = params_recent)
+con <- httr::content(resp)
+
+# first tweet we pulled
+con$data[[1]]
+
+# extract the text from each tweet
+lapply(con$data, function(x) x[["text"]])
+```
+### Timeline
+
+```{r}
+user_id <- "14159148"
+url_tl <- sprintf("https://api.twitter.com/2/users/%s/tweets", user_id)
+
+params_tl <- list(
+  `max_results` = 10,
+  `tweet.fields` = "created_at",
+  `expansions` = "author_id"
+)
+resp <- httr::GET(url_tl, 
+                  config=httr::add_headers(.headers=headers),
+                  query = params_tl)
+con <- httr::content(resp)
+
+con$data[c(1,2)]
+```
+

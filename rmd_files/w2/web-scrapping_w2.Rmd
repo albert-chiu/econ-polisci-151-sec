@@ -39,9 +39,9 @@ eg_html <- rvest::read_html(
 "<html>
     <p style=\"color:#8C1515\">
         text here 
-        <a href=\"page1.html\"> link1 </p>
+        <a href=\"page1.html\"> link1 </a>
     </p>
-    <a href=\"page2.html\"> link2 </p>
+    <a href=\"page2.html\"> link2 </a>
 </html>"
 )
 
@@ -80,9 +80,7 @@ cnn_url <- "https://www.cnn.com/europe/live-news/ukraine-russia-putin-news-04-3-
 cnn_page <- cnn_url %>% rvest::read_html()
 ```
 
-There are many types of data you might want from a webpage, and each will require a different method of extraction. In this case, we're looking at an article and most likely will want the contents of that article. As a starting point, we might want to look at text that is sandwiched by p tags,
-
-    <p> text here </p>.
+There are many types of data you might want from a webpage, and each will require a different method of extraction. In this case, we're looking at an article and most likely will want the contents of that article. As a starting point, we might want to look at text that is sandwiched by p tags:
 
 ```{r}
 cnn_text <- cnn_page %>%
@@ -126,14 +124,15 @@ url <- paste0("https://news.google.com/search?q=", term,
 html_doc <- rvest::read_html(url)
 ```
 
-We want to get the html node that links to the article. Fortunately for us, Google defines specific classes of elements for different functions. To see which one is used for linking to the articles, we open Google News and use Chrome's inspection tool under <tt>View > Developer > Inspect Elements</tt> tool.
+We want to get the html node that links to the article. Fortunately for us, Google defines a specific class for such elements. To see what it's called, we can open Google News and use Chrome's inspection tool under <tt>View > Developer > Inspect Elements</tt> tool and mouse over the link.
 
 <img src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/inspect.png?raw=true">
 
-The class of elements we want is called "VDXfz", and we want to extract the hyperlink from it, which is specified using the <tt>href</tt> attribute.
+The class we want is called "VDXfz" (the CSS selector for class is <tt>.class</tt>), and we want to extract the hyperlink from it, which is specified using the <tt>href</tt> attribute.
 ```{r}
 ## Get links on the page
-links <- html_doc %>% rvest::html_nodes('.VDXfz') %>% rvest::html_attr('href')
+links <- html_doc %>% rvest::html_nodes('.VDXfz') %>%  # specify CSS selector: .class
+  rvest::html_attr('href')
 ```
 If we take a look at the html code for the webpage, we can see that the link is a relative path (the file name, e.g., "index.html").
 
@@ -141,7 +140,7 @@ If we take a look at the html code for the webpage, we can see that the link is 
 
 But we want an absolute path (the link you can enter into a web browser, e.g., "https://nytimes.com"). To get it in this format, we need to replace the root.
 ```{r}
-# this will give us urls in the following format:
+# this will give us links in the following format:
 links[1]
 # we want them instead to begin with the Google News address
 links <- gsub("./articles/", "https://news.google.com/articles/", links)
@@ -150,9 +149,13 @@ links <- gsub("./articles/", "https://news.google.com/articles/", links)
 Let's also record the title of each article. To see how to get this info, let's go back to Google News and open Chromes' Devloper Tools UI (or open the raw html file) and look for the corresponding node:
 <img  src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/node_title.png?raw=true">
 
-The class of elements we want seems to be called "DY5T1d". We want to extract the text from this element.
+Titles seem to be assigned the "DY5T1d" class attribute (it's actually a part of two classes; we use take either). We want to extract the text from this element.
 ```{r}
-titles <- html_doc %>% rvest::html_nodes('.DY5T1d') %>% rvest::html_text()
+titles <- html_doc %>% rvest::html_nodes('.DY5T1d .RZIKme') %>%
+  rvest::html_text()
+
+# same thing if we use the other class
+# html_doc %>%  rvest::html_nodes('.RZIKme') %>% rvest::html_text()
 
 # take the first five words
 trunc <- sapply(titles, FUN=function(x) 
@@ -221,3 +224,6 @@ The <tt>rtweet</tt> package has lots of other functions that you may find useful
 tl <- rtweet::get_timeline(user="UN", n=2)
 tl$text
 ```
+
+Lastly, we can do all this without the <tt>rtweet</tt> package, though it takes considerably more effort. Take a look at the supplement if interested; the supplement is also a nice jumping off point if you want to make requests to other APIs, some of which may not have R packages to do the leg work for you.
+
