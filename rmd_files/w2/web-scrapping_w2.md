@@ -8,11 +8,7 @@ output:
     rmarkdown::github_document: default
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
 
-require(magrittr)
-```
 
 ## A Brief Primer on HTML
 HyperText Markup Language (HTML) is a markup language (similar to LaTeX) and is what most websites are written in. An html document is essentially a tree composed of nodes. Nodes can be text, links, tables, etc., and they themselves can have "descendant" nodes (e.g., a table is itself a node, but inside the table there might be something that makes text italics, and then inside that will be the text itself).
@@ -32,7 +28,8 @@ To do webscrapping in R, we will be using the <tt>rvest</tt> package (a part of 
 
 We will use a CNN page on the war in Ukraine as an example. First, we need to use the <tt>read_html</tt> function to read the html document (the function returns an xml file, a format which <tt>rvest</tt>'s other functions will need).
 
-```{r}
+
+```r
 cnn_url <- "https://www.cnn.com/europe/live-news/ukraine-russia-putin-news-04-3-22/h_4d0118cfd6f30770be0f8f54e041f9d2"
 cnn_page <- cnn_url %>% rvest::read_html() # read_html is actually from xml2, which rvest imports 
 ```
@@ -41,11 +38,21 @@ There are many types of data you might want from a webpage, and each will requir
 
     <p> text here </p>.
 
-```{r}
+
+```r
 cnn_text <- cnn_page %>%
   rvest::html_elements("p") %>%  # elements delimited by the p tag
   rvest::html_text()  # text inside the tag
 head(cnn_text)
+```
+
+```
+## [1] "By Simone McCarthy, Steve George, Sana Noor Haq, Melissa Macaya, Mike Hayes, Maureen Chowdhury and Amir Vera, CNN"                                                                                                                                             
+## [2] "From CNN's Jonny Hallam "                                                                                                                                                                                                                                      
+## [3] ""                                                                                                                                                                                                                                                              
+## [4] "The bodies of at least 20 civilian men have been found lying strewn across the street in the town of Bucha, northwest of Kyiv following the withdrawal of Russian forces from the area in shocking images released by AFP on Saturday. "                       
+## [5] "The dead, all in civilian clothing, are found in a variety of awkward poses, some face down against the pavement, others facing upwards with mouths open.  "                                                                                                   
+## [6] "\"Three of them are tangled up in bicycles after taking their final ride, while others, with waxy skin, have fallen next to bullet-ridden and crushed cars,\" according to AFP journalists who accessed the town after it had been cut off for nearly a month."
 ```
 
 This gives us a vector of all the text in each of the paragraph elements on the webpage. 
@@ -54,7 +61,8 @@ This gives us a vector of all the text in each of the paragraph elements on the 
 
 Another example is images: Perhaps we are interested in seeing what types of images news organizations with different political leanings tend to use when covering a given subject (e.g., are more right-leaning news organizations more likely to include pictures of violence or then destruction of property when reporting on BLM?). To do this, we will retrieve the <tt>src</tt> attribute of the <tt>img</tt> element.
 
-```{r}
+
+```r
 cnn_img <- cnn_page %>% 
   rvest::html_elements("img") %>%  # img elements
   rvest::html_attr("src")  # the src attribute
@@ -63,10 +71,20 @@ cnn_img <- cnn_page %>%
 
 This gives us links to the images, which we can then feed to whatever learner (or human coder) we want. Maybe we also want to store the captions for these photos:
 
-```{r}
+
+```r
 cnn_cap <- cnn_page %>% rvest::html_elements("figcaption") %>% rvest::html_text()
 cnn_img_df <- cbind(image = cnn_img, caption = cnn_cap)
 cnn_img_df[1:2, ]  # first two examples
+```
+
+```
+##      image                                                                                           
+## [1,] "https://dynaimage.cdn.cnn.com/cnn/digital-images/org/a34e1e33-dff8-478a-ac2e-7d523421b67f.jpeg"
+## [2,] "https://dynaimage.cdn.cnn.com/cnn/digital-images/org/c793ffa3-2eba-4dc9-ac37-304305383611.jpeg"
+##      caption                                                                                                                                                                                                                         
+## [1,] "A man walks with bags of food given to him by the Ukrainian Army in Bucha, Ukraine on April 2. (Ronaldo Schemidt/AFP/Getty Images)"                                                                                            
+## [2,] "David Arakhamia, left, Mykhailo Podolyak, center and Crimean Tatar leader Mustafa Dzhemilev speak with the media after their meeting with Russian negotiators in Istanbul, Turkey on March 29.  (Mehmet Emin Caliskan/Reuters)"
 ```
 
 What you do with this information is a whole 'nother story. We will learn a bit about how to use text as data in a future section, but computer vision is beyond the scope of this class. 
@@ -75,7 +93,8 @@ There is, however, one concern that we can address now: What if we can't/don't w
 
 ## Aggregation Websites: e.g., Google News
 This section will walk you through the process of scraping Google News for articles on a specific topic. We will use "ukraine" as the example, but this will work for any search term(s). This is because Google News uses a fixed url format that varies only in the search term, which makes it easy for us to write flexible code. To see what this url is, you can just go to the Google News page and search for something. The url will have a field beggining with <tt>q</tt> (for query), followed by whatever you search for. (This doesn't just have to be a set of words; you can look up Google url search parameters to see how else you can narrow your search. For the purposes of this demonstration, though, let's keep it simple.)
-```{r}
+
+```r
 ## Get the search result page
 term <- "ukraine"
 url <- paste0("https://news.google.com/search?q=", term, 
@@ -88,16 +107,25 @@ We want to get the html node that links to the article. To do so, we open Google
 ![](inspect.png){#id .class width=50% height=50%}
 
 The node we want is called "VDXfz", and we want to extract the hyperlink from it.
-```{r}
+
+```r
 ## Get links on the page
 links <- html_doc %>% rvest::html_nodes('.VDXfz') %>% rvest::html_attr('href')
 ```
 If we take a look at the html code for the webpage, we can see that the link is a relative path (the file name, e.g., "index.html").
 ![href](node_href.png)
 But we want an absolute path (the link you can enter into a web browser, e.g., "https://nytimes.com"). To get it in this format, we need to replace the root.
-```{r}
+
+```r
 # this will give us urls in the following format:
 links[1]
+```
+
+```
+## [1] "./articles/CAIiEPrAVhDmFU2aQkYQgMoCQugqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&gl=US&ceid=US%3Aen"
+```
+
+```r
 # we want them instead to begin with the Google News address
 links <- gsub("./articles/", "https://news.google.com/articles/", links)
 ```
@@ -106,7 +134,8 @@ Let's also record the title of each article. To see how to get this info, let's 
 ![title](node_title.png)
 
 The node we want seems to be called "DY5T1d". We want to extract the text from this node.
-```{r}
+
+```r
 titles <- html_doc %>% rvest::html_nodes('.DY5T1d') %>% rvest::html_text()
 
 # take the first five words
@@ -114,6 +143,23 @@ trunc <- sapply(titles, FUN=function(x)
   paste(c(unlist(strsplit(x, split=" +"))[1:5], "..."), collapse=" "))
 df <- cbind(title = titles, truncated_title = unname(trunc), link = links) 
 head(df[, c("truncated_title", "link")])
+```
+
+```
+##      truncated_title                                     
+## [1,] "Ukraine-Russia Live News: Civilian Victims ..."    
+## [2,] "The horrors of Putin's invasion ..."               
+## [3,] "Ukraine claims 410 bodies found ..."               
+## [4,] "Russia-Ukraine war live updates: International ..."
+## [5,] "Ukraine updates: Ukrainians returning home ..."    
+## [6,] "Russia-Ukraine war: What happened today ..."       
+##      link                                                                                                                                                                                                                                                          
+## [1,] "https://news.google.com/articles/CAIiEPrAVhDmFU2aQkYQgMoCQugqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                   
+## [2,] "https://news.google.com/articles/CAIiEIqJInbL-tJ9NDOrCDptUjIqGQgEKhAIACoHCAowocv1CjCSptoCMPrTpgU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
+## [3,] "https://news.google.com/articles/CAIiEMRVBQIidvjPqf8dtOEZEoAqGQgEKhAIACoHCAow2Nb3CjDivdcCMKuvhQY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
+## [4,] "https://news.google.com/articles/CAIiEHTSgVW44u_H74H1ErwE_jEqGQgEKhAIACoHCAowvIaCCzDnxf4CMM2F8gU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
+## [5,] "https://news.google.com/articles/CAIiECIn-DwmTdlz7v-1DvkCLBAqGQgEKhAIACoHCAowjsP7CjCSpPQCMM_b5QU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
+## [6,] "https://news.google.com/articles/CAIiEPDe97059SHmXfeVPb7W3JkqFwgEKg4IACoGCAow9vBNMK3UCDCFpJYH?uo=CAUiWGh0dHBzOi8vd3d3Lm5wci5vcmcvMjAyMi8wNC8wMy8xMDkwNTIxNzIxL3J1c3NpYS11a3JhaW5lLXdhci13aGF0LWhhcHBlbmVkLXRvZGF5LWFwcmlsLTPSAQA&hl=en-US&gl=US&ceid=US%3Aen"
 ```
 Now that we have the links to all these web pages, we can just loop through and do what we did in the first section to extract all the text (or whatever information you want).
 
@@ -128,7 +174,8 @@ This time let's use a timely but lighter(?) subject as an example: the Oscars.
 To access Twitter's API, you need to [register as a devloper](https://developer.twitter.com/). 
 
 We'll use the <tt>rtweet</tt> package for this. One function allows you to search for tweets, and you can specify a number of parameters or filters. We can be quite specific with what types of tweets we want to query.
-```{r}
+
+```r
 # tweets that: mention the oscars & are from verified users & are not replies
 tw <- rtweet::search_tweets(q="\"oscars\" filter:verified -filter:replies",
                             n=10, include_rts = F,
@@ -136,12 +183,26 @@ tw <- rtweet::search_tweets(q="\"oscars\" filter:verified -filter:replies",
 ```
 
 The information is also organized nicely:
-```{r}
+
+```r
 head(colnames(tw))  # what type of information do we have
+```
+
+```
+## [1] "user_id"     "status_id"   "created_at"  "screen_name" "text"       
+## [6] "source"
+```
+
+```r
 tw$text[1]
 ```
+
+```
+## [1] "‘Last Week Tonight’: John Oliver Burns O.J. Simpson Over Oscars Slap Take: “No One Wants To Hear From You” https://t.co/KL1IwJVwOv"
+```
 This is already looking cleaner than our news article example, but let's do a bit of pre-processing. We'll go more in depth during our week on text as data, but for now let's just define a basic function for removing some (typically) unmeaningful words, as well as punctuation and whitespace, and apply it to each tweet.
-```{r}
+
+```r
 clean_text <- function(x) {
   x <- tm::removeWords(x, stopwords::stopwords("en"))
   x <- tm::stripWhitespace(x)
@@ -151,11 +212,31 @@ clean_text <- function(x) {
 
 ## Clean tweets
 tw[, c("screen_name", "text")]
+```
+
+```
+## # A tibble: 10 × 2
+##    screen_name     text                                                         
+##    <chr>           <chr>                                                        
+##  1 DEADLINE        ‘Last Week Tonight’: John Oliver Burns O.J. Simpson Over Osc…
+##  2 WhittierNews    Grammys 2022: Twitter talks Oscars versus Grammys with focus…
+##  3 PasStarNews     Grammys 2022: Twitter talks Oscars versus Grammys with focus…
+##  4 EvanRomano      very kind of Japanese Breakfast to bring Kodi Smit-McPhee to…
+##  5 pressenterprise Grammys 2022: Twitter talks Oscars versus Grammys with focus…
+##  6 InsideSoCalENT  Grammys 2022: Twitter talks Oscars versus Grammys with focus…
+##  7 RedlandsNews    Grammys 2022: Twitter talks Oscars versus Grammys with focus…
+##  8 presstelegram   Grammys 2022: Twitter talks Oscars versus Grammys with focus…
+##  9 sbsun           Grammys 2022: Twitter talks Oscars versus Grammys with focus…
+## 10 ladailynews     Grammys 2022: Twitter talks Oscars versus Grammys with focus…
+```
+
+```r
 tw_wrds <- sapply(tw$text, clean_text)
 ```
 
 Again, what you do with this data is a different topic. For now, let's do something simple: see which words appear the most often.
-```{r}
+
+```r
 # split into words
 tw_wrds <- sapply(tw_wrds, FUN=function(x) strsplit(tolower(x), split=" +"))
 
@@ -163,9 +244,23 @@ count <- table(unlist(tw_wrds))
 sort(count[count > 1], decreasing = T)
 ```
 
+```
+## 
+##   grammys    oscars         ‘      2022     focus memoriam’  segments     talks 
+##        17        10         8         8         8         8         8         8 
+##   twitter   ukraine    versus 
+##         8         8         8
+```
+
 The <tt>rtweet</tt> package has lots of other functions that you may find useful. If you want to use Twitter for your project, I encourage you to read the package's documentation. I'll just point out one other functionality, which is to get tweets from a specific user:
-```{r}
+
+```r
 # last 2 tweets from the UN
 tl <- rtweet::get_timeline(user="UN", n=2)
 tl$text
+```
+
+```
+## [1] "Afghanistan: The denial of education violates the human rights of women &amp; girls and can leave them more exposed to violence, poverty and exploitation.\n\nAll students must be allowed to exercise their right to an education. https://t.co/RLTlfBdZAi"                                        
+## [2] "Landmines &amp; explosive remnants of war impede the path to peace &amp; development. \n\nRidding the world of these deadly weapons would allow individuals &amp; communities to live in safety.\n\nMore from @UNMAS on Monday's #MineAwarenessDay: https://t.co/KmYriwGy50 https://t.co/dqFbuZdgyK"
 ```
