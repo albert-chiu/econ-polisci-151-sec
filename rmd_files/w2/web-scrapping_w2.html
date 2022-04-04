@@ -250,18 +250,18 @@ df &lt;- cbind(title = titles, truncated_title = unname(trunc), link = links)
 head(df[, c(&quot;truncated_title&quot;, &quot;link&quot;)])</code></pre>
 <pre><code>##      truncated_title                                     
 ## [1,] &quot;Ukraine-Russia Live News: Civilian Victims ...&quot;    
-## [2,] &quot;The horrors of Putin&#39;s invasion ...&quot;               
-## [3,] &quot;Ukraine claims 410 bodies found ...&quot;               
-## [4,] &quot;Russia-Ukraine war live updates: International ...&quot;
-## [5,] &quot;Ukraine updates: Ukrainians returning home ...&quot;    
-## [6,] &quot;Russia-Ukraine war: What happened today ...&quot;       
-##      link                                                                                                                          
-## [1,] &quot;https://news.google.com/articles/CAIiEPrAVhDmFU2aQkYQgMoCQugqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;   
-## [2,] &quot;https://news.google.com/articles/CAIiEIqJInbL-tJ9NDOrCDptUjIqGQgEKhAIACoHCAowocv1CjCSptoCMPrTpgU?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;
-## [3,] &quot;https://news.google.com/articles/CAIiEMRVBQIidvjPqf8dtOEZEoAqGQgEKhAIACoHCAow2Nb3CjDivdcCMKuvhQY?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;
-## [4,] &quot;https://news.google.com/articles/CAIiEHTSgVW44u_H74H1ErwE_jEqGQgEKhAIACoHCAowvIaCCzDnxf4CMM2F8gU?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;
-## [5,] &quot;https://news.google.com/articles/CAIiECIn-DwmTdlz7v-1DvkCLBAqGQgEKhAIACoHCAowjsP7CjCSpPQCMM_b5QU?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;
-## [6,] &quot;https://news.google.com/articles/CAIiEPDe97059SHmXfeVPb7W3JkqFwgEKg4IACoGCAow9vBNMK3UCDCFpJYH?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;</code></pre>
+## [2,] &quot;Ukraine claims 410 bodies found ...&quot;               
+## [3,] &quot;Russia-Ukraine war live updates: International ...&quot;
+## [4,] &quot;Ukraine updates: Ukrainians returning home ...&quot;    
+## [5,] &quot;Ukraine latest updates: Ukraine says ...&quot;          
+## [6,] &quot;April 3, 2022 Russia-Ukraine news ...&quot;             
+##      link                                                                                                                                                                                                                                                                                                  
+## [1,] &quot;https://news.google.com/articles/CAIiEPrAVhDmFU2aQkYQgMoCQugqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                                                           
+## [2,] &quot;https://news.google.com/articles/CAIiEMRVBQIidvjPqf8dtOEZEoAqGQgEKhAIACoHCAow2Nb3CjDivdcCMKuvhQY?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                                                        
+## [3,] &quot;https://news.google.com/articles/CAIiEHTSgVW44u_H74H1ErwE_jEqGQgEKhAIACoHCAowvIaCCzDnxf4CMM2F8gU?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                                                        
+## [4,] &quot;https://news.google.com/articles/CAIiECIn-DwmTdlz7v-1DvkCLBAqGQgEKhAIACoHCAowjsP7CjCSpPQCMM_b5QU?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                                                        
+## [5,] &quot;https://news.google.com/articles/CAIiEBYU5ggCGdzmLwkP9S5mMiQqFQgEKgwIACoFCAowhgIwkDgws_qTBw?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                                                             
+## [6,] &quot;https://news.google.com/articles/CBMiUWh0dHBzOi8vd3d3LmNubi5jb20vZXVyb3BlL2xpdmUtbmV3cy91a3JhaW5lLXJ1c3NpYS1wdXRpbi1uZXdzLTA0LTMtMjIvaW5kZXguaHRtbNIBVWh0dHBzOi8vYW1wLmNubi5jb20vY25uL2V1cm9wZS9saXZlLW5ld3MvdWtyYWluZS1ydXNzaWEtcHV0aW4tbmV3cy0wNC0zLTIyL2luZGV4Lmh0bWw?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;</code></pre>
 <p>Now that we have the links to all these web pages, we can just loop through and do what we did in the first section to extract all the text (or whatever information you want).</p>
 </div>
 <div id="apis-e.g.-twitter" class="section level2">
@@ -273,14 +273,15 @@ head(df[, c(&quot;truncated_title&quot;, &quot;link&quot;)])</code></pre>
 <p>We’ll use the <tt>rtweet</tt> package for this. One function allows you to search for tweets, and you can specify a number of parameters or filters. We can be quite specific with what types of tweets we want to query.</p>
 <pre class="r"><code># tweets that: mention the oscars &amp; are from verified users &amp; are not replies
 tw &lt;- rtweet::search_tweets(q=&quot;\&quot;oscars\&quot; filter:verified -filter:replies&quot;,
-                            n=10, include_rts = F,
+                            n=10,  # 10 tweets
+                            include_rts = F,  # exclude retweets
                             lang=&quot;en&quot;)  # only tweets in English </code></pre>
 <p>The information is also organized nicely:</p>
 <pre class="r"><code>head(colnames(tw))  # what type of information do we have</code></pre>
 <pre><code>## [1] &quot;user_id&quot;     &quot;status_id&quot;   &quot;created_at&quot;  &quot;screen_name&quot; &quot;text&quot;       
 ## [6] &quot;source&quot;</code></pre>
 <pre class="r"><code>tw$text[1]</code></pre>
-<pre><code>## [1] &quot;#Grammys really put the toxicity of the Oscars into sharp relief&quot;</code></pre>
+<pre><code>## [1] &quot;OMG! Comedian #TrevorNoah made a sly reference to #WillSmith and #ChrisRock&#39;s infamous slapgate incident during #Grammy2022 😅  \n\nhttps://t.co/4VHVytQH8w&quot;</code></pre>
 <p>This is already looking cleaner than our news article example, but let’s do a bit of pre-processing. We’ll go more in depth during our week on text as data, but for now let’s just define a basic function for removing some (typically) unmeaningful words, as well as punctuation and whitespace, and apply it to each tweet.</p>
 <pre class="r"><code>clean_text &lt;- function(x) {
   x %&gt;% tm::removeWords(stopwords::stopwords(&quot;en&quot;)) %&gt;% 
@@ -289,21 +290,30 @@ tw &lt;- rtweet::search_tweets(q=&quot;\&quot;oscars\&quot; filter:verified -fil
 }
 
 ## Clean tweets
+# before
 tw[, c(&quot;screen_name&quot;, &quot;text&quot;)]</code></pre>
 <pre><code>## # A tibble: 10 × 2
 ##    screen_name    text                                                          
 ##    &lt;chr&gt;          &lt;chr&gt;                                                         
-##  1 BabsVan        &quot;#Grammys really put the toxicity of the Oscars into sharp re…
-##  2 CarmenRodgers  &quot;Grammys were a nice break from the Oscars.&quot;                  
-##  3 zeitchikWaPo   &quot;One reason I think the Grammys work so much better than the …
-##  4 mcelarier      &quot;Zelensky speech at the Grammys. got to wonder why the Oscars…
-##  5 Wildaboutmusic &quot;The #GRAMMYs. Like The Oscars. But Classy. https://t.co/6aFt…
-##  6 usweekly       &quot;Chris Rock‘s joke about Jada Pinkett Smith at the 2022 Oscar…
-##  7 girishjohar    &quot;In #Oscars #DilipKumar Sir &amp;amp; #LataMangeshkar ji... both …
-##  8 kathyireland   &quot;#MovieMonday from our archives “Schindler’s List” starring #…
-##  9 Independent    &quot;Read ‘heartbroken’ Will Smith’s full statement as actor resi…
-## 10 benparr        &quot;The Grammys is a much better produced show than the Oscars.\…</code></pre>
-<pre class="r"><code>tw_wrds &lt;- sapply(tw$text, clean_text)</code></pre>
+##  1 ZoomTV         &quot;OMG! Comedian #TrevorNoah made a sly reference to #WillSmith…
+##  2 FOX29philly    &quot;“Took me a while to get my thoughts together,” “Fresh Prince…
+##  3 BabsVan        &quot;#Grammys really put the toxicity of the Oscars into sharp re…
+##  4 CarmenRodgers  &quot;Grammys were a nice break from the Oscars.&quot;                  
+##  5 zeitchikWaPo   &quot;One reason I think the Grammys work so much better than the …
+##  6 mcelarier      &quot;Zelensky speech at the Grammys. got to wonder why the Oscars…
+##  7 Wildaboutmusic &quot;The #GRAMMYs. Like The Oscars. But Classy. https://t.co/6aFt…
+##  8 usweekly       &quot;Chris Rock‘s joke about Jada Pinkett Smith at the 2022 Oscar…
+##  9 girishjohar    &quot;In #Oscars #DilipKumar Sir &amp;amp; #LataMangeshkar ji... both …
+## 10 kathyireland   &quot;#MovieMonday from our archives “Schindler’s List” starring #…</code></pre>
+<pre class="r"><code># after
+tw_wrds &lt;- unname(sapply(tw$text, clean_text))
+head(tw_wrds)</code></pre>
+<pre><code>## [1] &quot;OMG Comedian TrevorNoah made sly reference WillSmith ChrisRocks infamous slapgate incident Grammy2022 😅 httpstco4VHVytQH8w&quot;                                                       
+## [2] &quot;“Took get thoughts together” “Fresh Prince BelAir” star Tatyana Ali wrote social media sharing thoughts happened Oscars httpstcosTfF6O7UoC&quot;                                        
+## [3] &quot;Grammys really put toxicity Oscars sharp relief&quot;                                                                                                                                   
+## [4] &quot;Grammys nice break Oscars&quot;                                                                                                                                                         
+## [5] &quot;One reason I think Grammys work much better Oscars  though viewers shows unfamiliar many nominees Oscars pull many muscles begging approval apologizing Grammys just effortlessly &quot;
+## [6] &quot;Zelensky speech Grammys got wonder Oscars allow instead httpstcod4XfF6UDqs&quot;</code></pre>
 <p>Again, what you do with this data is a different topic. For now, let’s do something simple: see which words appear the most often.</p>
 <pre class="r"><code># split into words
 tw_wrds &lt;- sapply(tw_wrds, FUN=function(x) strsplit(tolower(x), split=&quot; +&quot;))
@@ -311,10 +321,10 @@ tw_wrds &lt;- sapply(tw_wrds, FUN=function(x) strsplit(tolower(x), split=&quot; 
 count &lt;- table(unlist(tw_wrds))
 sort(count[count &gt; 1], decreasing = T)</code></pre>
 <pre><code>## 
-##  oscars grammys     amp     the       —    best  better       i instead      ji 
-##      11       8       4       3       2       2       2       2       2       2 
-##    many    much     pay     put   shows   smith    will 
-##       2       2       2       2       2       2       2</code></pre>
+##   oscars  grammys      amp     best comedian  instead       ji     made 
+##       10        7        4        2        2        2        2        2 
+##     many      pay    smith      the thoughts 
+##        2        2        2        2        2</code></pre>
 <p>The <tt>rtweet</tt> package has lots of other functions that you may find useful. If you want to use Twitter for your project, I encourage you to read the package’s documentation. I’ll just point out one other functionality, which is to get tweets from a specific user:</p>
 <pre class="r"><code># last 2 tweets from the UN
 tl &lt;- rtweet::get_timeline(user=&quot;UN&quot;, n=2)

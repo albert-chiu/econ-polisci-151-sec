@@ -148,18 +148,18 @@ head(df[, c("truncated_title", "link")])
 ```
 ##      truncated_title                                     
 ## [1,] "Ukraine-Russia Live News: Civilian Victims ..."    
-## [2,] "The horrors of Putin's invasion ..."               
-## [3,] "Ukraine claims 410 bodies found ..."               
-## [4,] "Russia-Ukraine war live updates: International ..."
-## [5,] "Ukraine updates: Ukrainians returning home ..."    
-## [6,] "Russia-Ukraine war: What happened today ..."       
-##      link                                                                                                                          
-## [1,] "https://news.google.com/articles/CAIiEPrAVhDmFU2aQkYQgMoCQugqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&gl=US&ceid=US%3Aen"   
-## [2,] "https://news.google.com/articles/CAIiEIqJInbL-tJ9NDOrCDptUjIqGQgEKhAIACoHCAowocv1CjCSptoCMPrTpgU?hl=en-US&gl=US&ceid=US%3Aen"
-## [3,] "https://news.google.com/articles/CAIiEMRVBQIidvjPqf8dtOEZEoAqGQgEKhAIACoHCAow2Nb3CjDivdcCMKuvhQY?hl=en-US&gl=US&ceid=US%3Aen"
-## [4,] "https://news.google.com/articles/CAIiEHTSgVW44u_H74H1ErwE_jEqGQgEKhAIACoHCAowvIaCCzDnxf4CMM2F8gU?hl=en-US&gl=US&ceid=US%3Aen"
-## [5,] "https://news.google.com/articles/CAIiECIn-DwmTdlz7v-1DvkCLBAqGQgEKhAIACoHCAowjsP7CjCSpPQCMM_b5QU?hl=en-US&gl=US&ceid=US%3Aen"
-## [6,] "https://news.google.com/articles/CAIiEPDe97059SHmXfeVPb7W3JkqFwgEKg4IACoGCAow9vBNMK3UCDCFpJYH?hl=en-US&gl=US&ceid=US%3Aen"
+## [2,] "Ukraine claims 410 bodies found ..."               
+## [3,] "Russia-Ukraine war live updates: International ..."
+## [4,] "Ukraine updates: Ukrainians returning home ..."    
+## [5,] "Ukraine latest updates: Ukraine says ..."          
+## [6,] "April 3, 2022 Russia-Ukraine news ..."             
+##      link                                                                                                                                                                                                                                                                                                  
+## [1,] "https://news.google.com/articles/CAIiEPrAVhDmFU2aQkYQgMoCQugqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                           
+## [2,] "https://news.google.com/articles/CAIiEMRVBQIidvjPqf8dtOEZEoAqGQgEKhAIACoHCAow2Nb3CjDivdcCMKuvhQY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                        
+## [3,] "https://news.google.com/articles/CAIiEHTSgVW44u_H74H1ErwE_jEqGQgEKhAIACoHCAowvIaCCzDnxf4CMM2F8gU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                        
+## [4,] "https://news.google.com/articles/CAIiECIn-DwmTdlz7v-1DvkCLBAqGQgEKhAIACoHCAowjsP7CjCSpPQCMM_b5QU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                        
+## [5,] "https://news.google.com/articles/CAIiEBYU5ggCGdzmLwkP9S5mMiQqFQgEKgwIACoFCAowhgIwkDgws_qTBw?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                             
+## [6,] "https://news.google.com/articles/CBMiUWh0dHBzOi8vd3d3LmNubi5jb20vZXVyb3BlL2xpdmUtbmV3cy91a3JhaW5lLXJ1c3NpYS1wdXRpbi1uZXdzLTA0LTMtMjIvaW5kZXguaHRtbNIBVWh0dHBzOi8vYW1wLmNubi5jb20vY25uL2V1cm9wZS9saXZlLW5ld3MvdWtyYWluZS1ydXNzaWEtcHV0aW4tbmV3cy0wNC0zLTIyL2luZGV4Lmh0bWw?hl=en-US&gl=US&ceid=US%3Aen"
 ```
 Now that we have the links to all these web pages, we can just loop through and do what we did in the first section to extract all the text (or whatever information you want).
 
@@ -178,7 +178,8 @@ We'll use the <tt>rtweet</tt> package for this. One function allows you to searc
 ```r
 # tweets that: mention the oscars & are from verified users & are not replies
 tw <- rtweet::search_tweets(q="\"oscars\" filter:verified -filter:replies",
-                            n=10, include_rts = F,
+                            n=10,  # 10 tweets
+                            include_rts = F,  # exclude retweets
                             lang="en")  # only tweets in English 
 ```
 
@@ -198,7 +199,7 @@ tw$text[1]
 ```
 
 ```
-## [1] "#Grammys really put the toxicity of the Oscars into sharp relief"
+## [1] "OMG! Comedian #TrevorNoah made a sly reference to #WillSmith and #ChrisRock's infamous slapgate incident during #Grammy2022 😅  \n\nhttps://t.co/4VHVytQH8w"
 ```
 This is already looking cleaner than our news article example, but let's do a bit of pre-processing. We'll go more in depth during our week on text as data, but for now let's just define a basic function for removing some (typically) unmeaningful words, as well as punctuation and whitespace, and apply it to each tweet.
 
@@ -210,6 +211,7 @@ clean_text <- function(x) {
 }
 
 ## Clean tweets
+# before
 tw[, c("screen_name", "text")]
 ```
 
@@ -217,20 +219,31 @@ tw[, c("screen_name", "text")]
 ## # A tibble: 10 × 2
 ##    screen_name    text                                                          
 ##    <chr>          <chr>                                                         
-##  1 BabsVan        "#Grammys really put the toxicity of the Oscars into sharp re…
-##  2 CarmenRodgers  "Grammys were a nice break from the Oscars."                  
-##  3 zeitchikWaPo   "One reason I think the Grammys work so much better than the …
-##  4 mcelarier      "Zelensky speech at the Grammys. got to wonder why the Oscars…
-##  5 Wildaboutmusic "The #GRAMMYs. Like The Oscars. But Classy. https://t.co/6aFt…
-##  6 usweekly       "Chris Rock‘s joke about Jada Pinkett Smith at the 2022 Oscar…
-##  7 girishjohar    "In #Oscars #DilipKumar Sir &amp; #LataMangeshkar ji... both …
-##  8 kathyireland   "#MovieMonday from our archives “Schindler’s List” starring #…
-##  9 Independent    "Read ‘heartbroken’ Will Smith’s full statement as actor resi…
-## 10 benparr        "The Grammys is a much better produced show than the Oscars.\…
+##  1 ZoomTV         "OMG! Comedian #TrevorNoah made a sly reference to #WillSmith…
+##  2 FOX29philly    "“Took me a while to get my thoughts together,” “Fresh Prince…
+##  3 BabsVan        "#Grammys really put the toxicity of the Oscars into sharp re…
+##  4 CarmenRodgers  "Grammys were a nice break from the Oscars."                  
+##  5 zeitchikWaPo   "One reason I think the Grammys work so much better than the …
+##  6 mcelarier      "Zelensky speech at the Grammys. got to wonder why the Oscars…
+##  7 Wildaboutmusic "The #GRAMMYs. Like The Oscars. But Classy. https://t.co/6aFt…
+##  8 usweekly       "Chris Rock‘s joke about Jada Pinkett Smith at the 2022 Oscar…
+##  9 girishjohar    "In #Oscars #DilipKumar Sir &amp; #LataMangeshkar ji... both …
+## 10 kathyireland   "#MovieMonday from our archives “Schindler’s List” starring #…
 ```
 
 ```r
-tw_wrds <- sapply(tw$text, clean_text)
+# after
+tw_wrds <- unname(sapply(tw$text, clean_text))
+head(tw_wrds)
+```
+
+```
+## [1] "OMG Comedian TrevorNoah made sly reference WillSmith ChrisRocks infamous slapgate incident Grammy2022 😅 httpstco4VHVytQH8w"                                                       
+## [2] "“Took get thoughts together” “Fresh Prince BelAir” star Tatyana Ali wrote social media sharing thoughts happened Oscars httpstcosTfF6O7UoC"                                        
+## [3] "Grammys really put toxicity Oscars sharp relief"                                                                                                                                   
+## [4] "Grammys nice break Oscars"                                                                                                                                                         
+## [5] "One reason I think Grammys work much better Oscars  though viewers shows unfamiliar many nominees Oscars pull many muscles begging approval apologizing Grammys just effortlessly "
+## [6] "Zelensky speech Grammys got wonder Oscars allow instead httpstcod4XfF6UDqs"
 ```
 
 Again, what you do with this data is a different topic. For now, let's do something simple: see which words appear the most often.
@@ -245,10 +258,10 @@ sort(count[count > 1], decreasing = T)
 
 ```
 ## 
-##  oscars grammys     amp     the       —    best  better       i instead      ji 
-##      11       8       4       3       2       2       2       2       2       2 
-##    many    much     pay     put   shows   smith    will 
-##       2       2       2       2       2       2       2
+##   oscars  grammys      amp     best comedian  instead       ji     made 
+##       10        7        4        2        2        2        2        2 
+##     many      pay    smith      the thoughts 
+##        2        2        2        2        2
 ```
 
 The <tt>rtweet</tt> package has lots of other functions that you may find useful. If you want to use Twitter for your project, I encourage you to read the package's documentation. I'll just point out one other functionality, which is to get tweets from a specific user:
