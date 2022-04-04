@@ -67,7 +67,7 @@ eg_html %>% rvest::html_elements("p") %>%
 
     ## [1] "\n        text here \n         link1 "
 
-Or maybe we want all one of its descendants with a specific tag:
+Or maybe we want its descendants with a specific tag:
 
 ``` r
 eg_html %>% rvest::html_elements("p") %>%
@@ -202,7 +202,7 @@ To see which one is used for linking to the articles, we open Google
 News and use Chrome’s inspection tool under <tt>View \> Developer \>
 Inspect Elements</tt> tool.
 
-<img src="inspect.png" id="id" class="class" style="width:50.0%;height:50.0%" />
+<img src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/inspect.png?raw=true" width="475" height="133">
 
 The class of elements we want is called “VDXfz”, and we want to extract
 the hyperlink from it, which is specified using the <tt>href</tt>
@@ -215,9 +215,12 @@ links <- html_doc %>% rvest::html_nodes('.VDXfz') %>% rvest::html_attr('href')
 
 If we take a look at the html code for the webpage, we can see that the
 link is a relative path (the file name, e.g., “index.html”).
-![href](node_href.png) But we want an absolute path (the link you can
-enter into a web browser, e.g., “<https://nytimes.com>”). To get it in
-this format, we need to replace the root.
+
+<img src="https://raw.githubusercontent.com/albert-chiu/econ-polisci-151-sec/main/rmd_files/w2/node_href.png">
+
+But we want an absolute path (the link you can enter into a web browser,
+e.g., “<https://nytimes.com>”). To get it in this format, we need to
+replace the root.
 
 ``` r
 # this will give us urls in the following format:
@@ -234,7 +237,7 @@ links <- gsub("./articles/", "https://news.google.com/articles/", links)
 Let’s also record the title of each article. To see how to get this
 info, let’s go back to Google News and open Chromes’ Devloper Tools UI
 (or open the raw html file) and look for the corresponding node:
-![title](node_title.png)
+<img  src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/node_title.png?raw=true">
 
 The class of elements we want seems to be called “DY5T1d”. We want to
 extract the text from this element.
@@ -250,7 +253,7 @@ head(df[, c("truncated_title", "link")])
 ```
 
     ##      truncated_title                                     
-    ## [1,] "Ukraine-Russia Live News: Civilian Victims ..."    
+    ## [1,] "What Happened on Day 39 ..."                       
     ## [2,] "The horrors of Putin's invasion ..."               
     ## [3,] "Ukraine claims 410 bodies found ..."               
     ## [4,] "Ukraine updates: Ukrainians returning home ..."    
@@ -312,7 +315,7 @@ head(colnames(tw))
 tw$text[1]
 ```
 
-    ## [1] "Questlove, who won Outstanding Documentary Feature at the Oscars, poked fun at the Will Smith slap as he presented at the #Grammys! https://t.co/mlUdEtOSTn"
+    ## [1] "The apologies for the joke do not appear on Chris Rock's social media accounts, and his publicist said the statements are fake. #FakeNews #ChrisRock #WillSmith \nhttps://t.co/RIqjDemERX"
 
 This is already looking cleaner than our news article example, but let’s
 still do a bit of pre-processing. We’ll go more in depth during our week
@@ -335,16 +338,16 @@ tw[, c("screen_name", "text")]
     ## # A tibble: 10 × 2
     ##    screen_name     text                                                         
     ##    <chr>           <chr>                                                        
-    ##  1 extratv         "Questlove, who won Outstanding Documentary Feature at the O…
-    ##  2 WIONews         "Last week, the Academy had failed to mention #LataMangeshka…
-    ##  3 thetribunechd   "After #Oscars, #GrammyAwards leave out #LataMangeshkar from…
-    ##  4 Kashmir_Monitor "After Oscars, Grammy Awards leave out Lata Mangeshkar from …
-    ##  5 FOX5Atlanta     "“Took me a while to get my thoughts together,” “Fresh Princ…
-    ##  6 latimes         "Jon Batiste, Olivia Rodrigo and Silk Sonic each took home b…
-    ##  7 sportsguymarv   "Will Smith: Netflix And Sony Pause Projects After Oscars Me…
-    ##  8 ConversationEDU "The Power of the Dog may have lead the pack when it came to…
-    ##  9 ians_india      "A week after the #Oscars, the 64th Annual #GrammyAwards als…
-    ## 10 seankmckeever   "Yes, Sean. Time to turn your Oscars to slag. https://t.co/Q…
+    ##  1 boomlive_in     "The apologies for the joke do not appear on Chris Rock's so…
+    ##  2 boomlive_in     "Edit histories of the posts show they were changed to refer…
+    ##  3 PageSix         "Will Smith resigned but is he 'banned' from Oscars like thi…
+    ##  4 dailystar       "#Grammys 2022 host Trevor Noah makes subtle dig at Will Smi…
+    ##  5 fox32news       "“Took me a while to get my thoughts together,” “Fresh Princ…
+    ##  6 mrdiscopop      "The Oscars give Oscars to people who make films about films…
+    ##  7 moneycontrolcom "Music legend #LataMangeshkar was missing from the “In Memor…
+    ##  8 GBNEWS          "Grammy Awards host Trevor Noah opens show with dig at Will …
+    ##  9 rochelleriley   "Dear @ABCNetwork and @willpowerpacker:\n\nPlease are-air th…
+    ## 10 Independent     "Trevor Noah opens Grammys by poking fun at Will Smith Oscar…
 
 ``` r
 # after
@@ -352,12 +355,12 @@ tw_wrds <- unname(sapply(tw$text, clean_text))
 head(tw_wrds)
 ```
 
-    ## [1] "Questlove won Outstanding Documentary Feature Oscars poked fun Will Smith slap presented Grammys httpstcomlUdEtOSTn"                                   
-    ## [2] "Last week Academy failed mention LataMangeshkar DilipKumar Memoriam section Recording Academy organises Grammys seems followed suit httpstcockNvyd1Thh"
-    ## [3] "After Oscars GrammyAwards leave LataMangeshkar In Memoriam section httpstcoFLNsGjihkD"                                                                 
-    ## [4] "After Oscars Grammy Awards leave Lata Mangeshkar ‘In Memoriam’ section httpstcogGjnPeQawI"                                                             
-    ## [5] "“Took get thoughts together” “Fresh Prince BelAir” star Tatyana Ali wrote social media sharing thoughts happened Oscars httpstcornSeC2goyd"            
-    ## [6] "Jon Batiste Olivia Rodrigo Silk Sonic took home big prizes 64th annual Grammys upbeat dramafree ceremony chaos Oscars last week httpstcoO34en5sJTF"
+    ## [1] "The apologies joke appear Chris Rocks social media accounts publicist said statements fake FakeNews ChrisRock WillSmith httpstcoRIqjDemERX"                                                           
+    ## [2] "Edit histories posts show changed reference Will Smith slapping Chris Rock took place Oscars ChrisRock WillSmith httpstcoYxrdj2pAfO"                                                                  
+    ## [3] "Will Smith resigned banned Oscars like exclusive club httpstcoISIvtmV6HE httpstcoyiQBK3JDla"                                                                                                          
+    ## [4] "Grammys 2022 host Trevor Noah makes subtle dig Will Smiths Oscars slap httpstcoLtmNpNvVQq httpstcoKbMUOAirDl"                                                                                         
+    ## [5] "“Took get thoughts together” “Fresh Prince BelAir” star Tatyana Ali wrote social media sharing thoughts happened Oscars httpstco3v7PuWbK2H"                                                           
+    ## [6] "The Oscars give Oscars people make films films Argo The Artist Birdman The Grammys give Grammys people make music music Jon Batiste Silk Sonic Not wanting rain anyones parade maybe best way forward"
 
 Again, what you do with this data is a different topic. For now, let’s
 do something simple: see which words appear the most often.
@@ -371,14 +374,14 @@ sort(count[count > 1], decreasing = T)
 ```
 
     ## 
-    ##         oscars          after        grammys latamangeshkar       memoriam 
-    ##              8              3              3              3              3 
-    ##        section           week           64th        academy            and 
-    ##              3              3              2              2              2 
-    ##         annual            big       ceremony   grammyawards             in 
-    ##              2              2              2              2              2 
-    ##           last          leave          smith       thoughts           will 
-    ##              2              2              2              2              2
+    ##    oscars   grammys      will     smith       the     music      noah      slap 
+    ##        10         5         5         4         4         3         3         3 
+    ##    trevor   america     chris chrisrock       dig     films      give    grammy 
+    ##         3         2         2         2         2         2         2         2 
+    ##      host      make     media     opens    people      show    social  thoughts 
+    ##         2         2         2         2         2         2         2         2 
+    ## willsmith      year 
+    ##         2         2
 
 The <tt>rtweet</tt> package has lots of other functions that you may
 find useful. If you want to use Twitter for your project, I encourage

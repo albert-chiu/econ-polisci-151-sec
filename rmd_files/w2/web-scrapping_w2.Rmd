@@ -54,7 +54,7 @@ eg_html %>% rvest::html_elements("p") %>%
   rvest::html_text()
 ```
 
-Or maybe we want all one of its descendants with a specific tag:
+Or maybe we want its descendants with a specific tag:
 ```{r}
 eg_html %>% rvest::html_elements("p") %>%
   rvest::html_elements("a")
@@ -128,7 +128,7 @@ html_doc <- rvest::read_html(url)
 
 We want to get the html node that links to the article. Fortunately for us, Google defines specific classes of elements for different functions. To see which one is used for linking to the articles, we open Google News and use Chrome's inspection tool under <tt>View > Developer > Inspect Elements</tt> tool.
 
-![](inspect.png){#id .class width=50% height=50%}
+<img src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/inspect.png?raw=true" width="475" height="133">
 
 The class of elements we want is called "VDXfz", and we want to extract the hyperlink from it, which is specified using the <tt>href</tt> attribute.
 ```{r}
@@ -136,7 +136,9 @@ The class of elements we want is called "VDXfz", and we want to extract the hype
 links <- html_doc %>% rvest::html_nodes('.VDXfz') %>% rvest::html_attr('href')
 ```
 If we take a look at the html code for the webpage, we can see that the link is a relative path (the file name, e.g., "index.html").
-![href](node_href.png)
+
+<img src="https://raw.githubusercontent.com/albert-chiu/econ-polisci-151-sec/main/rmd_files/w2/node_href.png">
+
 But we want an absolute path (the link you can enter into a web browser, e.g., "https://nytimes.com"). To get it in this format, we need to replace the root.
 ```{r}
 # this will give us urls in the following format:
@@ -146,7 +148,7 @@ links <- gsub("./articles/", "https://news.google.com/articles/", links)
 ```
 
 Let's also record the title of each article. To see how to get this info, let's go back to Google News and open Chromes' Devloper Tools UI (or open the raw html file) and look for the corresponding node:
-![title](node_title.png)
+<img  src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/node_title.png?raw=true">
 
 The class of elements we want seems to be called "DY5T1d". We want to extract the text from this element.
 ```{r}
