@@ -63,7 +63,7 @@ This gives us a vector of all the text in each of the paragraph elements on the 
 
 (Alternatively, you can look try other tags, like "body" -- just note that using a different tag will also mean the output is formated differently (and all the paragraphs will be smooshed together).)
 
-Another example is images: Perhaps we are interested in seeing what types of images news organizations with different political leanings tend to use when covering a given subject (e.g., are more right-leaning news organizations more likely to include pictures of violence or then destruction of property when reporting on BLM?). To do this, we will retrieve the <tt>src</tt> attribute of the <tt>img</tt> element.
+Another example is images: Perhaps we are interested in seeing what types of images news organizations with different political leanings tend to use when covering a given subject (e.g., are more right-leaning news organizations more likely to include pictures of violence/destruction of property when reporting on BLM?). To do this, we will retrieve the <tt>src</tt> attribute of the <tt>img</tt> element.
 
 
 ```r
@@ -78,12 +78,12 @@ This gives us links to the images, which we can then feed to whatever learner (o
 
 ```r
 cnn_cap <- cnn_page %>% rvest::html_elements("figcaption") %>% rvest::html_text()
-cnn_img_df <- cbind(image = cnn_img, caption = cnn_cap)
+cnn_img_df <- cbind(link_to_img = cnn_img, caption = cnn_cap)
 cnn_img_df[1:2, ]  # first two examples
 ```
 
 ```
-##      image                                                                                           
+##      link_to_img                                                                                     
 ## [1,] "https://dynaimage.cdn.cnn.com/cnn/digital-images/org/a34e1e33-dff8-478a-ac2e-7d523421b67f.jpeg"
 ## [2,] "https://dynaimage.cdn.cnn.com/cnn/digital-images/org/c793ffa3-2eba-4dc9-ac37-304305383611.jpeg"
 ##      caption                                                                                                                                                                                                                         
@@ -96,7 +96,7 @@ What you do with this information is a whole 'nother story. We will learn a bit 
 There is, however, one concern that we can address now: What if we can't/don't want to collect the url of potentially thousands of websites? In some circumstances, there will be websites that aggregate other websites, and we can scrape urls from such aggregators. In this case, we can use Google News, which aggregates links to news articles.
 
 ## Aggregation Websites: e.g., Google News
-This section will walk you through the process of scraping Google News for articles on a specific topic. We will use "ukraine" as the example, but this will work for any search term(s). This is because Google News uses a fixed url format that varies only in the search term, which makes it easy for us to write flexible code. To see what this url is, you can just go to the Google News page and search for something. The url will have a field beggining with <tt>q</tt> (for query), followed by whatever you search for. (This doesn't just have to be a set of words; you can look up Google url search parameters to see how else you can narrow your search. For the purposes of this demonstration, though, let's keep it simple.)
+This section will walk you through the process of scraping Google News for articles on a specific topic. We will use "ukraine" as the example, but this code can be readily repurposed for search term(s). This is because Google News uses a fixed url format that varies only in the search term, which makes it easy for us to write flexible code. To see what this url is, you can just go to the Google News page and search for something. The url will have a field beggining with <tt>q</tt> (for query), followed by whatever you search for. (This doesn't just have to be a set of words; you can look up Google url search parameters to see how else you can narrow your search. For the purposes of this demonstration, though, let's keep it simple.)
 
 ```r
 ## Get the search result page
@@ -156,41 +156,42 @@ head(df[, c("truncated_title", "link")])
 ## [3,] "Ukraine updates: Ukrainians returning home ..."    
 ## [4,] "Ukraine latest updates: Ukraine says ..."          
 ## [5,] "Russia-Ukraine war live updates: International ..."
-## [6,] "Russia-Ukraine war: What happened today ..."       
-##      link                                                                                                                                                                                                                                                          
-## [1,] "https://news.google.com/articles/CAIiEPrAVhDmFU2aQkYQgMoCQugqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                   
-## [2,] "https://news.google.com/articles/CAIiEMRVBQIidvjPqf8dtOEZEoAqGQgEKhAIACoHCAow2Nb3CjDivdcCMJ_d7gU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
-## [3,] "https://news.google.com/articles/CAIiECIn-DwmTdlz7v-1DvkCLBAqGQgEKhAIACoHCAowjsP7CjCSpPQCMM_b5QU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
-## [4,] "https://news.google.com/articles/CAIiEBYU5ggCGdzmLwkP9S5mMiQqFQgEKgwIACoFCAowhgIwkDgws_qTBw?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                     
-## [5,] "https://news.google.com/articles/CAIiEHTSgVW44u_H74H1ErwE_jEqGQgEKhAIACoHCAowvIaCCzDnxf4CMM2F8gU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
-## [6,] "https://news.google.com/articles/CAIiEPDe97059SHmXfeVPb7W3JkqFwgEKg4IACoGCAow9vBNMK3UCDCFpJYH?uo=CAUiWGh0dHBzOi8vd3d3Lm5wci5vcmcvMjAyMi8wNC8wMy8xMDkwNTIxNzIxL3J1c3NpYS11a3JhaW5lLXdhci13aGF0LWhhcHBlbmVkLXRvZGF5LWFwcmlsLTPSAQA&hl=en-US&gl=US&ceid=US%3Aen"
+## [6,] "April 3, 2022 Russia-Ukraine news ..."             
+##      link                                                                                                                                                                                                                                                                                                  
+## [1,] "https://news.google.com/articles/CAIiEPrAVhDmFU2aQkYQgMoCQugqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                           
+## [2,] "https://news.google.com/articles/CAIiEMRVBQIidvjPqf8dtOEZEoAqGQgEKhAIACoHCAow2Nb3CjDivdcCMKuvhQY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                        
+## [3,] "https://news.google.com/articles/CAIiECIn-DwmTdlz7v-1DvkCLBAqGQgEKhAIACoHCAowjsP7CjCSpPQCMM_b5QU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                        
+## [4,] "https://news.google.com/articles/CAIiEBYU5ggCGdzmLwkP9S5mMiQqFQgEKgwIACoFCAowhgIwkDgws_qTBw?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                             
+## [5,] "https://news.google.com/articles/CAIiEHTSgVW44u_H74H1ErwE_jEqGQgEKhAIACoHCAowvIaCCzDnxf4CMM2F8gU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                        
+## [6,] "https://news.google.com/articles/CBMiUWh0dHBzOi8vd3d3LmNubi5jb20vZXVyb3BlL2xpdmUtbmV3cy91a3JhaW5lLXJ1c3NpYS1wdXRpbi1uZXdzLTA0LTMtMjIvaW5kZXguaHRtbNIBVWh0dHBzOi8vYW1wLmNubi5jb20vY25uL2V1cm9wZS9saXZlLW5ld3MvdWtyYWluZS1ydXNzaWEtcHV0aW4tbmV3cy0wNC0zLTIyL2luZGV4Lmh0bWw?hl=en-US&gl=US&ceid=US%3Aen"
 ```
 Now that we have the links to all these web pages, we can just loop through and do what we did in the first section to extract all the text/images (or whatever information you want).
 
 
 ## APIs: e.g., Twitter
-What we did in the previous section is a bit cumbersome, and it also is messy. For example, though our intention was only to gather the body of the article, our data also includes author names.
+What we did in the previous section is a bit cumbersom and the results messy. For example, though our intention was only to gather the body of the article, our data also includes author names.
 
 Sometimes, it's much easier. Some websites have application programming interfaces (APIs), which you can query for specific and well-structured information. Twitter is one such website.
 
-This time let's use a timely but lighter(?) subject as an example: the Oscars.
+This time let's use a timely but lighter subject as an example: the Oscars.
 
 To access Twitter's API, you need to [register as a devloper](https://developer.twitter.com/). 
 
-We'll use the <tt>rtweet</tt> package for this. One function allows you to search for tweets, and you can specify a number of parameters or filters. We can be quite specific with what types of tweets we want to query.
+We'll use the <tt>rtweet</tt> package. The <tt>search_tweets()</tt> function allows you to search for tweets, and you can specify a number of parameters or filters. We can be quite specific with what types of tweets we want to query.
 
 ```r
 # tweets that: mention the oscars & are from verified users & are not replies
 tw <- rtweet::search_tweets(q="\"oscars\" filter:verified -filter:replies",
-                            n=10,  # 10 tweets
                             include_rts = F,  # exclude retweets
-                            lang="en")  # only tweets in English 
+                            lang="en",  # only tweets in English 
+                            n=10)  # 10 tweets
 ```
 
 The information is also organized nicely:
 
 ```r
-head(colnames(tw))  # what type of information do we have
+# what type of information do we have
+head(colnames(tw))  
 ```
 
 ```
@@ -199,13 +200,14 @@ head(colnames(tw))  # what type of information do we have
 ```
 
 ```r
+# example of the text in a tweet
 tw$text[1]
 ```
 
 ```
-## [1] "WILL SMITH FILMS ON HOLD: Films starring Will Smith reportedly put on hold after Oscars slap. #8NN\nhttps://t.co/VoDVJKd6ND"
+## [1] "We Celebrate the artist of New Orleans Center of Creative Arts. Grammys, Oscars, Peabodys, Pulitzers @NOCCA Jon Batiste https://t.co/ajJIhddcWV"
 ```
-This is already looking cleaner than our news article example, but let's do a bit of pre-processing. We'll go more in depth during our week on text as data, but for now let's just define a basic function for removing some (typically) unmeaningful words, as well as punctuation and whitespace, and apply it to each tweet.
+This is already looking cleaner than our news article example, but let's still do a bit of pre-processing. We'll go more in depth during our week on text as data, but for now let's just define a basic function for removing some (typically) unmeaningful words, as well as punctuation and whitespace, and apply it to each tweet.
 
 ```r
 clean_text <- function(x) {
@@ -223,16 +225,16 @@ tw[, c("screen_name", "text")]
 ## # A tibble: 10 × 2
 ##    screen_name   text                                                           
 ##    <chr>         <chr>                                                          
-##  1 8NewsNow      "WILL SMITH FILMS ON HOLD: Films starring Will Smith reportedl…
-##  2 IndiaToday    "#GrammyAwards 2022: At the 64th Grammy Awards held in Las Veg…
-##  3 BRProudNews   "Films starring Will Smith reportedly put on hold after Oscars…
-##  4 fpjindia      "After #Oscars, #Grammy2022 snubs #LataMangeshkar from 'In Mem…
-##  5 moviesndtv    "#Grammys2022: After #Oscars, @mangeshkarlata Left Out Of Anot…
-##  6 ZoomTV        "OMG! Comedian #TrevorNoah made a sly reference to #WillSmith …
-##  7 FOX29philly   "“Took me a while to get my thoughts together,” “Fresh Prince …
-##  8 BabsVan       "#Grammys really put the toxicity of the Oscars into sharp rel…
-##  9 CarmenRodgers "Grammys were a nice break from the Oscars."                   
-## 10 zeitchikWaPo  "One reason I think the Grammys work so much better than the O…
+##  1 WendellPierce "We Celebrate the artist of New Orleans Center of Creative Art…
+##  2 HowardCohen   "Music industry's MVP, most compassionate soul, has to be @lad…
+##  3 fox7austin    "“Took me a while to get my thoughts together,” 'Fresh Prince …
+##  4 extratv       "#Grammys host Trevor Noah dropped a subtle joke about the Osc…
+##  5 latestly      "#GRAMMYs2022: After #Oscars, #LataMangeshkar Left Out of ‘#In…
+##  6 NBCNewYork    "ICYMI: Here's how \"SNL\" handled the Will Smith Oscars slap …
+##  7 Independent   "After an action-packed Oscars, the Grammys seems majorly dull…
+##  8 cmolanphy     "Genuine kudos to @HarveyMasonjr for a #GRAMMYs show that was …
+##  9 THR           "John Oliver Criticizes O.J. Simpson for Weighing In on Will S…
+## 10 8NewsNow      "WILL SMITH FILMS ON HOLD: Films starring Will Smith reportedl…
 ```
 
 ```r
@@ -242,12 +244,12 @@ head(tw_wrds)
 ```
 
 ```
-## [1] "WILL SMITH FILMS ON HOLD Films starring Will Smith reportedly put hold Oscars slap 8NN httpstcoVoDVJKd6ND"                                                                              
-## [2] "GrammyAwards 2022 At 64th Grammy Awards held Las Vegas today organisers forgot pay tribute legendary singers LataMangeshkar BappiLahiri This left fans baffled upset httpstcov9HH3uJqfL"
-## [3] "Films starring Will Smith reportedly put hold Oscars slap httpstco7GE3GVgonm"                                                                                                           
-## [4] "After Oscars Grammy2022 snubs LataMangeshkar In Memoriam segment GrammyAwards Grammy httpstcoJxJkuPIkkJ"                                                                                
-## [5] "Grammys2022 After Oscars mangeshkarlata Left Out Of Another Tribute Twitter Is Furious httpstcobzDjLV3Ocx httpstcoKBqkuy5yTD"                                                           
-## [6] "OMG Comedian TrevorNoah made sly reference WillSmith ChrisRocks infamous slapgate incident Grammy2022 😅 httpstco4VHVytQH8w"
+## [1] "We Celebrate artist New Orleans Center Creative Arts Grammys Oscars Peabodys Pulitzers NOCCA Jon Batiste httpstcoajJIhddcWV"                                                                                                        
+## [2] "Music industrys MVP compassionate soul ladygaga Last year assisted Tony Bennett concert She helped Liza Minnelli present Oscars I got  After losing popduo Grammys many figured amp Tonys aided winner SZA Sweet httpstcoWh4qGbrigj"
+## [3] "“Took get thoughts together” Fresh Prince BelAir star Tatyana Ali wrote social media sharing thoughts happened Oscars httpstcoMbWwZ6XheU"                                                                                           
+## [4] "Grammys host Trevor Noah dropped subtle joke Oscars slap monologue 😯 httpstcoq9EokKTfd3"                                                                                                                                           
+## [5] "GRAMMYs2022 After Oscars LataMangeshkar Left Out ‘InMemoriam’ Segment 64thAnnualGRAMMYAwards Leaves Indian Fans Annoyed RecordingAcad Grammys Grammys2022 GrammyAwards GrammyAwards2022 httpstcoL7CRbvR2sa"                         
+## [6] "ICYMI Heres SNL handled Will Smith Oscars slap httpstcoJKzIGhdGCc"
 ```
 
 Again, what you do with this data is a different topic. For now, let's do something simple: see which words appear the most often.
@@ -262,17 +264,15 @@ sort(count[count > 1], decreasing = T)
 
 ```
 ## 
-##         oscars        grammys          films           hold            put 
-##              9              4              3              3              3 
-##          smith           will          after         grammy     grammy2022 
-##              3              3              2              2              2 
-##   grammyawards latamangeshkar           left           many     reportedly 
-##              2              2              2              2              2 
-##           slap       starring       thoughts        tribute 
-##              2              2              2              2
+##      oscars     grammys        slap        will       after       smith 
+##          10           6           4           4           3           3 
+##         amp       films grammys2022        hold           i         one 
+##           2           2           2           2           2           2 
+##    thoughts 
+##           2
 ```
 
-The <tt>rtweet</tt> package has lots of other functions that you may find useful. If you want to use Twitter for your project, I encourage you to read the package's documentation. I'll just point out one other functionality, which is to get tweets from a specific user:
+The <tt>rtweet</tt> package has lots of other functions that you may find useful. If you want to use Twitter for your project, I encourage you to read the package's documentation. I'll just point out one other function, one which gets tweets from a specific user:
 
 ```r
 # last 2 tweets from the UN

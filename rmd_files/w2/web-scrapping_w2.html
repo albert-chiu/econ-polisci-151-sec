@@ -207,15 +207,15 @@ head(cnn_text)</code></pre>
 ## [6] &quot;\&quot;Three of them are tangled up in bicycles after taking their final ride, while others, with waxy skin, have fallen next to bullet-ridden and crushed cars,\&quot; according to AFP journalists who accessed the town after it had been cut off for nearly a month.&quot;</code></pre>
 <p>This gives us a vector of all the text in each of the paragraph elements on the webpage.</p>
 <p>(Alternatively, you can look try other tags, like “body” – just note that using a different tag will also mean the output is formated differently (and all the paragraphs will be smooshed together).)</p>
-<p>Another example is images: Perhaps we are interested in seeing what types of images news organizations with different political leanings tend to use when covering a given subject (e.g., are more right-leaning news organizations more likely to include pictures of violence or then destruction of property when reporting on BLM?). To do this, we will retrieve the <tt>src</tt> attribute of the <tt>img</tt> element.</p>
+<p>Another example is images: Perhaps we are interested in seeing what types of images news organizations with different political leanings tend to use when covering a given subject (e.g., are more right-leaning news organizations more likely to include pictures of violence/destruction of property when reporting on BLM?). To do this, we will retrieve the <tt>src</tt> attribute of the <tt>img</tt> element.</p>
 <pre class="r"><code>cnn_img &lt;- cnn_page %&gt;% 
   rvest::html_elements(&quot;img&quot;) %&gt;%  # img elements
   rvest::html_attr(&quot;src&quot;)  # the src attribute</code></pre>
 <p>This gives us links to the images, which we can then feed to whatever learner (or human coder) we want. Maybe we also want to store the captions for these photos:</p>
 <pre class="r"><code>cnn_cap &lt;- cnn_page %&gt;% rvest::html_elements(&quot;figcaption&quot;) %&gt;% rvest::html_text()
-cnn_img_df &lt;- cbind(image = cnn_img, caption = cnn_cap)
+cnn_img_df &lt;- cbind(link_to_img = cnn_img, caption = cnn_cap)
 cnn_img_df[1:2, ]  # first two examples</code></pre>
-<pre><code>##      image                                                                                           
+<pre><code>##      link_to_img                                                                                     
 ## [1,] &quot;https://dynaimage.cdn.cnn.com/cnn/digital-images/org/a34e1e33-dff8-478a-ac2e-7d523421b67f.jpeg&quot;
 ## [2,] &quot;https://dynaimage.cdn.cnn.com/cnn/digital-images/org/c793ffa3-2eba-4dc9-ac37-304305383611.jpeg&quot;
 ##      caption                                                                                                                                                                                                                         
@@ -226,7 +226,7 @@ cnn_img_df[1:2, ]  # first two examples</code></pre>
 </div>
 <div id="aggregation-websites-e.g.-google-news" class="section level2">
 <h2>Aggregation Websites: e.g., Google News</h2>
-<p>This section will walk you through the process of scraping Google News for articles on a specific topic. We will use “ukraine” as the example, but this will work for any search term(s). This is because Google News uses a fixed url format that varies only in the search term, which makes it easy for us to write flexible code. To see what this url is, you can just go to the Google News page and search for something. The url will have a field beggining with <tt>q</tt> (for query), followed by whatever you search for. (This doesn’t just have to be a set of words; you can look up Google url search parameters to see how else you can narrow your search. For the purposes of this demonstration, though, let’s keep it simple.)</p>
+<p>This section will walk you through the process of scraping Google News for articles on a specific topic. We will use “ukraine” as the example, but this code can be readily repurposed for search term(s). This is because Google News uses a fixed url format that varies only in the search term, which makes it easy for us to write flexible code. To see what this url is, you can just go to the Google News page and search for something. The url will have a field beggining with <tt>q</tt> (for query), followed by whatever you search for. (This doesn’t just have to be a set of words; you can look up Google url search parameters to see how else you can narrow your search. For the purposes of this demonstration, though, let’s keep it simple.)</p>
 <pre class="r"><code>## Get the search result page
 term &lt;- &quot;ukraine&quot;
 url &lt;- paste0(&quot;https://news.google.com/search?q=&quot;, term, 
@@ -258,35 +258,37 @@ head(df[, c(&quot;truncated_title&quot;, &quot;link&quot;)])</code></pre>
 ## [3,] &quot;Ukraine updates: Ukrainians returning home ...&quot;    
 ## [4,] &quot;Ukraine latest updates: Ukraine says ...&quot;          
 ## [5,] &quot;Russia-Ukraine war live updates: International ...&quot;
-## [6,] &quot;Russia-Ukraine war: What happened today ...&quot;       
-##      link                                                                                                                                                                                                                                                          
-## [1,] &quot;https://news.google.com/articles/CAIiEPrAVhDmFU2aQkYQgMoCQugqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                   
-## [2,] &quot;https://news.google.com/articles/CAIiEMRVBQIidvjPqf8dtOEZEoAqGQgEKhAIACoHCAow2Nb3CjDivdcCMJ_d7gU?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                
-## [3,] &quot;https://news.google.com/articles/CAIiECIn-DwmTdlz7v-1DvkCLBAqGQgEKhAIACoHCAowjsP7CjCSpPQCMM_b5QU?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                
-## [4,] &quot;https://news.google.com/articles/CAIiEBYU5ggCGdzmLwkP9S5mMiQqFQgEKgwIACoFCAowhgIwkDgws_qTBw?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                     
-## [5,] &quot;https://news.google.com/articles/CAIiEHTSgVW44u_H74H1ErwE_jEqGQgEKhAIACoHCAowvIaCCzDnxf4CMM2F8gU?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                
-## [6,] &quot;https://news.google.com/articles/CAIiEPDe97059SHmXfeVPb7W3JkqFwgEKg4IACoGCAow9vBNMK3UCDCFpJYH?uo=CAUiWGh0dHBzOi8vd3d3Lm5wci5vcmcvMjAyMi8wNC8wMy8xMDkwNTIxNzIxL3J1c3NpYS11a3JhaW5lLXdhci13aGF0LWhhcHBlbmVkLXRvZGF5LWFwcmlsLTPSAQA&amp;hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;</code></pre>
+## [6,] &quot;April 3, 2022 Russia-Ukraine news ...&quot;             
+##      link                                                                                                                                                                                                                                                                                                  
+## [1,] &quot;https://news.google.com/articles/CAIiEPrAVhDmFU2aQkYQgMoCQugqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                                                           
+## [2,] &quot;https://news.google.com/articles/CAIiEMRVBQIidvjPqf8dtOEZEoAqGQgEKhAIACoHCAow2Nb3CjDivdcCMKuvhQY?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                                                        
+## [3,] &quot;https://news.google.com/articles/CAIiECIn-DwmTdlz7v-1DvkCLBAqGQgEKhAIACoHCAowjsP7CjCSpPQCMM_b5QU?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                                                        
+## [4,] &quot;https://news.google.com/articles/CAIiEBYU5ggCGdzmLwkP9S5mMiQqFQgEKgwIACoFCAowhgIwkDgws_qTBw?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                                                             
+## [5,] &quot;https://news.google.com/articles/CAIiEHTSgVW44u_H74H1ErwE_jEqGQgEKhAIACoHCAowvIaCCzDnxf4CMM2F8gU?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                                                        
+## [6,] &quot;https://news.google.com/articles/CBMiUWh0dHBzOi8vd3d3LmNubi5jb20vZXVyb3BlL2xpdmUtbmV3cy91a3JhaW5lLXJ1c3NpYS1wdXRpbi1uZXdzLTA0LTMtMjIvaW5kZXguaHRtbNIBVWh0dHBzOi8vYW1wLmNubi5jb20vY25uL2V1cm9wZS9saXZlLW5ld3MvdWtyYWluZS1ydXNzaWEtcHV0aW4tbmV3cy0wNC0zLTIyL2luZGV4Lmh0bWw?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;</code></pre>
 <p>Now that we have the links to all these web pages, we can just loop through and do what we did in the first section to extract all the text/images (or whatever information you want).</p>
 </div>
 <div id="apis-e.g.-twitter" class="section level2">
 <h2>APIs: e.g., Twitter</h2>
-<p>What we did in the previous section is a bit cumbersome, and it also is messy. For example, though our intention was only to gather the body of the article, our data also includes author names.</p>
+<p>What we did in the previous section is a bit cumbersom and the results messy. For example, though our intention was only to gather the body of the article, our data also includes author names.</p>
 <p>Sometimes, it’s much easier. Some websites have application programming interfaces (APIs), which you can query for specific and well-structured information. Twitter is one such website.</p>
-<p>This time let’s use a timely but lighter(?) subject as an example: the Oscars.</p>
+<p>This time let’s use a timely but lighter subject as an example: the Oscars.</p>
 <p>To access Twitter’s API, you need to <a href="https://developer.twitter.com/">register as a devloper</a>.</p>
-<p>We’ll use the <tt>rtweet</tt> package for this. One function allows you to search for tweets, and you can specify a number of parameters or filters. We can be quite specific with what types of tweets we want to query.</p>
+<p>We’ll use the <tt>rtweet</tt> package. The <tt>search_tweets()</tt> function allows you to search for tweets, and you can specify a number of parameters or filters. We can be quite specific with what types of tweets we want to query.</p>
 <pre class="r"><code># tweets that: mention the oscars &amp; are from verified users &amp; are not replies
 tw &lt;- rtweet::search_tweets(q=&quot;\&quot;oscars\&quot; filter:verified -filter:replies&quot;,
-                            n=10,  # 10 tweets
                             include_rts = F,  # exclude retweets
-                            lang=&quot;en&quot;)  # only tweets in English </code></pre>
+                            lang=&quot;en&quot;,  # only tweets in English 
+                            n=10)  # 10 tweets</code></pre>
 <p>The information is also organized nicely:</p>
-<pre class="r"><code>head(colnames(tw))  # what type of information do we have</code></pre>
+<pre class="r"><code># what type of information do we have
+head(colnames(tw))  </code></pre>
 <pre><code>## [1] &quot;user_id&quot;     &quot;status_id&quot;   &quot;created_at&quot;  &quot;screen_name&quot; &quot;text&quot;       
 ## [6] &quot;source&quot;</code></pre>
-<pre class="r"><code>tw$text[1]</code></pre>
-<pre><code>## [1] &quot;WILL SMITH FILMS ON HOLD: Films starring Will Smith reportedly put on hold after Oscars slap. #8NN\nhttps://t.co/VoDVJKd6ND&quot;</code></pre>
-<p>This is already looking cleaner than our news article example, but let’s do a bit of pre-processing. We’ll go more in depth during our week on text as data, but for now let’s just define a basic function for removing some (typically) unmeaningful words, as well as punctuation and whitespace, and apply it to each tweet.</p>
+<pre class="r"><code># example of the text in a tweet
+tw$text[1]</code></pre>
+<pre><code>## [1] &quot;We Celebrate the artist of New Orleans Center of Creative Arts. Grammys, Oscars, Peabodys, Pulitzers @NOCCA Jon Batiste https://t.co/ajJIhddcWV&quot;</code></pre>
+<p>This is already looking cleaner than our news article example, but let’s still do a bit of pre-processing. We’ll go more in depth during our week on text as data, but for now let’s just define a basic function for removing some (typically) unmeaningful words, as well as punctuation and whitespace, and apply it to each tweet.</p>
 <pre class="r"><code>clean_text &lt;- function(x) {
   x %&gt;% tm::removeWords(stopwords::stopwords(&quot;en&quot;)) %&gt;% 
     tm::stripWhitespace() %&gt;%
@@ -299,25 +301,25 @@ tw[, c(&quot;screen_name&quot;, &quot;text&quot;)]</code></pre>
 <pre><code>## # A tibble: 10 × 2
 ##    screen_name   text                                                           
 ##    &lt;chr&gt;         &lt;chr&gt;                                                          
-##  1 8NewsNow      &quot;WILL SMITH FILMS ON HOLD: Films starring Will Smith reportedl…
-##  2 IndiaToday    &quot;#GrammyAwards 2022: At the 64th Grammy Awards held in Las Veg…
-##  3 BRProudNews   &quot;Films starring Will Smith reportedly put on hold after Oscars…
-##  4 fpjindia      &quot;After #Oscars, #Grammy2022 snubs #LataMangeshkar from &#39;In Mem…
-##  5 moviesndtv    &quot;#Grammys2022: After #Oscars, @mangeshkarlata Left Out Of Anot…
-##  6 ZoomTV        &quot;OMG! Comedian #TrevorNoah made a sly reference to #WillSmith …
-##  7 FOX29philly   &quot;“Took me a while to get my thoughts together,” “Fresh Prince …
-##  8 BabsVan       &quot;#Grammys really put the toxicity of the Oscars into sharp rel…
-##  9 CarmenRodgers &quot;Grammys were a nice break from the Oscars.&quot;                   
-## 10 zeitchikWaPo  &quot;One reason I think the Grammys work so much better than the O…</code></pre>
+##  1 WendellPierce &quot;We Celebrate the artist of New Orleans Center of Creative Art…
+##  2 HowardCohen   &quot;Music industry&#39;s MVP, most compassionate soul, has to be @lad…
+##  3 fox7austin    &quot;“Took me a while to get my thoughts together,” &#39;Fresh Prince …
+##  4 extratv       &quot;#Grammys host Trevor Noah dropped a subtle joke about the Osc…
+##  5 latestly      &quot;#GRAMMYs2022: After #Oscars, #LataMangeshkar Left Out of ‘#In…
+##  6 NBCNewYork    &quot;ICYMI: Here&#39;s how \&quot;SNL\&quot; handled the Will Smith Oscars slap …
+##  7 Independent   &quot;After an action-packed Oscars, the Grammys seems majorly dull…
+##  8 cmolanphy     &quot;Genuine kudos to @HarveyMasonjr for a #GRAMMYs show that was …
+##  9 THR           &quot;John Oliver Criticizes O.J. Simpson for Weighing In on Will S…
+## 10 8NewsNow      &quot;WILL SMITH FILMS ON HOLD: Films starring Will Smith reportedl…</code></pre>
 <pre class="r"><code># after
 tw_wrds &lt;- unname(sapply(tw$text, clean_text))
 head(tw_wrds)</code></pre>
-<pre><code>## [1] &quot;WILL SMITH FILMS ON HOLD Films starring Will Smith reportedly put hold Oscars slap 8NN httpstcoVoDVJKd6ND&quot;                                                                              
-## [2] &quot;GrammyAwards 2022 At 64th Grammy Awards held Las Vegas today organisers forgot pay tribute legendary singers LataMangeshkar BappiLahiri This left fans baffled upset httpstcov9HH3uJqfL&quot;
-## [3] &quot;Films starring Will Smith reportedly put hold Oscars slap httpstco7GE3GVgonm&quot;                                                                                                           
-## [4] &quot;After Oscars Grammy2022 snubs LataMangeshkar In Memoriam segment GrammyAwards Grammy httpstcoJxJkuPIkkJ&quot;                                                                                
-## [5] &quot;Grammys2022 After Oscars mangeshkarlata Left Out Of Another Tribute Twitter Is Furious httpstcobzDjLV3Ocx httpstcoKBqkuy5yTD&quot;                                                           
-## [6] &quot;OMG Comedian TrevorNoah made sly reference WillSmith ChrisRocks infamous slapgate incident Grammy2022 😅 httpstco4VHVytQH8w&quot;</code></pre>
+<pre><code>## [1] &quot;We Celebrate artist New Orleans Center Creative Arts Grammys Oscars Peabodys Pulitzers NOCCA Jon Batiste httpstcoajJIhddcWV&quot;                                                                                                        
+## [2] &quot;Music industrys MVP compassionate soul ladygaga Last year assisted Tony Bennett concert She helped Liza Minnelli present Oscars I got  After losing popduo Grammys many figured amp Tonys aided winner SZA Sweet httpstcoWh4qGbrigj&quot;
+## [3] &quot;“Took get thoughts together” Fresh Prince BelAir star Tatyana Ali wrote social media sharing thoughts happened Oscars httpstcoMbWwZ6XheU&quot;                                                                                           
+## [4] &quot;Grammys host Trevor Noah dropped subtle joke Oscars slap monologue 😯 httpstcoq9EokKTfd3&quot;                                                                                                                                           
+## [5] &quot;GRAMMYs2022 After Oscars LataMangeshkar Left Out ‘InMemoriam’ Segment 64thAnnualGRAMMYAwards Leaves Indian Fans Annoyed RecordingAcad Grammys Grammys2022 GrammyAwards GrammyAwards2022 httpstcoL7CRbvR2sa&quot;                         
+## [6] &quot;ICYMI Heres SNL handled Will Smith Oscars slap httpstcoJKzIGhdGCc&quot;</code></pre>
 <p>Again, what you do with this data is a different topic. For now, let’s do something simple: see which words appear the most often.</p>
 <pre class="r"><code># split into words
 tw_wrds &lt;- sapply(tw_wrds, FUN=function(x) strsplit(tolower(x), split=&quot; +&quot;))
@@ -325,15 +327,13 @@ tw_wrds &lt;- sapply(tw_wrds, FUN=function(x) strsplit(tolower(x), split=&quot; 
 count &lt;- table(unlist(tw_wrds))
 sort(count[count &gt; 1], decreasing = T)</code></pre>
 <pre><code>## 
-##         oscars        grammys          films           hold            put 
-##              9              4              3              3              3 
-##          smith           will          after         grammy     grammy2022 
-##              3              3              2              2              2 
-##   grammyawards latamangeshkar           left           many     reportedly 
-##              2              2              2              2              2 
-##           slap       starring       thoughts        tribute 
-##              2              2              2              2</code></pre>
-<p>The <tt>rtweet</tt> package has lots of other functions that you may find useful. If you want to use Twitter for your project, I encourage you to read the package’s documentation. I’ll just point out one other functionality, which is to get tweets from a specific user:</p>
+##      oscars     grammys        slap        will       after       smith 
+##          10           6           4           4           3           3 
+##         amp       films grammys2022        hold           i         one 
+##           2           2           2           2           2           2 
+##    thoughts 
+##           2</code></pre>
+<p>The <tt>rtweet</tt> package has lots of other functions that you may find useful. If you want to use Twitter for your project, I encourage you to read the package’s documentation. I’ll just point out one other function, one which gets tweets from a specific user:</p>
 <pre class="r"><code># last 2 tweets from the UN
 tl &lt;- rtweet::get_timeline(user=&quot;UN&quot;, n=2)
 tl$text</code></pre>
