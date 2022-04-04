@@ -83,11 +83,11 @@ url <- paste0("https://news.google.com/search?q=", term,
 html_doc <- rvest::read_html(url)
 ```
 
-We want to get the html node that links to the article. To do so, we open Google News and use Chrome's inspection tool under <tt>View > Developer > Inspect Elements</tt> tool.
+We want to get the html node that links to the article. Fortunately for us, Google defines specific classes of elements for different functions. To see which one is used for linking to the articles, we open Google News and use Chrome's inspection tool under <tt>View > Developer > Inspect Elements</tt> tool.
 
 ![](inspect.png){#id .class width=50% height=50%}
 
-The node we want is called "VDXfz", and we want to extract the hyperlink from it.
+The class of elements we want is called "VDXfz", and we want to extract the hyperlink from it, which is specified using the <tt>href</tt> attribute.
 ```{r}
 ## Get links on the page
 links <- html_doc %>% rvest::html_nodes('.VDXfz') %>% rvest::html_attr('href')
@@ -105,7 +105,7 @@ links <- gsub("./articles/", "https://news.google.com/articles/", links)
 Let's also record the title of each article. To see how to get this info, let's go back to Google News and open Chromes' Devloper Tools UI (or open the raw html file) and look for the corresponding node:
 ![title](node_title.png)
 
-The node we want seems to be called "DY5T1d". We want to extract the text from this node.
+The class of elements we want seems to be called "DY5T1d". We want to extract the text from this element.
 ```{r}
 titles <- html_doc %>% rvest::html_nodes('.DY5T1d') %>% rvest::html_text()
 
@@ -115,7 +115,7 @@ trunc <- sapply(titles, FUN=function(x)
 df <- cbind(title = titles, truncated_title = unname(trunc), link = links) 
 head(df[, c("truncated_title", "link")])
 ```
-Now that we have the links to all these web pages, we can just loop through and do what we did in the first section to extract all the text (or whatever information you want).
+Now that we have the links to all these web pages, we can just loop through and do what we did in the first section to extract all the text/images (or whatever information you want).
 
 
 ## APIs: e.g., Twitter
