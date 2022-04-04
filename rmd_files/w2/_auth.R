@@ -1,1 +1,1 @@
-bearer_token <- " "
+bearer_token <- ""
