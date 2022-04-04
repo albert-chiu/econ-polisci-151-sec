@@ -128,7 +128,7 @@ html_doc <- rvest::read_html(url)
 
 We want to get the html node that links to the article. Fortunately for us, Google defines specific classes of elements for different functions. To see which one is used for linking to the articles, we open Google News and use Chrome's inspection tool under <tt>View > Developer > Inspect Elements</tt> tool.
 
-<img src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/inspect.png?raw=true" width="475" height="133">
+<img src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/inspect.png?raw=true">
 
 The class of elements we want is called "VDXfz", and we want to extract the hyperlink from it, which is specified using the <tt>href</tt> attribute.
 ```{r}
