@@ -202,7 +202,7 @@ To see which one is used for linking to the articles, we open Google
 News and use Chrome’s inspection tool under <tt>View \> Developer \>
 Inspect Elements</tt> tool.
 
-<img src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/inspect.png?raw=true" width="475" height="133">
+<img src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/inspect.png?raw=true">
 
 The class of elements we want is called “VDXfz”, and we want to extract
 the hyperlink from it, which is specified using the <tt>href</tt>
@@ -256,15 +256,15 @@ head(df[, c("truncated_title", "link")])
     ## [1,] "What Happened on Day 39 ..."                       
     ## [2,] "The horrors of Putin's invasion ..."               
     ## [3,] "Ukraine claims 410 bodies found ..."               
-    ## [4,] "Ukraine updates: Ukrainians returning home ..."    
-    ## [5,] "Russia-Ukraine war live updates: International ..."
+    ## [4,] "Russia-Ukraine war live updates: International ..."
+    ## [5,] "Ukraine updates: Ukrainians returning home ..."    
     ## [6,] "Russia-Ukraine war: What happened today ..."       
     ##      link                                                                                                                                                                                                                                                          
     ## [1,] "https://news.google.com/articles/CAIiEPrAVhDmFU2aQkYQgMoCQugqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                   
     ## [2,] "https://news.google.com/articles/CAIiEIqJInbL-tJ9NDOrCDptUjIqGQgEKhAIACoHCAowocv1CjCSptoCMPrTpgU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
     ## [3,] "https://news.google.com/articles/CAIiEMRVBQIidvjPqf8dtOEZEoAqGQgEKhAIACoHCAow2Nb3CjDivdcCMKuvhQY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
-    ## [4,] "https://news.google.com/articles/CAIiECIn-DwmTdlz7v-1DvkCLBAqGQgEKhAIACoHCAowjsP7CjCSpPQCMM_b5QU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
-    ## [5,] "https://news.google.com/articles/CAIiEHTSgVW44u_H74H1ErwE_jEqGQgEKhAIACoHCAowvIaCCzDnxf4CMM2F8gU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
+    ## [4,] "https://news.google.com/articles/CAIiEHTSgVW44u_H74H1ErwE_jEqGQgEKhAIACoHCAowvIaCCzDnxf4CMM2F8gU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
+    ## [5,] "https://news.google.com/articles/CAIiECIn-DwmTdlz7v-1DvkCLBAqGQgEKhAIACoHCAowjsP7CjCSpPQCMM_b5QU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
     ## [6,] "https://news.google.com/articles/CAIiEPDe97059SHmXfeVPb7W3JkqFwgEKg4IACoGCAow9vBNMK3UCDCFpJYH?uo=CAUiWGh0dHBzOi8vd3d3Lm5wci5vcmcvMjAyMi8wNC8wMy8xMDkwNTIxNzIxL3J1c3NpYS11a3JhaW5lLXdhci13aGF0LWhhcHBlbmVkLXRvZGF5LWFwcmlsLTPSAQA&hl=en-US&gl=US&ceid=US%3Aen"
 
 Now that we have the links to all these web pages, we can just loop
@@ -315,7 +315,7 @@ head(colnames(tw))
 tw$text[1]
 ```
 
-    ## [1] "The apologies for the joke do not appear on Chris Rock's social media accounts, and his publicist said the statements are fake. #FakeNews #ChrisRock #WillSmith \nhttps://t.co/RIqjDemERX"
+    ## [1] "Netflix and Sony have reportedly put movies Will Smith was set to appear in on hold after the actor slapped comedian Chris Rock during the Oscars. \nhttps://t.co/F8OyCqgu0j"
 
 This is already looking cleaner than our news article example, but let’s
 still do a bit of pre-processing. We’ll go more in depth during our week
@@ -338,16 +338,16 @@ tw[, c("screen_name", "text")]
     ## # A tibble: 10 × 2
     ##    screen_name     text                                                         
     ##    <chr>           <chr>                                                        
-    ##  1 boomlive_in     "The apologies for the joke do not appear on Chris Rock's so…
-    ##  2 boomlive_in     "Edit histories of the posts show they were changed to refer…
-    ##  3 PageSix         "Will Smith resigned but is he 'banned' from Oscars like thi…
-    ##  4 dailystar       "#Grammys 2022 host Trevor Noah makes subtle dig at Will Smi…
-    ##  5 fox32news       "“Took me a while to get my thoughts together,” “Fresh Princ…
-    ##  6 mrdiscopop      "The Oscars give Oscars to people who make films about films…
-    ##  7 moneycontrolcom "Music legend #LataMangeshkar was missing from the “In Memor…
-    ##  8 GBNEWS          "Grammy Awards host Trevor Noah opens show with dig at Will …
-    ##  9 rochelleriley   "Dear @ABCNetwork and @willpowerpacker:\n\nPlease are-air th…
-    ## 10 Independent     "Trevor Noah opens Grammys by poking fun at Will Smith Oscar…
+    ##  1 wbrewyou        "Netflix and Sony have reportedly put movies Will Smith was …
+    ##  2 theheraldsun    "\"You gonna hit my mother******** brother ?\" \nChris Rock'…
+    ##  3 DailyMailCeleb  "Trevor Noah opens Grammys by joking about Will Smith's Osca…
+    ##  4 boomlive_in     "The apologies for the joke do not appear on Chris Rock's so…
+    ##  5 boomlive_in     "Edit histories of the posts show they were changed to refer…
+    ##  6 PageSix         "Will Smith resigned but is he 'banned' from Oscars like thi…
+    ##  7 dailystar       "#Grammys 2022 host Trevor Noah makes subtle dig at Will Smi…
+    ##  8 fox32news       "“Took me a while to get my thoughts together,” “Fresh Princ…
+    ##  9 mrdiscopop      "The Oscars give Oscars to people who make films about films…
+    ## 10 moneycontrolcom "Music legend #LataMangeshkar was missing from the “In Memor…
 
 ``` r
 # after
@@ -355,12 +355,12 @@ tw_wrds <- unname(sapply(tw$text, clean_text))
 head(tw_wrds)
 ```
 
-    ## [1] "The apologies joke appear Chris Rocks social media accounts publicist said statements fake FakeNews ChrisRock WillSmith httpstcoRIqjDemERX"                                                           
-    ## [2] "Edit histories posts show changed reference Will Smith slapping Chris Rock took place Oscars ChrisRock WillSmith httpstcoYxrdj2pAfO"                                                                  
-    ## [3] "Will Smith resigned banned Oscars like exclusive club httpstcoISIvtmV6HE httpstcoyiQBK3JDla"                                                                                                          
-    ## [4] "Grammys 2022 host Trevor Noah makes subtle dig Will Smiths Oscars slap httpstcoLtmNpNvVQq httpstcoKbMUOAirDl"                                                                                         
-    ## [5] "“Took get thoughts together” “Fresh Prince BelAir” star Tatyana Ali wrote social media sharing thoughts happened Oscars httpstco3v7PuWbK2H"                                                           
-    ## [6] "The Oscars give Oscars people make films films Argo The Artist Birdman The Grammys give Grammys people make music music Jon Batiste Silk Sonic Not wanting rain anyones parade maybe best way forward"
+    ## [1] "Netflix Sony reportedly put movies Will Smith set appear hold actor slapped comedian Chris Rock Oscars httpstcoF8OyCqgu0j"                 
+    ## [2] "You gonna hit mother brother  Chris Rocks family unleashed Will Smith infamous Oscars slap httpstcoLpQ8Be3qpk"                             
+    ## [3] "Trevor Noah opens Grammys joking Will Smiths Oscars slap Questlove takes dig httpstco2bIUDN2H1l"                                           
+    ## [4] "The apologies joke appear Chris Rocks social media accounts publicist said statements fake FakeNews ChrisRock WillSmith httpstcoRIqjDemERX"
+    ## [5] "Edit histories posts show changed reference Will Smith slapping Chris Rock took place Oscars ChrisRock WillSmith httpstcoYxrdj2pAfO"       
+    ## [6] "Will Smith resigned banned Oscars like exclusive club httpstcoISIvtmV6HE httpstcoyiQBK3JDla"
 
 Again, what you do with this data is a different topic. For now, let’s
 do something simple: see which words appear the most often.
@@ -374,14 +374,12 @@ sort(count[count > 1], decreasing = T)
 ```
 
     ## 
-    ##    oscars   grammys      will     smith       the     music      noah      slap 
-    ##        10         5         5         4         4         3         3         3 
-    ##    trevor   america     chris chrisrock       dig     films      give    grammy 
-    ##         3         2         2         2         2         2         2         2 
-    ##      host      make     media     opens    people      show    social  thoughts 
+    ##    oscars      will   grammys     chris     smith       the     music      slap 
+    ##        10         6         5         4         4         4         3         3 
+    ##    appear chrisrock       dig     films      give      make     media      noah 
     ##         2         2         2         2         2         2         2         2 
-    ## willsmith      year 
-    ##         2         2
+    ##    people      rock     rocks    smiths    social  thoughts    trevor willsmith 
+    ##         2         2         2         2         2         2         2         2
 
 The <tt>rtweet</tt> package has lots of other functions that you may
 find useful. If you want to use Twitter for your project, I encourage
