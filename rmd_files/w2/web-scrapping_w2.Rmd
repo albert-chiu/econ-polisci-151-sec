@@ -131,7 +131,8 @@ We'll use the <tt>rtweet</tt> package for this. One function allows you to searc
 ```{r}
 # tweets that: mention the oscars & are from verified users & are not replies
 tw <- rtweet::search_tweets(q="\"oscars\" filter:verified -filter:replies",
-                            n=10, include_rts = F,
+                            n=10,  # 10 tweets
+                            include_rts = F,  # exclude retweets
                             lang="en")  # only tweets in English 
 ```
 
@@ -149,8 +150,12 @@ clean_text <- function(x) {
 }
 
 ## Clean tweets
+# before
 tw[, c("screen_name", "text")]
-tw_wrds <- sapply(tw$text, clean_text)
+
+# after
+tw_wrds <- unname(sapply(tw$text, clean_text))
+head(tw_wrds)
 ```
 
 Again, what you do with this data is a different topic. For now, let's do something simple: see which words appear the most often.
