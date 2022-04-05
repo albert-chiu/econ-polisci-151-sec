@@ -31,13 +31,13 @@ body {
 <h3 id="check-your-authentification-credentials-work">Check your authentification credentials work</h3>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>url_test <span class="ot">&lt;-</span> <span class="st">&quot;https://api.twitter.com/2/tweets/search/recent?query=from:twitterdev&quot;</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># keep your bearer_token private</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#bearer_token &lt;- &quot;&lt;your_bearer_token&gt;&quot;</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>headers <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">`</span><span class="at">Authorization</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">sprintf</span>(<span class="st">&#39;Bearer %s&#39;</span>, bearer_token))</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># you want to see status: 200</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>httr<span class="sc">::</span><span class="fu">GET</span>(url_test, <span class="at">config=</span>httr<span class="sc">::</span><span class="fu">add_headers</span>(<span class="at">.headers=</span>headers))</span></code></pre></div>
 <pre><code>## Response [https://api.twitter.com/2/tweets/search/recent?query=from:twitterdev]
-##   Date: 2022-04-05 03:12
+##   Date: 2022-04-05 03:14
 ##   Status: 200
 ##   Content-Type: application/json; charset=utf-8
 ##   Size: 358 B</code></pre>
@@ -57,51 +57,51 @@ body {
 <span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co"># first tweet we pulled</span></span>
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span>data[[<span class="dv">1</span>]]</span></code></pre></div>
-<pre><code>## $lang
-## [1] &quot;en&quot;
+<pre><code>## $conversation_id
+## [1] &quot;1511180460621283332&quot;
+## 
+## $lang
+## [1] &quot;es&quot;
 ## 
 ## $id
-## [1] &quot;1511179814614446081&quot;
-## 
-## $conversation_id
-## [1] &quot;1511161956794867725&quot;
-## 
-## $created_at
-## [1] &quot;2022-04-05T03:11:58.000Z&quot;
+## [1] &quot;1511180460621283332&quot;
 ## 
 ## $text
-## [1] &quot;@IGN Will Smith’s movies are “on hold”. Not cancelled. Nor will Smith be cancelled for what he did. They’re going to wait for it to blow over. then it will be business as usual. But if it had been a white guy that had smacked Chris Rock at the Oscars…&quot;</code></pre>
+## [1] &quot;RT @CarrillonavasG: #MananasBLU María Cecilia Botero, Mauro Castillo y Carolina Gaitán en #Oscars,  por el #Encanto, un talento sin igual q…&quot;
+## 
+## $created_at
+## [1] &quot;2022-04-05T03:14:32.000Z&quot;</code></pre>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># extract the text from each tweet</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">lapply</span>(con<span class="sc">$</span>data, <span class="cf">function</span>(x) x[[<span class="st">&quot;text&quot;</span>]])</span></code></pre></div>
 <pre><code>## [[1]]
-## [1] &quot;@IGN Will Smith’s movies are “on hold”. Not cancelled. Nor will Smith be cancelled for what he did. They’re going to wait for it to blow over. then it will be business as usual. But if it had been a white guy that had smacked Chris Rock at the Oscars…&quot;
+## [1] &quot;RT @CarrillonavasG: #MananasBLU María Cecilia Botero, Mauro Castillo y Carolina Gaitán en #Oscars,  por el #Encanto, un talento sin igual q…&quot;
 ## 
 ## [[2]]
-## [1] &quot;RT @ArsenioHall: Y’all still talking about the Will Smith slap? How about something positive!? Ariana DeBose made history at the Oscars tha…&quot;
+## [1] &quot;RT @MChaseRadio: Between Lady Gaga’s compassion for Liza Minelli at the Oscars, her Grammy tribute to Tony Bennett and then helping SZA wit…&quot;
 ## 
 ## [[3]]
-## [1] &quot;@Papa__Drago I’m still pissed that GVK got snubbed at the Oscars for best visual effects&quot;
+## [1] &quot;RT @IkematuIkegorou: アカデミー賞の例のスーツ🦎\n大遅刻だけど受賞おめでとう✨✨\nずっと好きやで！！\n#Encanto #camilomadrigal #Oscars #encantofanart https://t.co/l5MXqDzUq5&quot;
 ## 
 ## [[4]]
-## [1] &quot;RT @FilmUpdates: Rachel Zegler addresses the Will Smith and Chris Rock #Oscars incident: “I feel like it’s none of my business.”\n\n(https://…&quot;
+## [1] &quot;Will Smith Is Gone, but the Academy Hasn’t Even Begun to Deal with the Sting of His Slap https://t.co/HlYqeGKoMb via @indiewire&quot;
 ## 
 ## [[5]]
-## [1] &quot;RT @Musetta_May: new super sweet pic of timothée chalamet and olivia colman holding hands (\U{01f979}) at the oscars https://t.co/cwors45b27&quot;
+## [1] &quot;RT @TheLeoTerrell: I nominate @greggutfeld to host the Oscars next year! I predict a ratings bonanza!&quot;
 ## 
 ## [[6]]
-## [1] &quot;RT @RealMFullam: Unlike last week&#39;s Oscars, last night&#39;s 64th annual Grammy Awards ceremony, was quite possibly the best ever. Seeing 95-ye…&quot;
+## [1] &quot;RT @cchukudebelu: The Oscars are irrelevant to Bollywood.\n\nNigerians should understand that the United States (and even the West) is a smal…&quot;
 ## 
 ## [[7]]
-## [1] &quot;RT @PopCrave: Amy Schumer reveals #Oscars producers didnt allow her to say “Don’t Look Up is the name of a movie? More like don’t look down…&quot;
+## [1] &quot;RT @korimakorima: 英国紙の辛辣で親切なアカデミー賞観覧記。「今回、アカデミー賞は政治コンテンツとしてゼレンスキーのビデオ出演を考案していた。本物の戦争をやっている政治家がオスカーに招待してもらいたがっているという発想はボトックスかナルシズムで爛れた脳からしか出…&quot;
 ## 
 ## [[8]]
-## [1] &quot;people so thirsty for a target to hate, they are raining down on Amy Schumer for a joke she wanted to (but didn&#39;t) tell at the Oscars\n#ThoughtCrime&quot;
+## [1] &quot;RT @YNB: Did you see @ladygaga help @sza (who’s on crutches) with her train just now? After that and the kindness she showed #LizaMinelli a…&quot;
 ## 
 ## [[9]]
-## [1] &quot;RT @DC3_SQUAD: Destiny’s Child #Oscars (2022) https://t.co/RHHJgjXtEk&quot;
+## [1] &quot;RT @ArsenioHall: Y’all still talking about the Will Smith slap? How about something positive!? Ariana DeBose made history at the Oscars tha…&quot;
 ## 
 ## [[10]]
-## [1] &quot;RT @LookAtDustin: Mary J. Blige has Grammy awards in R&amp;amp;B, rap, pop, and gospel.\n\nThe only artist to ever do this.\n\nAnd she is the first per…&quot;</code></pre>
+## [1] &quot;RT @MChaseRadio: Between Lady Gaga’s compassion for Liza Minelli at the Oscars, her Grammy tribute to Tony Bennett and then helping SZA wit…&quot;</code></pre>
 <h3 id="timeline">Timeline</h3>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>user_id <span class="ot">&lt;-</span> <span class="st">&quot;14159148&quot;</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>url_tl <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">&quot;https://api.twitter.com/2/users/%s/tweets&quot;</span>, user_id)</span>
@@ -118,31 +118,31 @@ body {
 <span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>con<span class="sc">$</span>data[<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>)]</span></code></pre></div>
 <pre><code>## [[1]]
-## [[1]]$author_id
-## [1] &quot;14159148&quot;
+## [[1]]$created_at
+## [1] &quot;2022-04-05T01:03:00.000Z&quot;
 ## 
 ## [[1]]$text
 ## [1] &quot;Tuesday is the International Day of Conscience. \n\nIn the face of on-going global challenges and conflicts - let&#39;s focus on promoting tolerance &amp;amp; solidarity and helping those in need. https://t.co/DBvsTC3RVQ https://t.co/Bj1FuNO5Dn&quot;
 ## 
+## [[1]]$author_id
+## [1] &quot;14159148&quot;
+## 
 ## [[1]]$id
 ## [1] &quot;1511147356770603013&quot;
 ## 
-## [[1]]$created_at
-## [1] &quot;2022-04-05T01:03:00.000Z&quot;
-## 
 ## 
 ## [[2]]
-## [[2]]$author_id
-## [1] &quot;14159148&quot;
+## [[2]]$created_at
+## [1] &quot;2022-04-04T23:08:57.000Z&quot;
 ## 
 ## [[2]]$text
 ## [1] &quot;RT @WHOUkraine: The health care system in #Ukraine is burdened from the ongoing war. \n\nAs hostilities continue, people’s access to health s…&quot;
 ## 
-## [[2]]$id
-## [1] &quot;1511118656670949382&quot;
+## [[2]]$author_id
+## [1] &quot;14159148&quot;
 ## 
-## [[2]]$created_at
-## [1] &quot;2022-04-04T23:08:57.000Z&quot;</code></pre>
+## [[2]]$id
+## [1] &quot;1511118656670949382&quot;</code></pre>
 
 </body>
 </html>
