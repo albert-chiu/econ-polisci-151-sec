@@ -52,7 +52,7 @@ latter’s “child” and the latter is the former’s “parent.” Child node
 are said to be “descended from” parent nodes. Nodes that are more outer
 are higher up in the hierarchy. The DOM for this would look something
 like this:
-<img src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/html_dom.png?raw=true">
+<img src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/figures/html_dom.png?raw=true">
 
 There’s a few things to remark on. First, note that there are nodes
 called “header” and “body” which are not part of the example code. These
@@ -233,7 +233,7 @@ called, we can open Google News and use Chrome’s inspection tool under
 <tt>View \> Developer \> Inspect Elements</tt> tool and mouse over the
 link.
 
-<img src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/inspect.png?raw=true">
+<img src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/figures/inspect.png?raw=true">
 
 The class we want is called “VDXfz” (the CSS selector for class is
 <tt>.class</tt>), and we want to extract the hyperlink from it, which is
@@ -248,7 +248,7 @@ links <- html_doc %>% rvest::html_nodes('.VDXfz') %>%  # specify CSS selector: .
 If we take a look at the html code for the webpage, we can see that the
 link is a relative path (the file name, e.g., “index.html”).
 
-<img src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/node_href_crop.png?raw=true">
+<img src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/figures/node_href_crop.png?raw=true">
 
 But we want an absolute path (the link you can enter into a web browser,
 e.g., “<https://nytimes.com>”). To get it in this format, we need to
@@ -269,7 +269,7 @@ links <- gsub("./articles/", "https://news.google.com/articles/", links)
 Let’s also record the title of each article. To see how to get this
 info, let’s go back to Google News and open Chromes’ Devloper Tools UI
 (or open the raw html file) and look for the corresponding node:
-<img  src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/node_title.png?raw=true">
+<img  src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/figures/node_title.png?raw=true">
 
 Titles seem to be assigned the “DY5T1d” class attribute (it’s actually a
 part of two classes; we use take either). We want to extract the text
@@ -286,8 +286,23 @@ titles <- html_doc %>% rvest::html_nodes('.DY5T1d') %>%
 trunc <- sapply(titles, FUN=function(x) 
   paste(c(unlist(strsplit(x, split=" +"))[1:5], "..."), collapse=" "))
 df <- cbind(title = titles, truncated_title = unname(trunc), link = links) 
-#head(df[, c(2:3)])
+head(df[, c(2:3)])
 ```
+
+    ##      truncated_title                               
+    ## [1,] "Russia-Ukraine war: What happened today ..." 
+    ## [2,] "Russia-Ukraine war: Biden accuses Russia ..."
+    ## [3,] "What Happened on Day 39 ..."                 
+    ## [4,] "Russia faces global outrage over ..."        
+    ## [5,] "World leaders condemn atrocities alleged ..."
+    ## [6,] "Russia invades Ukraine: Live updates ..."    
+    ##      link                                                                                                                                                                                                                                                                                                                                     
+    ## [1,] "https://news.google.com/articles/CAIiEJ0j7PdPWTmbEC-929SrPEkqFwgEKg4IACoGCAow9vBNMK3UCDDE2Z4H?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                                                              
+    ## [2,] "https://news.google.com/articles/CAIiEMnUeMKzq7x9QCeEiHoDLN8qGQgEKhAIACoHCAowvIaCCzDnxf4CMM2F8gU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                                                           
+    ## [3,] "https://news.google.com/articles/CAIiEPrAVhDmFU2aQkYQgMoCQugqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                                                              
+    ## [4,] "https://news.google.com/articles/CAIiEF_eu4gEPwtoCGYOjXW0E6YqGAgEKg8IACoHCAowhO7OATDh9CgwvaadAg?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                                                            
+    ## [5,] "https://news.google.com/articles/CAIiEBAuJVvmdxGe7ys3Z3cEt4cqGAgEKg8IACoHCAowjtSUCjC30XQwzqe5AQ?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                                                            
+    ## [6,] "https://news.google.com/articles/CBMiamh0dHBzOi8vd3d3LmNubi5jb20vZXVyb3BlL2xpdmUtbmV3cy91a3JhaW5lLXJ1c3NpYS1wdXRpbi1uZXdzLTA0LTA0LTIyL2hfY2M2NGU2NTZjNTYxMTFlNmE2YTZjNjUwZDAxMmEyOWTSAVZodHRwczovL2FtcC5jbm4uY29tL2Nubi9ldXJvcGUvbGl2ZS1uZXdzL3VrcmFpbmUtcnVzc2lhLXB1dGluLW5ld3MtMDQtMDQtMjIvaW5kZXguaHRtbA?hl=en-US&gl=US&ceid=US%3Aen"
 
 Now that we have the links to all these web pages, we can just loop
 through and do what we did in the first section to extract all the
@@ -337,7 +352,7 @@ head(colnames(tw))
 tw$text[1]
 ```
 
-    ## [1] "Oh boy.\nhttps://t.co/v8EX9ehqcE"
+    ## [1] "Whoopi Goldberg insists Will Smith's career 'will be fine' after Oscars slap incident.\n\nhttps://t.co/voZIPvYA0P https://t.co/yI365jiP0F"
 
 This is already looking cleaner than our news article example, but let’s
 still do a bit of pre-processing. We’ll go more in depth during our week
@@ -360,16 +375,16 @@ tw[, c("screen_name", "text")]
     ## # A tibble: 10 × 2
     ##    screen_name     text                                                         
     ##    <chr>           <chr>                                                        
-    ##  1 BroBible        "Oh boy.\nhttps://t.co/v8EX9ehqcE"                           
-    ##  2 MonashUni       "There’s been much discussion about Will Smith’s actions at …
-    ##  3 PinkNews        "Oscars host Wanda Sykes weighs in on Will Smith slap row: '…
-    ##  4 ScottDMenzel    "I’ll be happy to start the awards campaign for Marcel The S…
-    ##  5 JFrayWTOP       "I hope that one day we see another movie so good that it wi…
-    ##  6 livenowfox      "CODA: How Oscars’ best picture echoes everyday life in the …
-    ##  7 LifeNationalUAE "What the success of ‘Dune’ at the Oscars means for Abu Dhab…
-    ##  8 ArsenioHall     "Y’all still talking about the Will Smith slap? How about so…
-    ##  9 SKPopCulture    "Watch the video as #TrevorNoah takes a dig at the #WillSmit…
-    ## 10 SCMPNews        "Will Smith’s career has  – at least temporarily – taken a h…
+    ##  1 MirrorCeleb     "Whoopi Goldberg insists Will Smith's career 'will be fine' …
+    ##  2 latimes         "Chris Rock's brother Kenny Rock said he would like the acad…
+    ##  3 JustinWhang     "Did SNL do a sketch where they have a guy be Will Smith and…
+    ##  4 BroBible        "Oh boy.\nhttps://t.co/v8EX9ehqcE"                           
+    ##  5 MonashUni       "There’s been much discussion about Will Smith’s actions at …
+    ##  6 PinkNews        "Oscars host Wanda Sykes weighs in on Will Smith slap row: '…
+    ##  7 ScottDMenzel    "I’ll be happy to start the awards campaign for Marcel The S…
+    ##  8 JFrayWTOP       "I hope that one day we see another movie so good that it wi…
+    ##  9 livenowfox      "CODA: How Oscars’ best picture echoes everyday life in the …
+    ## 10 LifeNationalUAE "What the success of ‘Dune’ at the Oscars means for Abu Dhab…
 
 ``` r
 # after
@@ -377,12 +392,12 @@ tw_wrds <- unname(sapply(tw$text, clean_text))
 head(tw_wrds)
 ```
 
-    ## [1] "Oh boy httpstcov8EX9ehqcE"                                                                                                                                                                             
-    ## [2] "There’s much discussion Will Smith’s actions last week’s Oscars Monash researchers revealed sometimes incivility impoliteness can justified violence  httpstcoDptTA51PpJ MonashLens httpstcos06amruFUe"
-    ## [3] "Oscars host Wanda Sykes weighs Will Smith slap row Im still traumatised httpstcooH7dwLmeGf"                                                                                                            
-    ## [4] "I’ll happy start awards campaign Marcel The Shell With Shoes On like CODA I want one go way Oscars MarcelTheShell httpstcorzQowtkU21"                                                                  
-    ## [5] "I hope one day see another movie good wins “Big Five” Oscars It’s hard imagine current landscape never say never"                                                                                      
-    ## [6] "CODA How Oscars’ best picture echoes everyday life Deaf community httpstcoxdHuDpQ8RW"
+    ## [1] "Whoopi Goldberg insists Will Smiths career  fine Oscars slap incident httpstcovoZIPvYA0P httpstcoyI365jiP0F"                                                                                           
+    ## [2] "Chris Rocks brother Kenny Rock said like academy take away Will Smiths Oscar win performance “King Richard” bar attending future Oscars httpstcoYJmqBBkKaQ"                                            
+    ## [3] "Did SNL sketch guy Will Smith joke thing Oscars sketch"                                                                                                                                                
+    ## [4] "Oh boy httpstcov8EX9ehqcE"                                                                                                                                                                             
+    ## [5] "There’s much discussion Will Smith’s actions last week’s Oscars Monash researchers revealed sometimes incivility impoliteness can justified violence  httpstcoDptTA51PpJ MonashLens httpstcos06amruFUe"
+    ## [6] "Oscars host Wanda Sykes weighs Will Smith slap row Im still traumatised httpstcooH7dwLmeGf"
 
 Again, what you do with this data is a different topic. For now, let’s
 do something simple: see which words appear the most often.
@@ -396,10 +411,8 @@ sort(count[count > 1], decreasing = T)
 ```
 
     ## 
-    ##    oscars      will       how         –    career      coda         i     never 
-    ##         7         4         3         2         2         2         2         2 
-    ##        oh       one      slap     smith   smith’s     still willsmith 
-    ##         2         2         2         2         2         2         2
+    ## oscars   will   coda      i   like  never    one sketch   slap  smith smiths 
+    ##      8      5      2      2      2      2      2      2      2      2      2
 
 The <tt>rtweet</tt> package has lots of other functions that you may
 find useful. If you want to use Twitter for your project, I encourage

@@ -173,7 +173,7 @@ titles <- html_doc %>% rvest::html_nodes('.DY5T1d') %>%
 trunc <- sapply(titles, FUN=function(x) 
   paste(c(unlist(strsplit(x, split=" +"))[1:5], "..."), collapse=" "))
 df <- cbind(title = titles, truncated_title = unname(trunc), link = links) 
-#head(df[, c(2:3)])
+head(df[, c(2:3)])
 ```
 Now that we have the links to all these web pages, we can just loop through and do what we did in the first section to extract all the text/images (or whatever information you want).
 

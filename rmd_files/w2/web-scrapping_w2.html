@@ -150,7 +150,21 @@ text here
 <span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>trunc <span class="ot">&lt;-</span> <span class="fu">sapply</span>(titles, <span class="at">FUN=</span><span class="cf">function</span>(x) </span>
 <span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste</span>(<span class="fu">c</span>(<span class="fu">unlist</span>(<span class="fu">strsplit</span>(x, <span class="at">split=</span><span class="st">&quot; +&quot;</span>))[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>], <span class="st">&quot;...&quot;</span>), <span class="at">collapse=</span><span class="st">&quot; &quot;</span>))</span>
 <span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="at">title =</span> titles, <span class="at">truncated_title =</span> <span class="fu">unname</span>(trunc), <span class="at">link =</span> links) </span>
-<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a><span class="co">#head(df[, c(2:3)])</span></span></code></pre></div>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(df[, <span class="fu">c</span>(<span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>)])</span></code></pre></div>
+<pre><code>##      truncated_title                               
+## [1,] &quot;Russia-Ukraine war: What happened today ...&quot; 
+## [2,] &quot;Russia-Ukraine war: Biden accuses Russia ...&quot;
+## [3,] &quot;What Happened on Day 39 ...&quot;                 
+## [4,] &quot;Russia faces global outrage over ...&quot;        
+## [5,] &quot;World leaders condemn atrocities alleged ...&quot;
+## [6,] &quot;Russia invades Ukraine: Live updates ...&quot;    
+##      link                                                                                                                                                                                                                                                                                                                                     
+## [1,] &quot;https://news.google.com/articles/CAIiEJ0j7PdPWTmbEC-929SrPEkqFwgEKg4IACoGCAow9vBNMK3UCDDE2Z4H?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                                                                                              
+## [2,] &quot;https://news.google.com/articles/CAIiEMnUeMKzq7x9QCeEiHoDLN8qGQgEKhAIACoHCAowvIaCCzDnxf4CMM2F8gU?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                                                                                           
+## [3,] &quot;https://news.google.com/articles/CAIiEPrAVhDmFU2aQkYQgMoCQugqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                                                                                              
+## [4,] &quot;https://news.google.com/articles/CAIiEF_eu4gEPwtoCGYOjXW0E6YqGAgEKg8IACoHCAowhO7OATDh9CgwvaadAg?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                                                                                            
+## [5,] &quot;https://news.google.com/articles/CAIiEBAuJVvmdxGe7ys3Z3cEt4cqGAgEKg8IACoHCAowjtSUCjC30XQwzqe5AQ?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                                                                                            
+## [6,] &quot;https://news.google.com/articles/CBMiamh0dHBzOi8vd3d3LmNubi5jb20vZXVyb3BlL2xpdmUtbmV3cy91a3JhaW5lLXJ1c3NpYS1wdXRpbi1uZXdzLTA0LTA0LTIyL2hfY2M2NGU2NTZjNTYxMTFlNmE2YTZjNjUwZDAxMmEyOWTSAVZodHRwczovL2FtcC5jbm4uY29tL2Nubi9ldXJvcGUvbGl2ZS1uZXdzL3VrcmFpbmUtcnVzc2lhLXB1dGluLW5ld3MtMDQtMDQtMjIvaW5kZXguaHRtbA?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;</code></pre>
 <p>Now that we have the links to all these web pages, we can just loop through and do what we did in the first section to extract all the text/images (or whatever information you want).</p>
 <h2 id="apis-eg-twitter">APIs: e.g., Twitter</h2>
 <p>What we did in the previous section is a bit cumbersom and the results messy. For example, though our intention was only to gather the body of the article, our data also includes author names.</p>
@@ -158,66 +172,64 @@ text here
 <p>This time let’s use a timely but lighter subject as an example: the Oscars.</p>
 <p>To access Twitter’s API, you need to <a href="https://developer.twitter.com/">register as a devloper</a>.</p>
 <p>We’ll use the <tt>rtweet</tt> package. The <tt>search_tweets()</tt> function allows you to search for tweets, and you can specify a number of parameters or filters. We can be quite specific with what types of tweets we want to query.</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># tweets that: mention the oscars &amp; are from verified users &amp; are not replies</span></span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>tw <span class="ot">&lt;-</span> rtweet<span class="sc">::</span><span class="fu">search_tweets</span>(<span class="at">q=</span><span class="st">&quot;</span><span class="sc">\&quot;</span><span class="st">oscars</span><span class="sc">\&quot;</span><span class="st"> filter:verified -filter:replies&quot;</span>,</span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>                            <span class="at">include_rts =</span> F,  <span class="co"># exclude retweets</span></span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>                            <span class="at">lang=</span><span class="st">&quot;en&quot;</span>,  <span class="co"># only tweets in English </span></span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>                            <span class="at">n=</span><span class="dv">10</span>)  <span class="co"># 10 tweets</span></span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># tweets that: mention the oscars &amp; are from verified users &amp; are not replies</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>tw <span class="ot">&lt;-</span> rtweet<span class="sc">::</span><span class="fu">search_tweets</span>(<span class="at">q=</span><span class="st">&quot;</span><span class="sc">\&quot;</span><span class="st">oscars</span><span class="sc">\&quot;</span><span class="st"> filter:verified -filter:replies&quot;</span>,</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>                            <span class="at">include_rts =</span> F,  <span class="co"># exclude retweets</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>                            <span class="at">lang=</span><span class="st">&quot;en&quot;</span>,  <span class="co"># only tweets in English </span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>                            <span class="at">n=</span><span class="dv">10</span>)  <span class="co"># 10 tweets</span></span></code></pre></div>
 <p>The information is also organized nicely:</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># what type of information do we have</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">colnames</span>(tw))  </span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># what type of information do we have</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">colnames</span>(tw))  </span></code></pre></div>
 <pre><code>## [1] &quot;user_id&quot;     &quot;status_id&quot;   &quot;created_at&quot;  &quot;screen_name&quot; &quot;text&quot;       
 ## [6] &quot;source&quot;</code></pre>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># example of the text in a tweet</span></span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>tw<span class="sc">$</span>text[<span class="dv">1</span>]</span></code></pre></div>
-<pre><code>## [1] &quot;Oh boy.\nhttps://t.co/v8EX9ehqcE&quot;</code></pre>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># example of the text in a tweet</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>tw<span class="sc">$</span>text[<span class="dv">1</span>]</span></code></pre></div>
+<pre><code>## [1] &quot;Whoopi Goldberg insists Will Smith&#39;s career &#39;will be fine&#39; after Oscars slap incident.\n\nhttps://t.co/voZIPvYA0P https://t.co/yI365jiP0F&quot;</code></pre>
 <p>This is already looking cleaner than our news article example, but let’s still do a bit of pre-processing. We’ll go more in depth during our week on text as data, but for now let’s just define a basic function for removing some (typically) unmeaningful words, as well as punctuation and whitespace, and apply it to each tweet.</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>clean_text <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  x <span class="sc">%&gt;%</span> tm<span class="sc">::</span><span class="fu">removeWords</span>(stopwords<span class="sc">::</span><span class="fu">stopwords</span>(<span class="st">&quot;en&quot;</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    tm<span class="sc">::</span><span class="fu">stripWhitespace</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>    tm<span class="sc">::</span><span class="fu">removePunctuation</span>()</span>
-<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="do">## Clean tweets</span></span>
-<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a><span class="co"># before</span></span>
-<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>tw[, <span class="fu">c</span>(<span class="st">&quot;screen_name&quot;</span>, <span class="st">&quot;text&quot;</span>)]</span></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>clean_text <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  x <span class="sc">%&gt;%</span> tm<span class="sc">::</span><span class="fu">removeWords</span>(stopwords<span class="sc">::</span><span class="fu">stopwords</span>(<span class="st">&quot;en&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    tm<span class="sc">::</span><span class="fu">stripWhitespace</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    tm<span class="sc">::</span><span class="fu">removePunctuation</span>()</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="do">## Clean tweets</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a><span class="co"># before</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>tw[, <span class="fu">c</span>(<span class="st">&quot;screen_name&quot;</span>, <span class="st">&quot;text&quot;</span>)]</span></code></pre></div>
 <pre><code>## # A tibble: 10 × 2
 ##    screen_name     text                                                         
 ##    &lt;chr&gt;           &lt;chr&gt;                                                        
-##  1 BroBible        &quot;Oh boy.\nhttps://t.co/v8EX9ehqcE&quot;                           
-##  2 MonashUni       &quot;There’s been much discussion about Will Smith’s actions at …
-##  3 PinkNews        &quot;Oscars host Wanda Sykes weighs in on Will Smith slap row: &#39;…
-##  4 ScottDMenzel    &quot;I’ll be happy to start the awards campaign for Marcel The S…
-##  5 JFrayWTOP       &quot;I hope that one day we see another movie so good that it wi…
-##  6 livenowfox      &quot;CODA: How Oscars’ best picture echoes everyday life in the …
-##  7 LifeNationalUAE &quot;What the success of ‘Dune’ at the Oscars means for Abu Dhab…
-##  8 ArsenioHall     &quot;Y’all still talking about the Will Smith slap? How about so…
-##  9 SKPopCulture    &quot;Watch the video as #TrevorNoah takes a dig at the #WillSmit…
-## 10 SCMPNews        &quot;Will Smith’s career has  – at least temporarily – taken a h…</code></pre>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># after</span></span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>tw_wrds <span class="ot">&lt;-</span> <span class="fu">unname</span>(<span class="fu">sapply</span>(tw<span class="sc">$</span>text, clean_text))</span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(tw_wrds)</span></code></pre></div>
-<pre><code>## [1] &quot;Oh boy httpstcov8EX9ehqcE&quot;                                                                                                                                                                             
-## [2] &quot;There’s much discussion Will Smith’s actions last week’s Oscars Monash researchers revealed sometimes incivility impoliteness can justified violence  httpstcoDptTA51PpJ MonashLens httpstcos06amruFUe&quot;
-## [3] &quot;Oscars host Wanda Sykes weighs Will Smith slap row Im still traumatised httpstcooH7dwLmeGf&quot;                                                                                                            
-## [4] &quot;I’ll happy start awards campaign Marcel The Shell With Shoes On like CODA I want one go way Oscars MarcelTheShell httpstcorzQowtkU21&quot;                                                                  
-## [5] &quot;I hope one day see another movie good wins “Big Five” Oscars It’s hard imagine current landscape never say never&quot;                                                                                      
-## [6] &quot;CODA How Oscars’ best picture echoes everyday life Deaf community httpstcoxdHuDpQ8RW&quot;</code></pre>
+##  1 MirrorCeleb     &quot;Whoopi Goldberg insists Will Smith&#39;s career &#39;will be fine&#39; …
+##  2 latimes         &quot;Chris Rock&#39;s brother Kenny Rock said he would like the acad…
+##  3 JustinWhang     &quot;Did SNL do a sketch where they have a guy be Will Smith and…
+##  4 BroBible        &quot;Oh boy.\nhttps://t.co/v8EX9ehqcE&quot;                           
+##  5 MonashUni       &quot;There’s been much discussion about Will Smith’s actions at …
+##  6 PinkNews        &quot;Oscars host Wanda Sykes weighs in on Will Smith slap row: &#39;…
+##  7 ScottDMenzel    &quot;I’ll be happy to start the awards campaign for Marcel The S…
+##  8 JFrayWTOP       &quot;I hope that one day we see another movie so good that it wi…
+##  9 livenowfox      &quot;CODA: How Oscars’ best picture echoes everyday life in the …
+## 10 LifeNationalUAE &quot;What the success of ‘Dune’ at the Oscars means for Abu Dhab…</code></pre>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># after</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>tw_wrds <span class="ot">&lt;-</span> <span class="fu">unname</span>(<span class="fu">sapply</span>(tw<span class="sc">$</span>text, clean_text))</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(tw_wrds)</span></code></pre></div>
+<pre><code>## [1] &quot;Whoopi Goldberg insists Will Smiths career  fine Oscars slap incident httpstcovoZIPvYA0P httpstcoyI365jiP0F&quot;                                                                                           
+## [2] &quot;Chris Rocks brother Kenny Rock said like academy take away Will Smiths Oscar win performance “King Richard” bar attending future Oscars httpstcoYJmqBBkKaQ&quot;                                            
+## [3] &quot;Did SNL sketch guy Will Smith joke thing Oscars sketch&quot;                                                                                                                                                
+## [4] &quot;Oh boy httpstcov8EX9ehqcE&quot;                                                                                                                                                                             
+## [5] &quot;There’s much discussion Will Smith’s actions last week’s Oscars Monash researchers revealed sometimes incivility impoliteness can justified violence  httpstcoDptTA51PpJ MonashLens httpstcos06amruFUe&quot;
+## [6] &quot;Oscars host Wanda Sykes weighs Will Smith slap row Im still traumatised httpstcooH7dwLmeGf&quot;</code></pre>
 <p>Again, what you do with this data is a different topic. For now, let’s do something simple: see which words appear the most often.</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># split into words</span></span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>tw_wrds <span class="ot">&lt;-</span> <span class="fu">sapply</span>(tw_wrds, <span class="at">FUN=</span><span class="cf">function</span>(x) <span class="fu">strsplit</span>(<span class="fu">tolower</span>(x), <span class="at">split=</span><span class="st">&quot; +&quot;</span>))</span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>count <span class="ot">&lt;-</span> <span class="fu">table</span>(<span class="fu">unlist</span>(tw_wrds))</span>
-<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sort</span>(count[count <span class="sc">&gt;</span> <span class="dv">1</span>], <span class="at">decreasing =</span> T)</span></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># split into words</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>tw_wrds <span class="ot">&lt;-</span> <span class="fu">sapply</span>(tw_wrds, <span class="at">FUN=</span><span class="cf">function</span>(x) <span class="fu">strsplit</span>(<span class="fu">tolower</span>(x), <span class="at">split=</span><span class="st">&quot; +&quot;</span>))</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>count <span class="ot">&lt;-</span> <span class="fu">table</span>(<span class="fu">unlist</span>(tw_wrds))</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sort</span>(count[count <span class="sc">&gt;</span> <span class="dv">1</span>], <span class="at">decreasing =</span> T)</span></code></pre></div>
 <pre><code>## 
-##    oscars      will       how         –    career      coda         i     never 
-##         7         4         3         2         2         2         2         2 
-##        oh       one      slap     smith   smith’s     still willsmith 
-##         2         2         2         2         2         2         2</code></pre>
+## oscars   will   coda      i   like  never    one sketch   slap  smith smiths 
+##      8      5      2      2      2      2      2      2      2      2      2</code></pre>
 <p>The <tt>rtweet</tt> package has lots of other functions that you may find useful. If you want to use Twitter for your project, I encourage you to read the package’s documentation. I’ll just point out one other function, one which gets tweets from a specific user:</p>
-<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># last 2 tweets from the UN</span></span>
-<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>tl <span class="ot">&lt;-</span> rtweet<span class="sc">::</span><span class="fu">get_timeline</span>(<span class="at">user=</span><span class="st">&quot;UN&quot;</span>, <span class="at">n=</span><span class="dv">2</span>)</span>
-<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>tl<span class="sc">$</span>text</span></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># last 2 tweets from the UN</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>tl <span class="ot">&lt;-</span> rtweet<span class="sc">::</span><span class="fu">get_timeline</span>(<span class="at">user=</span><span class="st">&quot;UN&quot;</span>, <span class="at">n=</span><span class="dv">2</span>)</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>tl<span class="sc">$</span>text</span></code></pre></div>
 <pre><code>## [1] &quot;Tuesday is the International Day of Conscience. \n\nIn the face of on-going global challenges and conflicts - let&#39;s focus on promoting tolerance &amp;amp; solidarity and helping those in need. https://t.co/DBvsTC3RVQ https://t.co/Bj1FuNO5Dn&quot;                                                                     
 ## [2] &quot;The health care system in #Ukraine is burdened from the ongoing war. \n\nAs hostilities continue, people’s access to health services is impeded. Safety concerns, attacks on health, mass displacement make it challenging to avail basic health care. Read more: https://t.co/u6gY6gCUgL https://t.co/k0z0SV3mWm&quot;</code></pre>
 <p>Lastly, we can do all this without the <tt>rtweet</tt> package, though it takes considerably more effort. Take a look at the supplement if interested; the supplement is also a nice jumping off point if you want to make requests to other APIs, some of which may not have R packages to do the leg work for you.</p>
