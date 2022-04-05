@@ -55,7 +55,7 @@ like this:
 <img src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/figures/html_dom.png?raw=true">
 
 There’s a few things to remark on. First, note that there are nodes
-called “header” and “body” which are not part of the example code. These
+called “head” and “body” which are not part of the example code. These
 can be omitted (as can the <tt>html</tt> tag) and will be implicitly
 created whenever your browser/etc. loads the html file. The head element
 will include information like which CSS style sheet to use, and we
@@ -295,14 +295,14 @@ head(df[, c(2:3)])
     ## [3,] "What Happened on Day 39 ..."                 
     ## [4,] "Russia faces global outrage over ..."        
     ## [5,] "World leaders condemn atrocities alleged ..."
-    ## [6,] "Russia invades Ukraine: Live updates ..."    
-    ##      link                                                                                                                                                                                                                                                                                                                                     
-    ## [1,] "https://news.google.com/articles/CAIiEJ0j7PdPWTmbEC-929SrPEkqFwgEKg4IACoGCAow9vBNMK3UCDDE2Z4H?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                                                              
-    ## [2,] "https://news.google.com/articles/CAIiEMnUeMKzq7x9QCeEiHoDLN8qGQgEKhAIACoHCAowvIaCCzDnxf4CMM2F8gU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                                                           
-    ## [3,] "https://news.google.com/articles/CAIiEPrAVhDmFU2aQkYQgMoCQugqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                                                              
-    ## [4,] "https://news.google.com/articles/CAIiEF_eu4gEPwtoCGYOjXW0E6YqGAgEKg8IACoHCAowhO7OATDh9CgwvaadAg?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                                                            
-    ## [5,] "https://news.google.com/articles/CAIiEBAuJVvmdxGe7ys3Z3cEt4cqGAgEKg8IACoHCAowjtSUCjC30XQwzqe5AQ?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                                                            
-    ## [6,] "https://news.google.com/articles/CBMiamh0dHBzOi8vd3d3LmNubi5jb20vZXVyb3BlL2xpdmUtbmV3cy91a3JhaW5lLXJ1c3NpYS1wdXRpbi1uZXdzLTA0LTA0LTIyL2hfY2M2NGU2NTZjNTYxMTFlNmE2YTZjNjUwZDAxMmEyOWTSAVZodHRwczovL2FtcC5jbm4uY29tL2Nubi9ldXJvcGUvbGl2ZS1uZXdzL3VrcmFpbmUtcnVzc2lhLXB1dGluLW5ld3MtMDQtMDQtMjIvaW5kZXguaHRtbA?hl=en-US&gl=US&ceid=US%3Aen"
+    ## [6,] "U.S. warns Russia will intensify ..."        
+    ##      link                                                                                                                                                                                                                                                                                  
+    ## [1,] "https://news.google.com/articles/CAIiEJ0j7PdPWTmbEC-929SrPEkqFwgEKg4IACoGCAow9vBNMK3UCDDE2Z4H?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                           
+    ## [2,] "https://news.google.com/articles/CAIiEMnUeMKzq7x9QCeEiHoDLN8qGQgEKhAIACoHCAowvIaCCzDnxf4CMM2F8gU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                        
+    ## [3,] "https://news.google.com/articles/CAIiEPrAVhDmFU2aQkYQgMoCQugqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                           
+    ## [4,] "https://news.google.com/articles/CAIiEF_eu4gEPwtoCGYOjXW0E6YqGAgEKg8IACoHCAowhO7OATDh9CgwvaadAg?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                         
+    ## [5,] "https://news.google.com/articles/CAIiEBAuJVvmdxGe7ys3Z3cEt4cqGAgEKg8IACoHCAowjtSUCjC30XQwzqe5AQ?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                         
+    ## [6,] "https://news.google.com/articles/CAIiEMHeblEu7oGF4zdtJA0_CrkqGQgEKhAIACoHCAow2Nb3CjDivdcCMJ_d7gU?uo=CAUiaGh0dHBzOi8vd3d3LmNuYmMuY29tLzIwMjIvMDQvMDQvdXMtd2FybnMtcnVzc2lhLXdpbGwtaW50ZW5zaWZ5LXRoZWlyLW1pbGl0YXJ5LW9wZXJhdGlvbnMtaW4tdWtyYWluZS5odG1s0gEA&hl=en-US&gl=US&ceid=US%3Aen"
 
 Now that we have the links to all these web pages, we can just loop
 through and do what we did in the first section to extract all the
@@ -352,7 +352,7 @@ head(colnames(tw))
 tw$text[1]
 ```
 
-    ## [1] "Whoopi Goldberg insists Will Smith's career 'will be fine' after Oscars slap incident.\n\nhttps://t.co/voZIPvYA0P https://t.co/yI365jiP0F"
+    ## [1] "Can we just come out and say this whole production was done with contempt for its audience?\n\nI get that roast jokes play at the Oscars but at least a roast is funny. https://t.co/j69cw4aQqT"
 
 This is already looking cleaner than our news article example, but let’s
 still do a bit of pre-processing. We’ll go more in depth during our week
@@ -373,18 +373,18 @@ tw[, c("screen_name", "text")]
 ```
 
     ## # A tibble: 10 × 2
-    ##    screen_name     text                                                         
-    ##    <chr>           <chr>                                                        
-    ##  1 MirrorCeleb     "Whoopi Goldberg insists Will Smith's career 'will be fine' …
-    ##  2 latimes         "Chris Rock's brother Kenny Rock said he would like the acad…
-    ##  3 JustinWhang     "Did SNL do a sketch where they have a guy be Will Smith and…
-    ##  4 BroBible        "Oh boy.\nhttps://t.co/v8EX9ehqcE"                           
-    ##  5 MonashUni       "There’s been much discussion about Will Smith’s actions at …
-    ##  6 PinkNews        "Oscars host Wanda Sykes weighs in on Will Smith slap row: '…
-    ##  7 ScottDMenzel    "I’ll be happy to start the awards campaign for Marcel The S…
-    ##  8 JFrayWTOP       "I hope that one day we see another movie so good that it wi…
-    ##  9 livenowfox      "CODA: How Oscars’ best picture echoes everyday life in the …
-    ## 10 LifeNationalUAE "What the success of ‘Dune’ at the Oscars means for Abu Dhab…
+    ##    screen_name  text                                                            
+    ##    <chr>        <chr>                                                           
+    ##  1 RBryant2012  "Can we just come out and say this whole production was done wi…
+    ##  2 MirrorCeleb  "Whoopi Goldberg insists Will Smith's career 'will be fine' aft…
+    ##  3 latimes      "Chris Rock's brother Kenny Rock said he would like the academy…
+    ##  4 JustinWhang  "Did SNL do a sketch where they have a guy be Will Smith and th…
+    ##  5 BroBible     "Oh boy.\nhttps://t.co/v8EX9ehqcE"                              
+    ##  6 MonashUni    "There’s been much discussion about Will Smith’s actions at las…
+    ##  7 PinkNews     "Oscars host Wanda Sykes weighs in on Will Smith slap row: 'I'm…
+    ##  8 ScottDMenzel "I’ll be happy to start the awards campaign for Marcel The Shel…
+    ##  9 JFrayWTOP    "I hope that one day we see another movie so good that it wins …
+    ## 10 livenowfox   "CODA: How Oscars’ best picture echoes everyday life in the Dea…
 
 ``` r
 # after
@@ -392,12 +392,12 @@ tw_wrds <- unname(sapply(tw$text, clean_text))
 head(tw_wrds)
 ```
 
-    ## [1] "Whoopi Goldberg insists Will Smiths career  fine Oscars slap incident httpstcovoZIPvYA0P httpstcoyI365jiP0F"                                                                                           
-    ## [2] "Chris Rocks brother Kenny Rock said like academy take away Will Smiths Oscar win performance “King Richard” bar attending future Oscars httpstcoYJmqBBkKaQ"                                            
-    ## [3] "Did SNL sketch guy Will Smith joke thing Oscars sketch"                                                                                                                                                
-    ## [4] "Oh boy httpstcov8EX9ehqcE"                                                                                                                                                                             
-    ## [5] "There’s much discussion Will Smith’s actions last week’s Oscars Monash researchers revealed sometimes incivility impoliteness can justified violence  httpstcoDptTA51PpJ MonashLens httpstcos06amruFUe"
-    ## [6] "Oscars host Wanda Sykes weighs Will Smith slap row Im still traumatised httpstcooH7dwLmeGf"
+    ## [1] "Can just come say whole production done contempt audience I get roast jokes play Oscars least roast funny httpstcoj69cw4aQqT"                                                                          
+    ## [2] "Whoopi Goldberg insists Will Smiths career  fine Oscars slap incident httpstcovoZIPvYA0P httpstcoyI365jiP0F"                                                                                           
+    ## [3] "Chris Rocks brother Kenny Rock said like academy take away Will Smiths Oscar win performance “King Richard” bar attending future Oscars httpstcoYJmqBBkKaQ"                                            
+    ## [4] "Did SNL sketch guy Will Smith joke thing Oscars sketch"                                                                                                                                                
+    ## [5] "Oh boy httpstcov8EX9ehqcE"                                                                                                                                                                             
+    ## [6] "There’s much discussion Will Smith’s actions last week’s Oscars Monash researchers revealed sometimes incivility impoliteness can justified violence  httpstcoDptTA51PpJ MonashLens httpstcos06amruFUe"
 
 Again, what you do with this data is a different topic. For now, let’s
 do something simple: see which words appear the most often.
@@ -411,8 +411,10 @@ sort(count[count > 1], decreasing = T)
 ```
 
     ## 
-    ## oscars   will   coda      i   like  never    one sketch   slap  smith smiths 
-    ##      8      5      2      2      2      2      2      2      2      2      2
+    ## oscars   will      i    can   coda   like  never    one  roast    say sketch 
+    ##      8      5      3      2      2      2      2      2      2      2      2 
+    ##   slap  smith smiths 
+    ##      2      2      2
 
 The <tt>rtweet</tt> package has lots of other functions that you may
 find useful. If you want to use Twitter for your project, I encourage
