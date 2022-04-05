@@ -42,7 +42,7 @@ eg_html <- "<html>
 ```
 
 The DOM for this would look something like this:
-\
+<embed src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/html_dom.pdf">
 
 
 

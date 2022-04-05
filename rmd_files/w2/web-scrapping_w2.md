@@ -5,11 +5,7 @@ Albert Chiu
 ## A Brief Primer on HTML and <tt>rvest</tt>
 
 HyperText Markup Language (HTML) is a markup language (similar to LaTeX)
-and is what most websites are written in. An html document is
-essentially a tree composed of nodes. Nodes can be text, links, tables,
-etc., and they themselves can have “descendant” nodes (e.g., a table is
-itself a node, but inside the table there might be something that makes
-text italics, and then inside that will be the text itself).
+and is what most websites are written in.
 
 For our purposes, there are a few important terms to introduce. First,
 an *element* is a type of node that makes up the document, and it can be
@@ -33,6 +29,24 @@ This will appear to the viewer as:
 text here
 </p>
 
+We can represent html documents using a document object model (DOM). To
+do so, we would use a data structure called a *tree*. Trees are composed
+of *nodes* and have a hierarchical structure: there is one “root” node,
+and all other nodes branch out from it. Consider the following example:
+
+``` r
+eg_html <- "<html>
+                <p style=\"color:#8C1515\">
+                    text here 
+                    <a href=\"page1.html\"> link1 </a>
+                </p>
+                <a href=\"page2.html\"> link2 </a>
+            </html>"
+```
+
+The DOM for this would look something like this:
+<embed src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/html_dom.pdf">
+
 To do webscrapping in R, we will be using the <tt>rvest</tt> package (a
 part of <tt>tidyverse</tt>). <tt>rvest</tt> is designed to go with
 <tt>magrittr</tt> package; you don’t need to use the latter, but taking
@@ -42,35 +56,27 @@ less verbose.
 <tt>rvest</tt> lets you extract nodes corresponding to specific tags:
 
 ``` r
-eg_html <- rvest::read_html(
-"<html>
-    <p style=\"color:#8C1515\">
-        text here 
-        <a href=\"page1.html\"> link1 </a>
-    </p>
-    <a href=\"page2.html\"> link2 </a>
-</html>"
-)
+eg_doc <- rvest::read_html(eg_html)
 
-eg_html %>% rvest::html_elements("p")
+eg_doc %>% rvest::html_elements("p")
 ```
 
     ## {xml_nodeset (1)}
-    ## [1] <p style="color:#8C1515">\n        text here \n        <a href="page1.htm ...
+    ## [1] <p style="color:#8C1515">\n                    text here \n               ...
 
 We can then extract all the text inside:
 
 ``` r
-eg_html %>% rvest::html_elements("p") %>%
+eg_doc %>% rvest::html_elements("p") %>%
   rvest::html_text()
 ```
 
-    ## [1] "\n        text here \n         link1 \n    "
+    ## [1] "\n                    text here \n                     link1 \n                "
 
 Or maybe we want its descendants with a specific tag:
 
 ``` r
-eg_html %>% rvest::html_elements("p") %>%
+eg_doc %>% rvest::html_elements("p") %>%
   rvest::html_elements("a")
 ```
 
@@ -83,7 +89,7 @@ Note that this doesn’t extract the <tt>a</tt> tag outside of the
 Instead of text, we can also extract attributes:
 
 ``` r
-eg_html %>% rvest::html_elements("p") %>%
+eg_doc %>% rvest::html_elements("p") %>%
   rvest::html_elements("a") %>% 
   rvest::html_attr("href")
 ```
@@ -243,7 +249,7 @@ part of two classes; we use take either). We want to extract the text
 from this element.
 
 ``` r
-titles <- html_doc %>% rvest::html_nodes('.DY5T1d .RZIKme') %>%
+titles <- html_doc %>% rvest::html_nodes('.DY5T1d') %>%
   rvest::html_text()
 
 # same thing if we use the other class
@@ -304,7 +310,7 @@ head(colnames(tw))
 tw$text[1]
 ```
 
-    ## [1] "#AmySchumer reflects on Will Smith’s Chris Rock slap at Oscars. https://t.co/YVNEDCcQc7"
+    ## [1] "CODA: How Oscars’ best picture echoes everyday life in the Deaf community\nhttps://t.co/xdHuDpQ8RW"
 
 This is already looking cleaner than our news article example, but let’s
 still do a bit of pre-processing. We’ll go more in depth during our week
@@ -327,16 +333,16 @@ tw[, c("screen_name", "text")]
     ## # A tibble: 10 × 2
     ##    screen_name     text                                                         
     ##    <chr>           <chr>                                                        
-    ##  1 accesshollywood "#AmySchumer reflects on Will Smith’s Chris Rock slap at Osc…
-    ##  2 i_D             "Timothée Chalamet's 'nipples-out-at-the-Oscars' moment stic…
-    ##  3 techradar       "Netflix and Sony are both backing away from Will Smith afte…
-    ##  4 billboard       "The tiny uptick for the Grammys comes on the heels of the O…
-    ##  5 AJPennyfarthing "John Oliver Slams OJ Simpson’s Take on Will Smith’s Oscars …
-    ##  6 Josh_Moon       "So far, the \"anti-cancel culture\" crowd has canceled: \n\…
-    ##  7 MirrorCeleb     "Whoopi Goldberg insists Will Smith's career 'will be fine' …
-    ##  8 people          "Whoopi Goldberg Says Will Smith Will Bounce Back from Oscar…
-    ##  9 people          "Where Will Smith's Upcoming Projects Stand in Wake of Oscar…
-    ## 10 NYWomensFdn     "“You see a queer, openly queer woman of color and Afro-Lati…
+    ##  1 livenowfox      "CODA: How Oscars’ best picture echoes everyday life in the …
+    ##  2 LifeNationalUAE "What the success of ‘Dune’ at the Oscars means for Abu Dhab…
+    ##  3 ArsenioHall     "Y’all still talking about the Will Smith slap? How about so…
+    ##  4 SKPopCulture    "Watch the video as #TrevorNoah takes a dig at the #WillSmit…
+    ##  5 SCMPNews        "Will Smith’s career has  – at least temporarily – taken a h…
+    ##  6 MSN             "'The Fresh Prince of Bel-Air' Star Tatyana Ali Addresses Wi…
+    ##  7 firstpost       "OPINION: #LataMangeshkar at #Grammys #Oscars | \"Acknowledg…
+    ##  8 Screendaily     "Comment: Academy must reclaim its authority after Will Smit…
+    ##  9 TheNew93Q       "The podcaster Will Smith gets tweeted every time something …
+    ## 10 WTAJnews        "Both Netflix and Sony have not commented on the status of t…
 
 ``` r
 # after
@@ -344,12 +350,12 @@ tw_wrds <- unname(sapply(tw$text, clean_text))
 head(tw_wrds)
 ```
 
-    ## [1] "AmySchumer reflects Will Smith’s Chris Rock slap Oscars httpstcoYVNEDCcQc7"                                                                                                                                                                    
-    ## [2] "Timothée Chalamets nipplesOscars moment sticks finger conservative formal dress codes TheOscars httpstcoUeU25HEHzD"                                                                                                                            
-    ## [3] "Netflix Sony backing away Will Smith Oscars fallout httpstco0ljFCzmWFn"                                                                                                                                                                        
-    ## [4] "The tiny uptick Grammys comes heels Oscars recording much bigger ratings growth week earlier httpstcoemWge9YKDw"                                                                                                                               
-    ## [5] "John Oliver Slams OJ Simpson’s Take Will Smith’s Oscars Slap  IndieWire httpstcotZIp781tAl"                                                                                                                                                    
-    ## [6] "So far anticancel culture crowd canceled Netflix Disney NFL NBA MLB NCAA sports Grammys Oscars Tonys All music CBS NBC ABC All latenight shows Most books History class Gay people Amazon unless shitting employees Movies TV shows Home Depot"
+    ## [1] "CODA How Oscars’ best picture echoes everyday life Deaf community httpstcoxdHuDpQ8RW"                                                                                                                                                     
+    ## [2] "What success ‘Dune’ Oscars means Abu Dhabi httpstcoVNhdZe7xb1"                                                                                                                                                                            
+    ## [3] "Y’ still talking Will Smith slap How something positive Ariana DeBose made history Oscars night Let’s talk Silk Sonic They incredible winning You know Lee Daniels apologized Mo’Nique Oh How Judge Ketanji Brown Jackson …"              
+    ## [4] "Watch video TrevorNoah takes dig WillSmith vs ChrisRock controversy ➡️ httpstcofRntsjMjQt    GRAMMYs GrammyAwards willsmithchrisrock willsmithslap WillSmithAndChrisRock willsmithmeme chrisrockwillsmith chrisrockslap httpstcoxiGi7tOqbA"
+    ## [5] "Will Smith’s career – least temporarily – taken hit Read  httpstcoHRL67cvStC willsmith oscars career BadBoys4 httpstco1DFBPfJ3ql"                                                                                                         
+    ## [6] "The Fresh Prince BelAir Star Tatyana Ali Addresses Will Smiths Oscars Slap Right Is Right Wrong Is Wrong And Love Is Love httpstcoMH9Gs9sFz4"
 
 Again, what you do with this data is a different topic. For now, let’s
 do something simple: see which words appear the most often.
@@ -363,10 +369,12 @@ sort(count[count > 1], decreasing = T)
 ```
 
     ## 
-    ##   oscars     will     slap      all     fine goldberg  grammys  netflix 
-    ##        8        7        5        2        2        2        2        2 
-    ##    queer    shows    smith  smith’s   smiths   whoopi 
-    ##        2        2        2        2        2        2
+    ##      will    oscars     smith       how        is something         –     actor 
+    ##         7         6         5         3         3         3         2         2 
+    ##       and    career   grammys      love     right      slap       the willsmith 
+    ##         2         2         2         2         2         2         2         2 
+    ##     wrong 
+    ##         2
 
 The <tt>rtweet</tt> package has lots of other functions that you may
 find useful. If you want to use Twitter for your project, I encourage
@@ -379,8 +387,8 @@ tl <- rtweet::get_timeline(user="UN", n=2)
 tl$text
 ```
 
-    ## [1] "The health care system in #Ukraine is burdened from the ongoing war. \n\nAs hostilities continue, people’s access to health services is impeded. Safety concerns, attacks on health, mass displacement make it challenging to avail basic health care. Read more: https://t.co/u6gY6gCUgL https://t.co/k0z0SV3mWm"
-    ## [2] "Ukraine: \"It is vital that all efforts are made to ensure there are independent &amp; effective investigations into what happened in Bucha to ensure truth, justice &amp; accountability\"\n\n-- @UNHumanRights chief @mbachelet.\nhttps://t.co/Y8bKoIjyr7"
+    ## [1] "Tuesday is the International Day of Conscience. \n\nIn the face of on-going global challenges and conflicts - let's focus on promoting tolerance &amp; solidarity and helping those in need. https://t.co/DBvsTC3RVQ https://t.co/Bj1FuNO5Dn"                                                                     
+    ## [2] "The health care system in #Ukraine is burdened from the ongoing war. \n\nAs hostilities continue, people’s access to health services is impeded. Safety concerns, attacks on health, mass displacement make it challenging to avail basic health care. Read more: https://t.co/u6gY6gCUgL https://t.co/k0z0SV3mWm"
 
 Lastly, we can do all this without the <tt>rtweet</tt> package, though
 it takes considerably more effort. Take a look at the supplement if
