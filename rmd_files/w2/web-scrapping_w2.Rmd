@@ -41,10 +41,10 @@ eg_html <- "<html>
             </html>"
 ```
 
-Notice how nodes are nested within each other, ergo the hierarchical structure. Nodes that are more outer are higher up in the hierarchy. The DOM for this would look something like this:
+Notice how nodes are nested within each other, ergo the hierarchical structure. If a node is nested within another, the former is called the latter's "child" and the latter is the former's "parent." Child nodes are said to be "descended from" parent nodes. Nodes that are more outer are higher up in the hierarchy. The DOM for this would look something like this:
 <img src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/html_dom.png?raw=true">
 
-There's a few things to remark on. First, note that there are nodes called "header" and "body" which are not part of the example code. These can be omitted (as can the <tt>html</tt> tag) and will be implicitly created whenever your browser/etc. loads the html file. Second, attributes are displayed using dashed lines/arrows, since not all consider them to be nodes. 
+There's a few things to remark on. First, note that there are nodes called "header" and "body" which are not part of the example code. These can be omitted (as can the <tt>html</tt> tag) and will be implicitly created whenever your browser/etc. loads the html file. The head element will include information like which CSS style sheet to use, and we largely won't concern ourselves with it. The body element is where the contents of the page are. Second, attributes are displayed using dashed lines/arrows, since not all consider them to be nodes. 
 
 To do webscrapping in R, we will be using the <tt>rvest</tt> package (a part of <tt>tidyverse</tt>). <tt>rvest</tt> is designed to go with <tt>magrittr</tt> package; you don't need to use the latter, but taking advantage of the pipe <tt>%>%</tt> operator will make your code a lot less verbose. 
 
@@ -52,24 +52,29 @@ To do webscrapping in R, we will be using the <tt>rvest</tt> package (a part of 
 ```{r}
 eg_doc <- rvest::read_html(eg_html)
 
+# everything inside a p tag, i.e., the p element and all its descendants
 eg_doc %>% rvest::html_elements("p")
+
+# if there are more than one, it returns a "node list"
+eg_doc %>% rvest::html_elements("a")
 ```
 
-We can then extract all the text inside:
+Given a node, we can extract all the text descended from it:
 ```{r}
+# notice that this also extracts the text from the "a" element that is descended
+# from the p element
 eg_doc %>% rvest::html_elements("p") %>%
   rvest::html_text()
 ```
 
-Or maybe we want its descendants with a specific tag:
+Or maybe we want all nodes with a specific tag that descend from that node:
 ```{r}
+# note that this doesn't extract the "a" tag outside of the p tag
 eg_doc %>% rvest::html_elements("p") %>%
   rvest::html_elements("a")
 ```
 
-Note that this doesn't extract the <tt>a</tt> tag outside of the <tt>p</tt> tag.
-
-Instead of text, we can also extract attributes:
+Lastly, instead of text, we can also extract attributes:
 ```{r}
 eg_doc %>% rvest::html_elements("p") %>%
   rvest::html_elements("a") %>% 

@@ -5,11 +5,7 @@ Albert Chiu
 ## A Brief Primer on HTML and <tt>rvest</tt>
 
 HyperText Markup Language (HTML) is a markup language (similar to LaTeX)
-and is what most websites are written in. An html document is
-essentially a tree composed of nodes. Nodes can be text, links, tables,
-etc., and they themselves can have “descendant” nodes (e.g., a table is
-itself a node, but inside the table there might be something that makes
-text italics, and then inside that will be the text itself).
+and is what most websites are written in.
 
 For our purposes, there are a few important terms to introduce. First,
 an *element* is a type of node that makes up the document, and it can be
@@ -33,6 +29,40 @@ This will appear to the viewer as:
 text here
 </p>
 
+We can represent html documents using a document object model (DOM). To
+do so, we would use a data structure called a *tree*. Trees are composed
+of *nodes* and have a hierarchical structure: there is one “root” node,
+and all other nodes branch out from it. In html, nodes can be either
+elements or something like text (some consider attributes to be a type
+of node, others don’t). Consider the following example:
+
+``` r
+eg_html <- "<html>
+                <p style=\"color:#8C1515\">
+                    text here 
+                    <a href=\"page1.html\"> link1 </a>
+                </p>
+                <a href=\"page2.html\"> link2 </a>
+            </html>"
+```
+
+Notice how nodes are nested within each other, ergo the hierarchical
+structure. If a node is nested within another, the former is called the
+latter’s “child” and the latter is the former’s “parent.” Child nodes
+are said to be “descended from” parent nodes. Nodes that are more outer
+are higher up in the hierarchy. The DOM for this would look something
+like this:
+<img src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/html_dom.png?raw=true">
+
+There’s a few things to remark on. First, note that there are nodes
+called “header” and “body” which are not part of the example code. These
+can be omitted (as can the <tt>html</tt> tag) and will be implicitly
+created whenever your browser/etc. loads the html file. The head element
+will include information like which CSS style sheet to use, and we
+largely won’t concern ourselves with it. The body element is where the
+contents of the page are. Second, attributes are displayed using dashed
+lines/arrows, since not all consider them to be nodes.
+
 To do webscrapping in R, we will be using the <tt>rvest</tt> package (a
 part of <tt>tidyverse</tt>). <tt>rvest</tt> is designed to go with
 <tt>magrittr</tt> package; you don’t need to use the latter, but taking
@@ -42,48 +72,51 @@ less verbose.
 <tt>rvest</tt> lets you extract nodes corresponding to specific tags:
 
 ``` r
-eg_html <- rvest::read_html(
-"<html>
-    <p style=\"color:#8C1515\">
-        text here 
-        <a href=\"page1.html\"> link1 </p>
-    </p>
-    <a href=\"page2.html\"> link2 </p>
-</html>"
-)
+eg_doc <- rvest::read_html(eg_html)
 
-eg_html %>% rvest::html_elements("p")
+# everything inside a p tag, i.e., the p element and all its descendants
+eg_doc %>% rvest::html_elements("p")
 ```
 
     ## {xml_nodeset (1)}
-    ## [1] <p style="color:#8C1515">\n        text here \n        <a href="page1.htm ...
-
-We can then extract all the text inside:
+    ## [1] <p style="color:#8C1515">\n                    text here \n               ...
 
 ``` r
-eg_html %>% rvest::html_elements("p") %>%
+# if there are more than one, it returns a "node list"
+eg_doc %>% rvest::html_elements("a")
+```
+
+    ## {xml_nodeset (2)}
+    ## [1] <a href="page1.html"> link1 </a>
+    ## [2] <a href="page2.html"> link2 </a>
+
+Given a node, we can extract all the text descended from it:
+
+``` r
+# notice that this also extracts the text from the "a" element that is descended
+# from the p element
+eg_doc %>% rvest::html_elements("p") %>%
   rvest::html_text()
 ```
 
-    ## [1] "\n        text here \n         link1 "
+    ## [1] "\n                    text here \n                     link1 \n                "
 
-Or maybe we want its descendants with a specific tag:
+Or maybe we want all nodes with a specific tag that descend from that
+node:
 
 ``` r
-eg_html %>% rvest::html_elements("p") %>%
+# note that this doesn't extract the "a" tag outside of the p tag
+eg_doc %>% rvest::html_elements("p") %>%
   rvest::html_elements("a")
 ```
 
     ## {xml_nodeset (1)}
     ## [1] <a href="page1.html"> link1 </a>
 
-Note that this doesn’t extract the <tt>a</tt> tag outside of the
-<tt>p</tt> tag.
-
-Instead of text, we can also extract attributes:
+Lastly, instead of text, we can also extract attributes:
 
 ``` r
-eg_html %>% rvest::html_elements("p") %>%
+eg_doc %>% rvest::html_elements("p") %>%
   rvest::html_elements("a") %>% 
   rvest::html_attr("href")
 ```
@@ -109,9 +142,7 @@ There are many types of data you might want from a webpage, and each
 will require a different method of extraction. In this case, we’re
 looking at an article and most likely will want the contents of that
 article. As a starting point, we might want to look at text that is
-sandwiched by p tags,
-
-    <p> text here </p>.
+sandwiched by p tags:
 
 ``` r
 cnn_text <- cnn_page %>%
@@ -197,20 +228,21 @@ html_doc <- rvest::read_html(url)
 ```
 
 We want to get the html node that links to the article. Fortunately for
-us, Google defines specific classes of elements for different functions.
-To see which one is used for linking to the articles, we open Google
-News and use Chrome’s inspection tool under <tt>View \> Developer \>
-Inspect Elements</tt> tool.
+us, Google defines a specific class for such elements. To see what it’s
+called, we can open Google News and use Chrome’s inspection tool under
+<tt>View \> Developer \> Inspect Elements</tt> tool and mouse over the
+link.
 
 <img src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/inspect.png?raw=true">
 
-The class of elements we want is called “VDXfz”, and we want to extract
-the hyperlink from it, which is specified using the <tt>href</tt>
-attribute.
+The class we want is called “VDXfz” (the CSS selector for class is
+<tt>.class</tt>), and we want to extract the hyperlink from it, which is
+specified using the <tt>href</tt> attribute.
 
 ``` r
 ## Get links on the page
-links <- html_doc %>% rvest::html_nodes('.VDXfz') %>% rvest::html_attr('href')
+links <- html_doc %>% rvest::html_nodes('.VDXfz') %>%  # specify CSS selector: .class
+  rvest::html_attr('href')
 ```
 
 If we take a look at the html code for the webpage, we can see that the
@@ -223,11 +255,11 @@ e.g., “<https://nytimes.com>”). To get it in this format, we need to
 replace the root.
 
 ``` r
-# this will give us urls in the following format:
+# this will give us links in the following format:
 links[1]
 ```
 
-    ## [1] "./articles/CAIiEPrAVhDmFU2aQkYQgMoCQugqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&gl=US&ceid=US%3Aen"
+    ## [1] "./articles/CAIiEJ0j7PdPWTmbEC-929SrPEkqFwgEKg4IACoGCAow9vBNMK3UCDDE2Z4H?hl=en-US&gl=US&ceid=US%3Aen"
 
 ``` r
 # we want them instead to begin with the Google News address
@@ -239,33 +271,23 @@ info, let’s go back to Google News and open Chromes’ Devloper Tools UI
 (or open the raw html file) and look for the corresponding node:
 <img  src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/node_title.png?raw=true">
 
-The class of elements we want seems to be called “DY5T1d”. We want to
-extract the text from this element.
+Titles seem to be assigned the “DY5T1d” class attribute (it’s actually a
+part of two classes; we use take either). We want to extract the text
+from this element.
 
 ``` r
-titles <- html_doc %>% rvest::html_nodes('.DY5T1d') %>% rvest::html_text()
+titles <- html_doc %>% rvest::html_nodes('.DY5T1d') %>%
+  rvest::html_text()
+
+# same thing if we use the other class
+# html_doc %>%  rvest::html_nodes('.RZIKme') %>% rvest::html_text()
 
 # take the first five words
 trunc <- sapply(titles, FUN=function(x) 
   paste(c(unlist(strsplit(x, split=" +"))[1:5], "..."), collapse=" "))
 df <- cbind(title = titles, truncated_title = unname(trunc), link = links) 
-head(df[, c("truncated_title", "link")])
+#head(df[, c(2:3)])
 ```
-
-    ##      truncated_title                                     
-    ## [1,] "What Happened on Day 39 ..."                       
-    ## [2,] "The horrors of Putin's invasion ..."               
-    ## [3,] "Ukraine claims 410 bodies found ..."               
-    ## [4,] "Ukraine updates: Ukrainians returning home ..."    
-    ## [5,] "Russia-Ukraine war live updates: International ..."
-    ## [6,] "Russia-Ukraine war: What happened today ..."       
-    ##      link                                                                                                                                                                                                                                                          
-    ## [1,] "https://news.google.com/articles/CAIiEPrAVhDmFU2aQkYQgMoCQugqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                   
-    ## [2,] "https://news.google.com/articles/CAIiEIqJInbL-tJ9NDOrCDptUjIqGQgEKhAIACoHCAowocv1CjCSptoCMPrTpgU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
-    ## [3,] "https://news.google.com/articles/CAIiEMRVBQIidvjPqf8dtOEZEoAqGQgEKhAIACoHCAow2Nb3CjDivdcCMKuvhQY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
-    ## [4,] "https://news.google.com/articles/CAIiECIn-DwmTdlz7v-1DvkCLBAqGQgEKhAIACoHCAowjsP7CjCSpPQCMM_b5QU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
-    ## [5,] "https://news.google.com/articles/CAIiEHTSgVW44u_H74H1ErwE_jEqGQgEKhAIACoHCAowvIaCCzDnxf4CMM2F8gU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                
-    ## [6,] "https://news.google.com/articles/CAIiEPDe97059SHmXfeVPb7W3JkqFwgEKg4IACoGCAow9vBNMK3UCDCFpJYH?uo=CAUiWGh0dHBzOi8vd3d3Lm5wci5vcmcvMjAyMi8wNC8wMy8xMDkwNTIxNzIxL3J1c3NpYS11a3JhaW5lLXdhci13aGF0LWhhcHBlbmVkLXRvZGF5LWFwcmlsLTPSAQA&hl=en-US&gl=US&ceid=US%3Aen"
 
 Now that we have the links to all these web pages, we can just loop
 through and do what we did in the first section to extract all the
@@ -315,7 +337,7 @@ head(colnames(tw))
 tw$text[1]
 ```
 
-    ## [1] "Netflix and Sony have reportedly put movies Will Smith was set to appear in on hold after the actor slapped comedian Chris Rock during the Oscars. \nhttps://t.co/F8OyCqgu0j"
+    ## [1] "Oh boy.\nhttps://t.co/v8EX9ehqcE"
 
 This is already looking cleaner than our news article example, but let’s
 still do a bit of pre-processing. We’ll go more in depth during our week
@@ -338,16 +360,16 @@ tw[, c("screen_name", "text")]
     ## # A tibble: 10 × 2
     ##    screen_name     text                                                         
     ##    <chr>           <chr>                                                        
-    ##  1 wbrewyou        "Netflix and Sony have reportedly put movies Will Smith was …
-    ##  2 theheraldsun    "\"You gonna hit my mother******** brother ?\" \nChris Rock'…
-    ##  3 DailyMailCeleb  "Trevor Noah opens Grammys by joking about Will Smith's Osca…
-    ##  4 boomlive_in     "The apologies for the joke do not appear on Chris Rock's so…
-    ##  5 boomlive_in     "Edit histories of the posts show they were changed to refer…
-    ##  6 PageSix         "Will Smith resigned but is he 'banned' from Oscars like thi…
-    ##  7 dailystar       "#Grammys 2022 host Trevor Noah makes subtle dig at Will Smi…
-    ##  8 fox32news       "“Took me a while to get my thoughts together,” “Fresh Princ…
-    ##  9 mrdiscopop      "The Oscars give Oscars to people who make films about films…
-    ## 10 moneycontrolcom "Music legend #LataMangeshkar was missing from the “In Memor…
+    ##  1 BroBible        "Oh boy.\nhttps://t.co/v8EX9ehqcE"                           
+    ##  2 MonashUni       "There’s been much discussion about Will Smith’s actions at …
+    ##  3 PinkNews        "Oscars host Wanda Sykes weighs in on Will Smith slap row: '…
+    ##  4 ScottDMenzel    "I’ll be happy to start the awards campaign for Marcel The S…
+    ##  5 JFrayWTOP       "I hope that one day we see another movie so good that it wi…
+    ##  6 livenowfox      "CODA: How Oscars’ best picture echoes everyday life in the …
+    ##  7 LifeNationalUAE "What the success of ‘Dune’ at the Oscars means for Abu Dhab…
+    ##  8 ArsenioHall     "Y’all still talking about the Will Smith slap? How about so…
+    ##  9 SKPopCulture    "Watch the video as #TrevorNoah takes a dig at the #WillSmit…
+    ## 10 SCMPNews        "Will Smith’s career has  – at least temporarily – taken a h…
 
 ``` r
 # after
@@ -355,12 +377,12 @@ tw_wrds <- unname(sapply(tw$text, clean_text))
 head(tw_wrds)
 ```
 
-    ## [1] "Netflix Sony reportedly put movies Will Smith set appear hold actor slapped comedian Chris Rock Oscars httpstcoF8OyCqgu0j"                 
-    ## [2] "You gonna hit mother brother  Chris Rocks family unleashed Will Smith infamous Oscars slap httpstcoLpQ8Be3qpk"                             
-    ## [3] "Trevor Noah opens Grammys joking Will Smiths Oscars slap Questlove takes dig httpstco2bIUDN2H1l"                                           
-    ## [4] "The apologies joke appear Chris Rocks social media accounts publicist said statements fake FakeNews ChrisRock WillSmith httpstcoRIqjDemERX"
-    ## [5] "Edit histories posts show changed reference Will Smith slapping Chris Rock took place Oscars ChrisRock WillSmith httpstcoYxrdj2pAfO"       
-    ## [6] "Will Smith resigned banned Oscars like exclusive club httpstcoISIvtmV6HE httpstcoyiQBK3JDla"
+    ## [1] "Oh boy httpstcov8EX9ehqcE"                                                                                                                                                                             
+    ## [2] "There’s much discussion Will Smith’s actions last week’s Oscars Monash researchers revealed sometimes incivility impoliteness can justified violence  httpstcoDptTA51PpJ MonashLens httpstcos06amruFUe"
+    ## [3] "Oscars host Wanda Sykes weighs Will Smith slap row Im still traumatised httpstcooH7dwLmeGf"                                                                                                            
+    ## [4] "I’ll happy start awards campaign Marcel The Shell With Shoes On like CODA I want one go way Oscars MarcelTheShell httpstcorzQowtkU21"                                                                  
+    ## [5] "I hope one day see another movie good wins “Big Five” Oscars It’s hard imagine current landscape never say never"                                                                                      
+    ## [6] "CODA How Oscars’ best picture echoes everyday life Deaf community httpstcoxdHuDpQ8RW"
 
 Again, what you do with this data is a different topic. For now, let’s
 do something simple: see which words appear the most often.
@@ -374,12 +396,10 @@ sort(count[count > 1], decreasing = T)
 ```
 
     ## 
-    ##    oscars      will   grammys     chris     smith       the     music      slap 
-    ##        10         6         5         4         4         4         3         3 
-    ##    appear chrisrock       dig     films      give      make     media      noah 
-    ##         2         2         2         2         2         2         2         2 
-    ##    people      rock     rocks    smiths    social  thoughts    trevor willsmith 
-    ##         2         2         2         2         2         2         2         2
+    ##    oscars      will       how         –    career      coda         i     never 
+    ##         7         4         3         2         2         2         2         2 
+    ##        oh       one      slap     smith   smith’s     still willsmith 
+    ##         2         2         2         2         2         2         2
 
 The <tt>rtweet</tt> package has lots of other functions that you may
 find useful. If you want to use Twitter for your project, I encourage
@@ -392,5 +412,11 @@ tl <- rtweet::get_timeline(user="UN", n=2)
 tl$text
 ```
 
-    ## [1] "Despite numerous challenges, our @UNMAS colleagues continue their vital work clearing landmines &amp; explosive remnants of war.\n\nThey are working to create a world where people don't have to be afraid of their next step.\n\nMore on Monday's #MineAwarenessDay: https://t.co/KmYriwGy50 https://t.co/61aEt1VrQJ"
-    ## [2] "Afghanistan: The denial of education violates the human rights of women &amp; girls and can leave them more exposed to violence, poverty and exploitation.\n\nAll students must be allowed to exercise their right to an education. https://t.co/RLTlfBdZAi"
+    ## [1] "Tuesday is the International Day of Conscience. \n\nIn the face of on-going global challenges and conflicts - let's focus on promoting tolerance &amp; solidarity and helping those in need. https://t.co/DBvsTC3RVQ https://t.co/Bj1FuNO5Dn"                                                                     
+    ## [2] "The health care system in #Ukraine is burdened from the ongoing war. \n\nAs hostilities continue, people’s access to health services is impeded. Safety concerns, attacks on health, mass displacement make it challenging to avail basic health care. Read more: https://t.co/u6gY6gCUgL https://t.co/k0z0SV3mWm"
+
+Lastly, we can do all this without the <tt>rtweet</tt> package, though
+it takes considerably more effort. Take a look at the supplement if
+interested; the supplement is also a nice jumping off point if you want
+to make requests to other APIs, some of which may not have R packages to
+do the leg work for you.
