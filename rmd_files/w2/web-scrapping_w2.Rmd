@@ -42,7 +42,7 @@ eg_html <- "<html>
 ```
 
 Notice how nodes are nested within each other, ergo the hierarchical structure. If a node is nested within another, the former is called the latter's "child" and the latter is the former's "parent." Child nodes are said to be "descended from" parent nodes. Nodes that are more outer are higher up in the hierarchy. The DOM for this would look something like this:
-<img src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/html_dom.png?raw=true">
+<img src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/figures/html_dom.png?raw=true">
 
 There's a few things to remark on. First, note that there are nodes called "header" and "body" which are not part of the example code. These can be omitted (as can the <tt>html</tt> tag) and will be implicitly created whenever your browser/etc. loads the html file. The head element will include information like which CSS style sheet to use, and we largely won't concern ourselves with it. The body element is where the contents of the page are. Second, attributes are displayed using dashed lines/arrows, since not all consider them to be nodes. 
 
@@ -138,7 +138,7 @@ html_doc <- rvest::read_html(url)
 
 We want to get the html node that links to the article. Fortunately for us, Google defines a specific class for such elements. To see what it's called, we can open Google News and use Chrome's inspection tool under <tt>View > Developer > Inspect Elements</tt> tool and mouse over the link.
 
-<img src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/inspect.png?raw=true">
+<img src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/figures/inspect.png?raw=true">
 
 The class we want is called "VDXfz" (the CSS selector for class is <tt>.class</tt>), and we want to extract the hyperlink from it, which is specified using the <tt>href</tt> attribute.
 ```{r}
@@ -148,7 +148,7 @@ links <- html_doc %>% rvest::html_nodes('.VDXfz') %>%  # specify CSS selector: .
 ```
 If we take a look at the html code for the webpage, we can see that the link is a relative path (the file name, e.g., "index.html").
 
-<img src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/node_href_crop.png?raw=true">
+<img src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/figures/node_href_crop.png?raw=true">
 
 But we want an absolute path (the link you can enter into a web browser, e.g., "https://nytimes.com"). To get it in this format, we need to replace the root.
 ```{r}
@@ -159,7 +159,7 @@ links <- gsub("./articles/", "https://news.google.com/articles/", links)
 ```
 
 Let's also record the title of each article. To see how to get this info, let's go back to Google News and open Chromes' Devloper Tools UI (or open the raw html file) and look for the corresponding node:
-<img  src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/node_title.png?raw=true">
+<img  src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/figures/node_title.png?raw=true">
 
 Titles seem to be assigned the "DY5T1d" class attribute (it's actually a part of two classes; we use take either). We want to extract the text from this element.
 ```{r}
