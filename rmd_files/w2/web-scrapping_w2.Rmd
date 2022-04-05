@@ -32,13 +32,17 @@ This will appear to the viewer as:
 
 We can represent html documents using a document object model (DOM). To do so, we would use a data structure called a _tree_. Trees are composed of _nodes_ and have a hierarchical structure: there is one "root" node, and all other nodes branch out from it. In html, nodes can be either elements or something like text (some consider attributes to be a type of node, others don't). Consider the following example:
 ```{r}
+# use \ to escape special characters
 eg_html <- "<html>
                 <p style=\"color:#8C1515\">
                     text here 
-                    <a href=\"page1.html\"> link1 </a>
+                    <a href=\"\\path\\to\\link1\"> link1 </a>
                 </p>
-                <a href=\"page2.html\"> link2 </a>
+                <a href=\"\\path\\to\\link2\"> link2 </a>
             </html>"
+
+# what this string looks like 
+cat(eg_html)
 ```
 
 Notice how nodes are nested within each other, ergo the hierarchical structure. If a node is nested within another, the former is called the latter's "child" and the latter is the former's "parent." Child nodes are said to be "descended from" parent nodes. Nodes that are more outer are higher up in the hierarchy. The DOM for this would look something like this:

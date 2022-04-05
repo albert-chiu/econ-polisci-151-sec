@@ -37,14 +37,26 @@ elements or something like text (some consider attributes to be a type
 of node, others don’t). Consider the following example:
 
 ``` r
+# use \ to escape special characters
 eg_html <- "<html>
                 <p style=\"color:#8C1515\">
                     text here 
-                    <a href=\"page1.html\"> link1 </a>
+                    <a href=\"\\path\\to\\link1\"> link1 </a>
                 </p>
-                <a href=\"page2.html\"> link2 </a>
+                <a href=\"\\path\\to\\link2\"> link2 </a>
             </html>"
+
+# what this string looks like 
+cat(eg_html)
 ```
+
+    ## <html>
+    ##                 <p style="color:#8C1515">
+    ##                     text here 
+    ##                     <a href="\path\to\link1"> link1 </a>
+    ##                 </p>
+    ##                 <a href="\path\to\link2"> link2 </a>
+    ##             </html>
 
 Notice how nodes are nested within each other, ergo the hierarchical
 structure. If a node is nested within another, the former is called the
@@ -87,8 +99,8 @@ eg_doc %>% rvest::html_elements("a")
 ```
 
     ## {xml_nodeset (2)}
-    ## [1] <a href="page1.html"> link1 </a>
-    ## [2] <a href="page2.html"> link2 </a>
+    ## [1] <a href="%5Cpath%5Cto%5Clink1"> link1 </a>
+    ## [2] <a href="%5Cpath%5Cto%5Clink2"> link2 </a>
 
 Given a node, we can extract all the text descended from it:
 
@@ -111,7 +123,7 @@ eg_doc %>% rvest::html_elements("p") %>%
 ```
 
     ## {xml_nodeset (1)}
-    ## [1] <a href="page1.html"> link1 </a>
+    ## [1] <a href="%5Cpath%5Cto%5Clink1"> link1 </a>
 
 Lastly, instead of text, we can also extract attributes:
 
@@ -121,7 +133,7 @@ eg_doc %>% rvest::html_elements("p") %>%
   rvest::html_attr("href")
 ```
 
-    ## [1] "page1.html"
+    ## [1] "\\path\\to\\link1"
 
 ## General Websites
 
@@ -259,7 +271,7 @@ replace the root.
 links[1]
 ```
 
-    ## [1] "./articles/CAIiEJ0j7PdPWTmbEC-929SrPEkqFwgEKg4IACoGCAow9vBNMK3UCDDE2Z4H?hl=en-US&gl=US&ceid=US%3Aen"
+    ## [1] "./articles/CAIiEHcAW8Ya6GnDh4Q_U-70fnYqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&gl=US&ceid=US%3Aen"
 
 ``` r
 # we want them instead to begin with the Google News address
@@ -289,20 +301,20 @@ df <- cbind(title = titles, truncated_title = unname(trunc), link = links)
 head(df[, c(2:3)])
 ```
 
-    ##      truncated_title                               
-    ## [1,] "Russia-Ukraine war: What happened today ..." 
-    ## [2,] "Russia-Ukraine war: Biden accuses Russia ..."
-    ## [3,] "What Happened on Day 39 ..."                 
-    ## [4,] "Russia faces global outrage over ..."        
-    ## [5,] "World leaders condemn atrocities alleged ..."
-    ## [6,] "U.S. warns Russia will intensify ..."        
-    ##      link                                                                                                                                                                                                                                                                                  
-    ## [1,] "https://news.google.com/articles/CAIiEJ0j7PdPWTmbEC-929SrPEkqFwgEKg4IACoGCAow9vBNMK3UCDDE2Z4H?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                           
-    ## [2,] "https://news.google.com/articles/CAIiEMnUeMKzq7x9QCeEiHoDLN8qGQgEKhAIACoHCAowvIaCCzDnxf4CMM2F8gU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                        
-    ## [3,] "https://news.google.com/articles/CAIiEPrAVhDmFU2aQkYQgMoCQugqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                           
-    ## [4,] "https://news.google.com/articles/CAIiEF_eu4gEPwtoCGYOjXW0E6YqGAgEKg8IACoHCAowhO7OATDh9CgwvaadAg?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                         
-    ## [5,] "https://news.google.com/articles/CAIiEBAuJVvmdxGe7ys3Z3cEt4cqGAgEKg8IACoHCAowjtSUCjC30XQwzqe5AQ?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                         
-    ## [6,] "https://news.google.com/articles/CAIiEMHeblEu7oGF4zdtJA0_CrkqGQgEKhAIACoHCAow2Nb3CjDivdcCMJ_d7gU?uo=CAUiaGh0dHBzOi8vd3d3LmNuYmMuY29tLzIwMjIvMDQvMDQvdXMtd2FybnMtcnVzc2lhLXdpbGwtaW50ZW5zaWZ5LXRoZWlyLW1pbGl0YXJ5LW9wZXJhdGlvbnMtaW4tdWtyYWluZS5odG1s0gEA&hl=en-US&gl=US&ceid=US%3Aen"
+    ##      truncated_title                              
+    ## [1,] "Ukraine-Russia War: Live News and ..."      
+    ## [2,] "Russia invades Ukraine: Live updates ..."   
+    ## [3,] "Russia-Ukraine war: What happened today ..."
+    ## [4,] "Zelenskyy warns deaths in Bucha, ..."       
+    ## [5,] "Russia faces global outrage over ..."       
+    ## [6,] "Russia-Ukraine war news: Live updates ..."  
+    ##      link                                                                                                                                                                                                                                                                                                     
+    ## [1,] "https://news.google.com/articles/CAIiEHcAW8Ya6GnDh4Q_U-70fnYqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                              
+    ## [2,] "https://news.google.com/articles/CBMiUmh0dHBzOi8vd3d3LmNubi5jb20vZXVyb3BlL2xpdmUtbmV3cy91a3JhaW5lLXJ1c3NpYS1wdXRpbi1uZXdzLTA0LTA1LTIyL2luZGV4Lmh0bWzSAVZodHRwczovL2FtcC5jbm4uY29tL2Nubi9ldXJvcGUvbGl2ZS1uZXdzL3VrcmFpbmUtcnVzc2lhLXB1dGluLW5ld3MtMDQtMDUtMjIvaW5kZXguaHRtbA?hl=en-US&gl=US&ceid=US%3Aen"
+    ## [3,] "https://news.google.com/articles/CAIiEJ0j7PdPWTmbEC-929SrPEkqFwgEKg4IACoGCAow9vBNMK3UCDDE2Z4H?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                              
+    ## [4,] "https://news.google.com/articles/CAIiEMnUeMKzq7x9QCeEiHoDLN8qGQgEKhAIACoHCAowvIaCCzDnxf4CMM2F8gU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                           
+    ## [5,] "https://news.google.com/articles/CAIiEF_eu4gEPwtoCGYOjXW0E6YqGAgEKg8IACoHCAowhO7OATDh9CgwvaadAg?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                            
+    ## [6,] "https://news.google.com/articles/CAIiEPeddoRSEtSMW_LJqkFVEGEqGAgEKg8IACoHCAowjtSUCjC30XQwzqe5AQ?hl=en-US&gl=US&ceid=US%3Aen"
 
 Now that we have the links to all these web pages, we can just loop
 through and do what we did in the first section to extract all the
@@ -352,7 +364,7 @@ head(colnames(tw))
 tw$text[1]
 ```
 
-    ## [1] "Can we just come out and say this whole production was done with contempt for its audience?\n\nI get that roast jokes play at the Oscars but at least a roast is funny. https://t.co/j69cw4aQqT"
+    ## [1] "I wasn’t - someone has superimposed my image from JPL.  I find the shows are dull but this year was very entertaining.  I think encouraging people to fight for Oscars introduces a nice new element of boxing and wrestling that could really bring back the ratings… https://t.co/xcGJ1tNnyZ"
 
 This is already looking cleaner than our news article example, but let’s
 still do a bit of pre-processing. We’ll go more in depth during our week
@@ -373,18 +385,18 @@ tw[, c("screen_name", "text")]
 ```
 
     ## # A tibble: 10 × 2
-    ##    screen_name  text                                                            
-    ##    <chr>        <chr>                                                           
-    ##  1 RBryant2012  "Can we just come out and say this whole production was done wi…
-    ##  2 MirrorCeleb  "Whoopi Goldberg insists Will Smith's career 'will be fine' aft…
-    ##  3 latimes      "Chris Rock's brother Kenny Rock said he would like the academy…
-    ##  4 JustinWhang  "Did SNL do a sketch where they have a guy be Will Smith and th…
-    ##  5 BroBible     "Oh boy.\nhttps://t.co/v8EX9ehqcE"                              
-    ##  6 MonashUni    "There’s been much discussion about Will Smith’s actions at las…
-    ##  7 PinkNews     "Oscars host Wanda Sykes weighs in on Will Smith slap row: 'I'm…
-    ##  8 ScottDMenzel "I’ll be happy to start the awards campaign for Marcel The Shel…
-    ##  9 JFrayWTOP    "I hope that one day we see another movie so good that it wins …
-    ## 10 livenowfox   "CODA: How Oscars’ best picture echoes everyday life in the Dea…
+    ##    screen_name     text                                                         
+    ##    <chr>           <chr>                                                        
+    ##  1 EricIdle        "I wasn’t - someone has superimposed my image from JPL.  I f…
+    ##  2 TheGameBET      "\"There are ten Rock brothers, you bouta see all of us.\" #…
+    ##  3 TheGameBET      "Zendaya attended Vanity Fair's Oscars party in a cinched-wa…
+    ##  4 BETNews         "\"There are ten Rock brothers, you bouta see all of us.\" #…
+    ##  5 BETNews         "Zendaya attended Vanity Fair's Oscars party in a cinched-wa…
+    ##  6 fairvote        "Can't believe the FairVote Awards are already next week! Jo…
+    ##  7 lifestyle_ie    "\"I drew my inspiration from the immersive power of movies,…
+    ##  8 Daily_Express   "Jada Pinkett Smith ‘wishes Will didn't slap Chris Rock' as …
+    ##  9 BETherTV        "Zendaya attended Vanity Fair's Oscars party in a cinched-wa…
+    ## 10 4biddnKnowledge "https://t.co/cyKogpKJXm Denzel Washington Speaks Out On Wil…
 
 ``` r
 # after
@@ -392,12 +404,12 @@ tw_wrds <- unname(sapply(tw$text, clean_text))
 head(tw_wrds)
 ```
 
-    ## [1] "Can just come say whole production done contempt audience I get roast jokes play Oscars least roast funny httpstcoj69cw4aQqT"                                                                          
-    ## [2] "Whoopi Goldberg insists Will Smiths career  fine Oscars slap incident httpstcovoZIPvYA0P httpstcoyI365jiP0F"                                                                                           
-    ## [3] "Chris Rocks brother Kenny Rock said like academy take away Will Smiths Oscar win performance “King Richard” bar attending future Oscars httpstcoYJmqBBkKaQ"                                            
-    ## [4] "Did SNL sketch guy Will Smith joke thing Oscars sketch"                                                                                                                                                
-    ## [5] "Oh boy httpstcov8EX9ehqcE"                                                                                                                                                                             
-    ## [6] "There’s much discussion Will Smith’s actions last week’s Oscars Monash researchers revealed sometimes incivility impoliteness can justified violence  httpstcoDptTA51PpJ MonashLens httpstcos06amruFUe"
+    ## [1] "I wasn’t  someone superimposed image JPL I find shows dull year entertaining I think encouraging people fight Oscars introduces nice new element boxing wrestling really bring back ratings… httpstcoxcGJ1tNnyZ"
+    ## [2] "There ten Rock brothers bouta see us BETBuzz httpstcocb1H15lJ2q"                                                                                                                                                
+    ## [3] "Zendaya attended Vanity Fairs Oscars party cinchedwaist power suit long pooling pants via POPSUGAR httpstcoHkgajG801n"                                                                                          
+    ## [4] "There ten Rock brothers bouta see us BETBuzz httpstco2OizK3nsKO"                                                                                                                                                
+    ## [5] "Zendaya attended Vanity Fairs Oscars party cinchedwaist power suit long pooling pants via POPSUGAR httpstcoFOPVjdQXxr"                                                                                          
+    ## [6] "Cant believe FairVote Awards already next week Join us AndrewYang Oscars Democracy NewYorkCity httpstcoLba3r3boXS httpstco3YXXqjBoWi"
 
 Again, what you do with this data is a different topic. For now, let’s
 do something simple: see which words appear the most often.
@@ -411,10 +423,16 @@ sort(count[count > 1], decreasing = T)
 ```
 
     ## 
-    ## oscars   will      i    can   coda   like  never    one  roast    say sketch 
-    ##      8      5      3      2      2      2      2      2      2      2      2 
-    ##   slap  smith smiths 
-    ##      2      2      2
+    ##       oscars            i        power           us     attended cinchedwaist 
+    ##            6            4            4            4            3            3 
+    ##        fairs         long        pants        party      pooling     popsugar 
+    ##            3            3            3            3            3            3 
+    ##         rock         suit       vanity          via      zendaya      betbuzz 
+    ##            3            3            3            3            3            2 
+    ##        bouta     brothers          see         slap          ten        there 
+    ##            2            2            2            2            2            2 
+    ##         will 
+    ##            2
 
 The <tt>rtweet</tt> package has lots of other functions that you may
 find useful. If you want to use Twitter for your project, I encourage
@@ -427,8 +445,8 @@ tl <- rtweet::get_timeline(user="UN", n=2)
 tl$text
 ```
 
-    ## [1] "Tuesday is the International Day of Conscience. \n\nIn the face of on-going global challenges and conflicts - let's focus on promoting tolerance &amp; solidarity and helping those in need. https://t.co/DBvsTC3RVQ https://t.co/Bj1FuNO5Dn"                                                                     
-    ## [2] "The health care system in #Ukraine is burdened from the ongoing war. \n\nAs hostilities continue, people’s access to health services is impeded. Safety concerns, attacks on health, mass displacement make it challenging to avail basic health care. Read more: https://t.co/u6gY6gCUgL https://t.co/k0z0SV3mWm"
+    ## [1] "#ElSalvador must ensure security and justice in compliance with #HumanRights law, while responding to the rise in gang killings, @UNHumanRights says.\n\nhttps://t.co/UKLEg5G8tX"                                                                                                                                      
+    ## [2] "Ukraine:\n\n\"The war was started by choice. \n\nThere is no inevitability to it or to the suffering it is causing. \n\nThe UN is ready to do everything within its means to help bring an end to it.\"\n\n-- UN political chief @DicarloRosemary to Security Council. https://t.co/mlNQp6yk6H https://t.co/ndoPGG4JKS"
 
 Lastly, we can do all this without the <tt>rtweet</tt> package, though
 it takes considerably more effort. Take a look at the supplement if
