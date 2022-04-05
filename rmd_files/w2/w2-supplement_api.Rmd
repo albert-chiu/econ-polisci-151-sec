@@ -9,7 +9,9 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-source("_auth.R")
+
+# replace with your bearer token
+source("_authe.R")  # this file just calls `bearer_token <- "<your_bearer_token>"`
 ```
 
 Useful source: https://github.com/twitterdev/Twitter-API-v2-sample-code
