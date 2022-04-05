@@ -22,7 +22,7 @@ url_test <- "https://api.twitter.com/2/tweets/search/recent?query=from:twitterde
 headers <- c(`Authorization` = sprintf('Bearer %s', bearer_token))
 
 # you want to see status: 200
-httr::GET(dev_test, config=httr::add_headers(.headers=headers))
+httr::GET(url_test, config=httr::add_headers(.headers=headers))
 ```
 ### Searching for Tweets
 

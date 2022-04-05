@@ -46,9 +46,9 @@ eg_html <- rvest::read_html(
 "<html>
     <p style=\"color:#8C1515\">
         text here 
-        <a href=\"page1.html\"> link1 </p>
+        <a href=\"page1.html\"> link1 </a>
     </p>
-    <a href=\"page2.html\"> link2 </p>
+    <a href=\"page2.html\"> link2 </a>
 </html>"
 )
 
@@ -65,7 +65,7 @@ eg_html %>% rvest::html_elements("p") %>%
   rvest::html_text()
 ```
 
-    ## [1] "\n        text here \n         link1 "
+    ## [1] "\n        text here \n         link1 \n    "
 
 Or maybe we want its descendants with a specific tag:
 
@@ -109,9 +109,7 @@ There are many types of data you might want from a webpage, and each
 will require a different method of extraction. In this case, we’re
 looking at an article and most likely will want the contents of that
 article. As a starting point, we might want to look at text that is
-sandwiched by p tags,
-
-    <p> text here </p>.
+sandwiched by p tags:
 
 ``` r
 cnn_text <- cnn_page %>%
@@ -197,20 +195,21 @@ html_doc <- rvest::read_html(url)
 ```
 
 We want to get the html node that links to the article. Fortunately for
-us, Google defines specific classes of elements for different functions.
-To see which one is used for linking to the articles, we open Google
-News and use Chrome’s inspection tool under <tt>View \> Developer \>
-Inspect Elements</tt> tool.
+us, Google defines a specific class for such elements. To see what it’s
+called, we can open Google News and use Chrome’s inspection tool under
+<tt>View \> Developer \> Inspect Elements</tt> tool and mouse over the
+link.
 
 <img src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/inspect.png?raw=true">
 
-The class of elements we want is called “VDXfz”, and we want to extract
-the hyperlink from it, which is specified using the <tt>href</tt>
-attribute.
+The class we want is called “VDXfz” (the CSS selector for class is
+<tt>.class</tt>), and we want to extract the hyperlink from it, which is
+specified using the <tt>href</tt> attribute.
 
 ``` r
 ## Get links on the page
-links <- html_doc %>% rvest::html_nodes('.VDXfz') %>% rvest::html_attr('href')
+links <- html_doc %>% rvest::html_nodes('.VDXfz') %>%  # specify CSS selector: .class
+  rvest::html_attr('href')
 ```
 
 If we take a look at the html code for the webpage, we can see that the
@@ -223,11 +222,11 @@ e.g., “<https://nytimes.com>”). To get it in this format, we need to
 replace the root.
 
 ``` r
-# this will give us urls in the following format:
+# this will give us links in the following format:
 links[1]
 ```
 
-    ## [1] "./articles/CBMiUWh0dHBzOi8vd3d3LmNubi5jb20vZXVyb3BlL2xpdmUtbmV3cy91a3JhaW5lLXJ1c3NpYS1wdXRpbi1uZXdzLTA0LTMtMjIvaW5kZXguaHRtbNIBVWh0dHBzOi8vYW1wLmNubi5jb20vY25uL2V1cm9wZS9saXZlLW5ld3MvdWtyYWluZS1ydXNzaWEtcHV0aW4tbmV3cy0wNC0zLTIyL2luZGV4Lmh0bWw?hl=en-US&gl=US&ceid=US%3Aen"
+    ## [1] "./articles/CAIiEJ0j7PdPWTmbEC-929SrPEkqFwgEKg4IACoGCAow9vBNMK3UCDDE2Z4H?hl=en-US&gl=US&ceid=US%3Aen"
 
 ``` r
 # we want them instead to begin with the Google News address
@@ -239,33 +238,23 @@ info, let’s go back to Google News and open Chromes’ Devloper Tools UI
 (or open the raw html file) and look for the corresponding node:
 <img  src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/node_title.png?raw=true">
 
-The class of elements we want seems to be called “DY5T1d”. We want to
-extract the text from this element.
+Titles seem to be assigned the “DY5T1d” class attribute (it’s actually a
+part of two classes; we use take either). We want to extract the text
+from this element.
 
 ``` r
-titles <- html_doc %>% rvest::html_nodes('.DY5T1d') %>% rvest::html_text()
+titles <- html_doc %>% rvest::html_nodes('.DY5T1d .RZIKme') %>%
+  rvest::html_text()
+
+# same thing if we use the other class
+# html_doc %>%  rvest::html_nodes('.RZIKme') %>% rvest::html_text()
 
 # take the first five words
 trunc <- sapply(titles, FUN=function(x) 
   paste(c(unlist(strsplit(x, split=" +"))[1:5], "..."), collapse=" "))
 df <- cbind(title = titles, truncated_title = unname(trunc), link = links) 
-head(df[, c("truncated_title", "link")])
+#head(df[, c(2:3)])
 ```
-
-    ##      truncated_title                              
-    ## [1,] "April 3, 2022 Russia-Ukraine news ..."      
-    ## [2,] "What Happened on Day 37 ..."                
-    ## [3,] "Thousands trapped in Mariupol after ..."    
-    ## [4,] "Ukraine documents alleged atrocities by ..."
-    ## [5,] "Nearly 100 percent of Russian ..."          
-    ## [6,] "Russia-Ukraine war: What happened today ..."
-    ##      link                                                                                                                                                                                                                                                                                                     
-    ## [1,] "https://news.google.com/articles/CBMiUWh0dHBzOi8vd3d3LmNubi5jb20vZXVyb3BlL2xpdmUtbmV3cy91a3JhaW5lLXJ1c3NpYS1wdXRpbi1uZXdzLTA0LTMtMjIvaW5kZXguaHRtbNIBVWh0dHBzOi8vYW1wLmNubi5jb20vY25uL2V1cm9wZS9saXZlLW5ld3MvdWtyYWluZS1ydXNzaWEtcHV0aW4tbmV3cy0wNC0zLTIyL2luZGV4Lmh0bWw?hl=en-US&gl=US&ceid=US%3Aen"   
-    ## [2,] "https://news.google.com/articles/CAIiEFt87DP2T4blMocM6-dvYRwqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                              
-    ## [3,] "https://news.google.com/articles/CAIiEFKcLx8EGG-m9sqzTDpeoQEqGAgEKg8IACoHCAowjtSUCjC30XQwzqe5AQ?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                            
-    ## [4,] "https://news.google.com/articles/CAIiEJ8C9c3YXDZ72rEtM6L8swkqGQgEKhAIACoHCAowzqT_CjCltPgCMIG_ngY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                           
-    ## [5,] "https://news.google.com/articles/CBMicmh0dHBzOi8vd3d3Lm5iY25ld3MuY29tL25ld3Mvd29ybGQvbGl2ZS1ibG9nL3VrcmFpbmUtcnVzc2lhLXdhci1saXZlLXVwZGF0ZXMtcnVzc2lhLWNsYWltcy1jZWFzZS1maXJlLWxldC1uMTI5MDk1ONIBNmh0dHBzOi8vd3d3Lm5iY25ld3MuY29tL25ld3MvYW1wL2xpdmUtYmxvZy9uY25hMTI5MDk1OA?hl=en-US&gl=US&ceid=US%3Aen"
-    ## [6,] "https://news.google.com/articles/CAIiEPDe97059SHmXfeVPb7W3JkqFwgEKg4IACoGCAow9vBNMK3UCDCFpJYH?uo=CAUiWGh0dHBzOi8vd3d3Lm5wci5vcmcvMjAyMi8wNC8wMy8xMDkwNTIxNzIxL3J1c3NpYS11a3JhaW5lLXdhci13aGF0LWhhcHBlbmVkLXRvZGF5LWFwcmlsLTPSAQA&hl=en-US&gl=US&ceid=US%3Aen"
 
 Now that we have the links to all these web pages, we can just loop
 through and do what we did in the first section to extract all the
@@ -315,7 +304,7 @@ head(colnames(tw))
 tw$text[1]
 ```
 
-    ## [1] "Should Will Smith have been charged?\n\nBy @TarekFatah\n\n#WillSmith #ChirsRock #Oscars https://t.co/IQWTYDd4IQ"
+    ## [1] "#AmySchumer reflects on Will Smith’s Chris Rock slap at Oscars. https://t.co/YVNEDCcQc7"
 
 This is already looking cleaner than our news article example, but let’s
 still do a bit of pre-processing. We’ll go more in depth during our week
@@ -336,18 +325,18 @@ tw[, c("screen_name", "text")]
 ```
 
     ## # A tibble: 10 × 2
-    ##    screen_name    text                                                          
-    ##    <chr>          <chr>                                                         
-    ##  1 NewDelhiTimes  "Should Will Smith have been charged?\n\nBy @TarekFatah\n\n#W…
-    ##  2 news18dotcom   "Indian fans are disappointed that singing legend Lata Manges…
-    ##  3 wbrewyou       "Netflix and Sony have reportedly put movies Will Smith was s…
-    ##  4 theheraldsun   "\"You gonna hit my mother******** brother ?\" \nChris Rock's…
-    ##  5 DailyMailCeleb "Trevor Noah opens Grammys by joking about Will Smith's Oscar…
-    ##  6 boomlive_in    "The apologies for the joke do not appear on Chris Rock's soc…
-    ##  7 boomlive_in    "Edit histories of the posts show they were changed to refere…
-    ##  8 PageSix        "Will Smith resigned but is he 'banned' from Oscars like this…
-    ##  9 dailystar      "#Grammys 2022 host Trevor Noah makes subtle dig at Will Smit…
-    ## 10 fox32news      "“Took me a while to get my thoughts together,” “Fresh Prince…
+    ##    screen_name     text                                                         
+    ##    <chr>           <chr>                                                        
+    ##  1 accesshollywood "#AmySchumer reflects on Will Smith’s Chris Rock slap at Osc…
+    ##  2 i_D             "Timothée Chalamet's 'nipples-out-at-the-Oscars' moment stic…
+    ##  3 techradar       "Netflix and Sony are both backing away from Will Smith afte…
+    ##  4 billboard       "The tiny uptick for the Grammys comes on the heels of the O…
+    ##  5 AJPennyfarthing "John Oliver Slams OJ Simpson’s Take on Will Smith’s Oscars …
+    ##  6 Josh_Moon       "So far, the \"anti-cancel culture\" crowd has canceled: \n\…
+    ##  7 MirrorCeleb     "Whoopi Goldberg insists Will Smith's career 'will be fine' …
+    ##  8 people          "Whoopi Goldberg Says Will Smith Will Bounce Back from Oscar…
+    ##  9 people          "Where Will Smith's Upcoming Projects Stand in Wake of Oscar…
+    ## 10 NYWomensFdn     "“You see a queer, openly queer woman of color and Afro-Lati…
 
 ``` r
 # after
@@ -355,12 +344,12 @@ tw_wrds <- unname(sapply(tw$text, clean_text))
 head(tw_wrds)
 ```
 
-    ## [1] "Should Will Smith charged By TarekFatah WillSmith ChirsRock Oscars httpstcoIQWTYDd4IQ"                                                                                                                       
-    ## [2] "Indian fans disappointed singing legend Lata Mangeshkar composer Bappi Lahiri mentioned In Memoriam section 64th Grammy Awards GrammyAwards Grammy LataMangeshkar Read httpstcoMzQ6DsgSLD httpstco4KCqOMEUfF"
-    ## [3] "Netflix Sony reportedly put movies Will Smith set appear hold actor slapped comedian Chris Rock Oscars httpstcoF8OyCqgu0j"                                                                                   
-    ## [4] "You gonna hit mother brother  Chris Rocks family unleashed Will Smith infamous Oscars slap httpstcoLpQ8Be3qpk"                                                                                               
-    ## [5] "Trevor Noah opens Grammys joking Will Smiths Oscars slap Questlove takes dig httpstco2bIUDN2H1l"                                                                                                             
-    ## [6] "The apologies joke appear Chris Rocks social media accounts publicist said statements fake FakeNews ChrisRock WillSmith httpstcoRIqjDemERX"
+    ## [1] "AmySchumer reflects Will Smith’s Chris Rock slap Oscars httpstcoYVNEDCcQc7"                                                                                                                                                                    
+    ## [2] "Timothée Chalamets nipplesOscars moment sticks finger conservative formal dress codes TheOscars httpstcoUeU25HEHzD"                                                                                                                            
+    ## [3] "Netflix Sony backing away Will Smith Oscars fallout httpstco0ljFCzmWFn"                                                                                                                                                                        
+    ## [4] "The tiny uptick Grammys comes heels Oscars recording much bigger ratings growth week earlier httpstcoemWge9YKDw"                                                                                                                               
+    ## [5] "John Oliver Slams OJ Simpson’s Take Will Smith’s Oscars Slap  IndieWire httpstcotZIp781tAl"                                                                                                                                                    
+    ## [6] "So far anticancel culture crowd canceled Netflix Disney NFL NBA MLB NCAA sports Grammys Oscars Tonys All music CBS NBC ABC All latenight shows Most books History class Gay people Amazon unless shitting employees Movies TV shows Home Depot"
 
 Again, what you do with this data is a different topic. For now, let’s
 do something simple: see which words appear the most often.
@@ -374,12 +363,10 @@ sort(count[count > 1], decreasing = T)
 ```
 
     ## 
-    ##    oscars      will     smith     chris      slap willsmith    appear chrisrock 
-    ##         8         7         5         4         3         3         2         2 
-    ##       dig    grammy   grammys     media      noah      rock     rocks    smiths 
-    ##         2         2         2         2         2         2         2         2 
-    ##    social  thoughts    trevor 
-    ##         2         2         2
+    ##   oscars     will     slap      all     fine goldberg  grammys  netflix 
+    ##        8        7        5        2        2        2        2        2 
+    ##    queer    shows    smith  smith’s   smiths   whoopi 
+    ##        2        2        2        2        2        2
 
 The <tt>rtweet</tt> package has lots of other functions that you may
 find useful. If you want to use Twitter for your project, I encourage
@@ -392,5 +379,11 @@ tl <- rtweet::get_timeline(user="UN", n=2)
 tl$text
 ```
 
-    ## [1] "Despite numerous challenges, our @UNMAS colleagues continue their vital work clearing landmines &amp; explosive remnants of war.\n\nThey are working to create a world where people don't have to be afraid of their next step.\n\nMore on Monday's #MineAwarenessDay: https://t.co/KmYriwGy50 https://t.co/61aEt1VrQJ"
-    ## [2] "Afghanistan: The denial of education violates the human rights of women &amp; girls and can leave them more exposed to violence, poverty and exploitation.\n\nAll students must be allowed to exercise their right to an education. https://t.co/RLTlfBdZAi"
+    ## [1] "The health care system in #Ukraine is burdened from the ongoing war. \n\nAs hostilities continue, people’s access to health services is impeded. Safety concerns, attacks on health, mass displacement make it challenging to avail basic health care. Read more: https://t.co/u6gY6gCUgL https://t.co/k0z0SV3mWm"
+    ## [2] "Ukraine: \"It is vital that all efforts are made to ensure there are independent &amp; effective investigations into what happened in Bucha to ensure truth, justice &amp; accountability\"\n\n-- @UNHumanRights chief @mbachelet.\nhttps://t.co/Y8bKoIjyr7"
+
+Lastly, we can do all this without the <tt>rtweet</tt> package, though
+it takes considerably more effort. Take a look at the supplement if
+interested; the supplement is also a nice jumping off point if you want
+to make requests to other APIs, some of which may not have R packages to
+do the leg work for you.
