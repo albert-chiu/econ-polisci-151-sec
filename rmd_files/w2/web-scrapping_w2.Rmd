@@ -30,7 +30,7 @@ This will appear to the viewer as:
 <p style="color:#8C1515"> text here </p>
 
 
-We can represent html documents using a document object model (DOM). To do so, we would use a data structure called a _tree_. Trees are composed of _nodes_ and have a hierarchical structure: there is one "root" node, and all other nodes branch out from it. Consider the following example:
+We can represent html documents using a document object model (DOM). To do so, we would use a data structure called a _tree_. Trees are composed of _nodes_ and have a hierarchical structure: there is one "root" node, and all other nodes branch out from it. In html, nodes can be either elements or something like text (some consider attributes to be a type of node, others don't). Consider the following example:
 ```{r}
 eg_html <- "<html>
                 <p style=\"color:#8C1515\">
@@ -41,10 +41,10 @@ eg_html <- "<html>
             </html>"
 ```
 
-The DOM for this would look something like this:
-<embed src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/html_dom.pdf">
+Notice how nodes are nested within each other, ergo the hierarchical structure. Nodes that are more outer are higher up in the hierarchy. The DOM for this would look something like this:
+<img src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/html_dom.png?raw=true">
 
-
+There's a few things to remark on. First, note that there are nodes called "header" and "body" which are not part of the example code. These can be omitted (as can the <tt>html</tt> tag) and will be implicitly created whenever your browser/etc. loads the html file. Second, attributes are displayed using dashed lines/arrows, since not all consider them to be nodes. 
 
 To do webscrapping in R, we will be using the <tt>rvest</tt> package (a part of <tt>tidyverse</tt>). <tt>rvest</tt> is designed to go with <tt>magrittr</tt> package; you don't need to use the latter, but taking advantage of the pipe <tt>%>%</tt> operator will make your code a lot less verbose. 
 

@@ -45,7 +45,7 @@ eg_html <- "<html>
 ```
 
 The DOM for this would look something like this:
-<embed src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/html_dom.pdf">
+<img src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/html_dom.png?raw=true">
 
 To do webscrapping in R, we will be using the <tt>rvest</tt> package (a
 part of <tt>tidyverse</tt>). <tt>rvest</tt> is designed to go with
