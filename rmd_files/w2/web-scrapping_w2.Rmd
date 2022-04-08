@@ -41,6 +41,16 @@ eg_html <- "<html>
                 <a href=\"\\path\\to\\link2\"> link2 </a>
             </html>"
 
+
+# use \ to escape special characters
+eg_html <- "<html>
+                <p style=\"color:#8C1515\">
+                    text here 
+                    <a href=\"\\path\\to\\link1\"> link1 </a>
+                </p>
+                <a href=\"\\path\\to\\link2\"> link2 </a>
+            </html>"
+
 # what this string looks like 
 cat(eg_html)
 ```
@@ -57,7 +67,7 @@ To do webscrapping in R, we will be using the <tt>rvest</tt> package (a part of 
 eg_doc <- rvest::read_html(eg_html)
 
 # everything inside a p tag, i.e., the p element and all its descendants
-eg_doc %>% rvest::html_elements("p")
+eg_doc %>% rvest::html_elements("p") 
 
 # if there are more than one, it returns a "node list"
 eg_doc %>% rvest::html_elements("a")
@@ -94,6 +104,7 @@ We will use a CNN page on the war in Ukraine as an example. First, we need to us
 
 cnn_url <- "https://www.cnn.com/europe/live-news/ukraine-russia-putin-news-04-3-22/h_4d0118cfd6f30770be0f8f54e041f9d2"
 cnn_page <- cnn_url %>% rvest::read_html()
+
 ```
 
 There are many types of data you might want from a webpage, and each will require a different method of extraction. In this case, we're looking at an article and most likely will want the contents of that article. As a starting point, we might want to look at text that is sandwiched by p tags:
@@ -191,7 +202,7 @@ This time let's use a timely but lighter subject as an example: the Oscars.
 
 To access Twitter's API, you need to [register as a devloper](https://developer.twitter.com/). 
 
-We'll use the <tt>rtweet</tt> package. The <tt>search_tweets()</tt> function allows you to search for tweets, and you can specify a number of parameters or filters. We can be quite specific with what types of tweets we want to query.
+We'll use the <tt>rtweet</tt> package. The <tt>search_tweets()</tt> function allows you to search for tweets, and you can specify a number of parameters or filters. We can be quite specific with what types of tweets we want to query. The "q" argument uses the  syntax of Twitter's [search operators](https://developer.twitter.com/en/docs/twitter-api/v1/rules-and-filtering/search-operators).
 ```{r}
 # tweets that: mention the oscars & are from verified users & are not replies
 tw <- rtweet::search_tweets(q="\"oscars\" filter:verified -filter:replies",

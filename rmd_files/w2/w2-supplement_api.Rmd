@@ -47,7 +47,10 @@ con$data[[1]]
 
 # extract the text from each tweet
 lapply(con$data, function(x) x[["text"]])
+# conversation ID
+sapply(con$data, function(x) x[["conversation_id"]])
 ```
+
 ### Timeline
 
 ```{r}
