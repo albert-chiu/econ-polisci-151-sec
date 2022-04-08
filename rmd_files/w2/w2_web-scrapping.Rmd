@@ -41,16 +41,6 @@ eg_html <- "<html>
                 <a href=\"\\path\\to\\link2\"> link2 </a>
             </html>"
 
-
-# use \ to escape special characters
-eg_html <- "<html>
-                <p style=\"color:#8C1515\">
-                    text here 
-                    <a href=\"\\path\\to\\link1\"> link1 </a>
-                </p>
-                <a href=\"\\path\\to\\link2\"> link2 </a>
-            </html>"
-
 # what this string looks like 
 cat(eg_html)
 ```

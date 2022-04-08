@@ -49,18 +49,8 @@ text here
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="st">                &lt;a href=</span><span class="sc">\&quot;\\</span><span class="st">path</span><span class="sc">\\</span><span class="st">to</span><span class="sc">\\</span><span class="st">link2</span><span class="sc">\&quot;</span><span class="st">&gt; link2 &lt;/a&gt;</span></span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="st">            &lt;/html&gt;&quot;</span></span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co"># use \ to escape special characters</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>eg_html <span class="ot">&lt;-</span> <span class="st">&quot;&lt;html&gt;</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="st">                &lt;p style=</span><span class="sc">\&quot;</span><span class="st">color:#8C1515</span><span class="sc">\&quot;</span><span class="st">&gt;</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="st">                    text here </span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="st">                    &lt;a href=</span><span class="sc">\&quot;\\</span><span class="st">path</span><span class="sc">\\</span><span class="st">to</span><span class="sc">\\</span><span class="st">link1</span><span class="sc">\&quot;</span><span class="st">&gt; link1 &lt;/a&gt;</span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="st">                &lt;/p&gt;</span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="st">                &lt;a href=</span><span class="sc">\&quot;\\</span><span class="st">path</span><span class="sc">\\</span><span class="st">to</span><span class="sc">\\</span><span class="st">link2</span><span class="sc">\&quot;</span><span class="st">&gt; link2 &lt;/a&gt;</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="st">            &lt;/html&gt;&quot;</span></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co"># what this string looks like </span></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(eg_html)</span></code></pre></div>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># what this string looks like </span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(eg_html)</span></code></pre></div>
 <pre><code>## &lt;html&gt;
 ##                 &lt;p style=&quot;color:#8C1515&quot;&gt;
 ##                     text here 
@@ -175,17 +165,17 @@ text here
 <pre><code>##      truncated_title                              
 ## [1,] &quot;Russia-Ukraine war: What happened today ...&quot;
 ## [2,] &quot;Russia-Ukraine live updates: Russia has ...&quot;
-## [3,] &quot;April 7, 2022 Russia-Ukraine news ...&quot;      
-## [4,] &quot;Russia-Ukraine war: what we know ...&quot;       
-## [5,] &quot;Russia-Ukraine war live: European Union ...&quot;
+## [3,] &quot;Russia-Ukraine war: what we know ...&quot;       
+## [4,] &quot;Russia-Ukraine war live: European Union ...&quot;
+## [5,] &quot;Biden says U.S. will &#39;ratchet ...&quot;          
 ## [6,] &quot;Latest Russia-Ukraine war news: Live ...&quot;   
-##      link                                                                                                                                                                                                                                                                                                     
-## [1,] &quot;https://news.google.com/articles/CAIiEI7VrCNdzk4qGBPa-cONofUqFwgEKg4IACoGCAow9vBNMK3UCDCmvJYH?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                                                              
-## [2,] &quot;https://news.google.com/articles/CBMiTWh0dHBzOi8vYWJjbmV3cy5nby5jb20vSW50ZXJuYXRpb25hbC9saXZlLXVwZGF0ZXMvcnVzc2lhLXVrcmFpbmUvP2lkPTgzOTMxNDQ20gFRaHR0cHM6Ly9hYmNuZXdzLmdvLmNvbS9hbXAvSW50ZXJuYXRpb25hbC9saXZlLXVwZGF0ZXMvcnVzc2lhLXVrcmFpbmUvP2lkPTgzOTMxNDQ2?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;              
-## [3,] &quot;https://news.google.com/articles/CBMiUmh0dHBzOi8vd3d3LmNubi5jb20vZXVyb3BlL2xpdmUtbmV3cy91a3JhaW5lLXJ1c3NpYS1wdXRpbi1uZXdzLTA0LTA3LTIyL2luZGV4Lmh0bWzSAVZodHRwczovL2FtcC5jbm4uY29tL2Nubi9ldXJvcGUvbGl2ZS1uZXdzL3VrcmFpbmUtcnVzc2lhLXB1dGluLW5ld3MtMDQtMDctMjIvaW5kZXguaHRtbA?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;
-## [4,] &quot;https://news.google.com/articles/CAIiEFVpBC94zEwG22YFHw041XEqFwgEKg4IACoGCAowl6p7MN-zCTDZ4PsF?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                                                              
-## [5,] &quot;https://news.google.com/articles/CAIiEJjnWHse6KDeIoVlWbYV8KAqFggEKg4IACoGCAow3vI9MPeaCDDciw4?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                                                               
-## [6,] &quot;https://news.google.com/articles/CAIiEPDaV1_xn0kEorlvIt0JsDQqGAgEKg8IACoHCAowjtSUCjC30XQwpo69Bg?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;</code></pre>
+##      link                                                                                                                                                                                                                                                                                       
+## [1,] &quot;https://news.google.com/articles/CAIiEI7VrCNdzk4qGBPa-cONofUqFwgEKg4IACoGCAow9vBNMK3UCDCmvJYH?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                                                
+## [2,] &quot;https://news.google.com/articles/CBMiTWh0dHBzOi8vYWJjbmV3cy5nby5jb20vSW50ZXJuYXRpb25hbC9saXZlLXVwZGF0ZXMvcnVzc2lhLXVrcmFpbmUvP2lkPTgzOTMxNDQ20gFRaHR0cHM6Ly9hYmNuZXdzLmdvLmNvbS9hbXAvSW50ZXJuYXRpb25hbC9saXZlLXVwZGF0ZXMvcnVzc2lhLXVrcmFpbmUvP2lkPTgzOTMxNDQ2?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;
+## [3,] &quot;https://news.google.com/articles/CAIiEFVpBC94zEwG22YFHw041XEqFwgEKg4IACoGCAowl6p7MN-zCTDZ4PsF?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                                                
+## [4,] &quot;https://news.google.com/articles/CAIiEJjnWHse6KDeIoVlWbYV8KAqFggEKg4IACoGCAow3vI9MPeaCDDciw4?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                                                 
+## [5,] &quot;https://news.google.com/articles/CAIiENR2Qi6jFDrxFFeeoj_6054qGQgEKhAIACoHCAow2Nb3CjDivdcCMJ_d7gU?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;                                                                                                                                                             
+## [6,] &quot;https://news.google.com/articles/CAIiEPDaV1_xn0kEorlvIt0JsDQqGAgEKg8IACoHCAowjtSUCjC30XQwn6G5AQ?hl=en-US&amp;gl=US&amp;ceid=US%3Aen&quot;</code></pre>
 <p>Now that we have the links to all these web pages, we can just loop through and do what we did in the first section to extract all the text/images (or whatever information you want).</p>
 <h2 id="apis-eg-twitter">APIs: e.g., Twitter</h2>
 <p>What we did in the previous section is a bit cumbersom and the results messy. For example, though our intention was only to gather the body of the article, our data also includes author names.</p>
@@ -205,7 +195,7 @@ text here
 ## [6] &quot;source&quot;</code></pre>
 <div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># example of the text in a tweet</span></span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>tw<span class="sc">$</span>text[<span class="dv">1</span>]</span></code></pre></div>
-<pre><code>## [1] &quot;The academy said Smith&#39;s behavior was “unacceptable and harmful.” https://t.co/OHOR2ksTfS&quot;</code></pre>
+<pre><code>## [1] &quot;Click the link to hear the latest podcast episode of @unstoppable_lrs: https://t.co/TJ28xdi7vO. @L_Sharrock &amp;amp; I\nare discussing the historic confirmation of #KetanjiBrownJackson and the lingering fallout from the #Oscars . #BeUnStoppable #SharrockMediaGroup https://t.co/vs3pFJyisF&quot;</code></pre>
 <p>This is already looking cleaner than our news article example, but let’s still do a bit of pre-processing. We’ll go more in depth during our week on text as data, but for now let’s just define a basic function for removing some (typically) unmeaningful words, as well as punctuation and whitespace, and apply it to each tweet.</p>
 <div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>clean_text <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  x <span class="sc">%&gt;%</span> tm<span class="sc">::</span><span class="fu">removeWords</span>(stopwords<span class="sc">::</span><span class="fu">stopwords</span>(<span class="st">&quot;en&quot;</span>)) <span class="sc">%&gt;%</span> </span>
@@ -217,27 +207,27 @@ text here
 <span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a><span class="co"># before</span></span>
 <span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>tw[, <span class="fu">c</span>(<span class="st">&quot;screen_name&quot;</span>, <span class="st">&quot;text&quot;</span>)]</span></code></pre></div>
 <pre><code>## # A tibble: 10 × 2
-##    screen_name   text                                                           
-##    &lt;chr&gt;         &lt;chr&gt;                                                          
-##  1 toledonews    &quot;The academy said Smith&#39;s behavior was “unacceptable and harmf…
-##  2 ETCanada      &quot;.@TheAcademy has banned #WillSmith from attending the #Oscars…
-##  3 GBNEWS        &quot;&#39;How comfortable must he have felt to have got up in the midd…
-##  4 sunriseon7    &quot;Will Smith has been banned from the Oscars for 10 years after…
-##  5 MikeGwizdala  &quot;The planet is on fire but yes, do go on about Will Smith bein…
-##  6 MarketWatch   &quot;Was the academy&#39;s decision to ban Will Smith from attending t…
-##  7 77WABCradio   &quot;https://t.co/NqA1Ayj4ki\n\nActor Will Smith banned from the O…
-##  8 RebeccaOnFOX7 &quot;Oscars slap scandal: The Academy announces Will Smith&#39;s punis…
-##  9 live955       &quot;Will Smith Gets 10-Year Ban From Oscars https://t.co/TjnxG2kv…
-## 10 RobGuaderrama &quot;Will Smith banned from the #Oscars for a decade. Details: htt…</code></pre>
+##    screen_name    text                                                          
+##    &lt;chr&gt;          &lt;chr&gt;                                                         
+##  1 married2game1  &quot;Click the link to hear the latest podcast episode of @unstop…
+##  2 NITV           &quot;The decision stopped short of revoking the best actor award …
+##  3 ByClaytonDavis &quot;I&#39;m on @ABCNewsLive Prime in 5 minutes - talking about Will …
+##  4 pinkvilla      &quot;#WillSmith issues statement after Academy bans him from atte…
+##  5 dantelfer      &quot;Maybe the real Oscars slap was the friends you made along th…
+##  6 Variety        &quot;Will Will Smith have his #Oscar taken away? \&quot;That&#39;s not on …
+##  7 KRBCnews       &quot;Will Smith gets ten-year Oscars ban over Chris Rock slap htt…
+##  8 IndyArts       &quot;Ricky Gervais responds to Will Smith’s 10 year Oscars ban ht…
+##  9 CTVVancouver   &quot;Hollywood&#39;s film academy has banned Will Smith from attendin…
+## 10 FOX17          &quot;The motion picture academy has banned Will Smith from attend…</code></pre>
 <div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># after</span></span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>tw_wrds <span class="ot">&lt;-</span> <span class="fu">unname</span>(<span class="fu">sapply</span>(tw<span class="sc">$</span>text, clean_text))</span>
 <span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(tw_wrds)</span></code></pre></div>
-<pre><code>## [1] &quot;The academy said Smiths behavior “unacceptable harmful” httpstcoOHOR2ksTfS&quot;                                                                                                                                         
-## [2] &quot;TheAcademy banned WillSmith attending Oscars 10 years httpstcocLMshtTqO5&quot;                                                                                                                                           
-## [3] &quot;How comfortable must felt got middle speech just slap Chris Rock The Headliners react news Will Smith banned The Oscars ten years following slap Chris Rock 🖥 GB News YouTube httpstcoWa58gYGZwF httpstcoBFmztNGe0M&quot;
-## [4] &quot;Will Smith banned Oscars 10 years slapped Chris Rock last months Academy Awards httpstcoaqferYf2Id&quot;                                                                                                                 
-## [5] &quot;The planet fire yes go Will Smith banned Oscars umpteenth time SMH&quot;                                                                                                                                                 
-## [6] &quot;Was academys decision ban Will Smith attending Oscars 10 years fair punishment hitting Chris Rock httpstcoZ1UJdwOkcS&quot;</code></pre>
+<pre><code>## [1] &quot;Click link hear latest podcast episode unstoppablelrs httpstcoTJ28xdi7vO LSharrock amp I discussing historic confirmation KetanjiBrownJackson lingering fallout Oscars  BeUnStoppable SharrockMediaGroup httpstcovs3pFJyisF&quot;
+## [2] &quot;The decision stopped short revoking best actor award Will Smith won last month King Richard barring future Oscar nominations wins  via SBSNews httpstco57USii55b1&quot;                                                          
+## [3] &quot;Im ABCNewsLive Prime 5 minutes  talking Will Smith Oscars ban Give watch WillSmith httpstcoz7yuzMjH1c&quot;                                                                                                                      
+## [4] &quot;WillSmith issues statement Academy bans attending Oscars httpstcopGYUgOBmvC&quot;                                                                                                                                                
+## [5] &quot;Maybe real Oscars slap friends made along way&quot;                                                                                                                                                                              
+## [6] &quot;Will Will Smith Oscar taken away Thats table says cohost ByClaytonDavis Just put context Harvey Weinstein Roman Polanski still Oscars  Variety The Take presented AppleTV httpstcod8d6yLnuQP httpstcoUqjAOgGSS9&quot;</code></pre>
 <p>Again, what you do with this data is a different topic. For now, let’s do something simple: see which words appear the most often.</p>
 <div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># split into words</span></span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>tw_wrds <span class="ot">&lt;-</span> <span class="fu">sapply</span>(tw_wrds, <span class="at">FUN=</span><span class="cf">function</span>(x) <span class="fu">strsplit</span>(<span class="fu">tolower</span>(x), <span class="at">split=</span><span class="st">&quot; +&quot;</span>))</span>
@@ -245,18 +235,16 @@ text here
 <span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>count <span class="ot">&lt;-</span> <span class="fu">table</span>(<span class="fu">unlist</span>(tw_wrds))</span>
 <span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sort</span>(count[count <span class="sc">&gt;</span> <span class="dv">1</span>], <span class="at">decreasing =</span> T)</span></code></pre></div>
 <pre><code>## 
-##     oscars       will      smith     banned        the      years         10 
-##          9          8          7          6          5          5          4 
-##      chris       rock    academy       slap  attending        ban       news 
-##          4          4          3          3          2          2          2 
-## punishment     smiths  willsmith 
-##          2          2          2</code></pre>
+##    oscars      will     smith   academy        10 attending       ban     chris 
+##         9         8         6         5         3         3         3         3 
+##      rock      slap       the    banned     oscar willsmith     years 
+##         3         3         3         2         2         2         2</code></pre>
 <p>The <tt>rtweet</tt> package has lots of other functions that you may find useful. If you want to use Twitter for your project, I encourage you to read the package’s documentation. I’ll just point out one other function, one which gets tweets from a specific user:</p>
 <div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># last 2 tweets from the UN</span></span>
 <span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>tl <span class="ot">&lt;-</span> rtweet<span class="sc">::</span><span class="fu">get_timeline</span>(<span class="at">user=</span><span class="st">&quot;UN&quot;</span>, <span class="at">n=</span><span class="dv">2</span>)</span>
 <span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>tl<span class="sc">$</span>text</span></code></pre></div>
-<pre><code>## [1] &quot;The UN is helping people affected by the war in Ukraine by providing:\n\n🔹 protection &amp;amp; shelter for refugees\n🔹 support for children &amp;amp; families\n🔹 food &amp;amp; water\n🔹 healthcare &amp;amp; much more. \n\nhttps://t.co/eX16SnexeC https://t.co/PndCHZpvGe&quot;
-## [2] &quot;🇸🇾#Syria: The victims and their families deserve to know the fate and whereabouts of their missing relatives, says UN Human Rights Chief @mbachelet.\n\nWe need to act NOW.\n\n👉https://t.co/7edfB8nRHy https://t.co/73Z2ifRWNw&quot;</code></pre>
+<pre><code>## [1] &quot;Today&#39;s strike on a railway station in Ukraine killed &amp;amp; injured scores of civilians waiting to be evacuated, including women, children &amp;amp; the elderly.\n\nThis is a gross violation of international humanitarian &amp;amp; human rights law. Perpetrators must be held accountable.&quot;
+## [2] &quot;The UN is helping people affected by the war in Ukraine by providing:\n\n🔹 protection &amp;amp; shelter for refugees\n🔹 support for children &amp;amp; families\n🔹 food &amp;amp; water\n🔹 healthcare &amp;amp; much more. \n\nhttps://t.co/eX16SnexeC https://t.co/PndCHZpvGe&quot;</code></pre>
 <p>Lastly, we can do all this without the <tt>rtweet</tt> package, though it takes considerably more effort. Take a look at the supplement if interested; the supplement is also a nice jumping off point if you want to make requests to other APIs, some of which may not have R packages to do the leg work for you.</p>
 
 </body>

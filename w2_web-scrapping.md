@@ -46,16 +46,6 @@ eg_html <- "<html>
                 <a href=\"\\path\\to\\link2\"> link2 </a>
             </html>"
 
-
-# use \ to escape special characters
-eg_html <- "<html>
-                <p style=\"color:#8C1515\">
-                    text here 
-                    <a href=\"\\path\\to\\link1\"> link1 </a>
-                </p>
-                <a href=\"\\path\\to\\link2\"> link2 </a>
-            </html>"
-
 # what this string looks like 
 cat(eg_html)
 ```
@@ -315,17 +305,17 @@ head(df[, c(2:3)])
     ##      truncated_title                              
     ## [1,] "Russia-Ukraine war: What happened today ..."
     ## [2,] "Russia-Ukraine live updates: Russia has ..."
-    ## [3,] "April 7, 2022 Russia-Ukraine news ..."      
-    ## [4,] "Russia-Ukraine war: what we know ..."       
-    ## [5,] "Russia-Ukraine war live: European Union ..."
+    ## [3,] "Russia-Ukraine war: what we know ..."       
+    ## [4,] "Russia-Ukraine war live: European Union ..."
+    ## [5,] "Biden says U.S. will 'ratchet ..."          
     ## [6,] "Latest Russia-Ukraine war news: Live ..."   
-    ##      link                                                                                                                                                                                                                                                                                                     
-    ## [1,] "https://news.google.com/articles/CAIiEI7VrCNdzk4qGBPa-cONofUqFwgEKg4IACoGCAow9vBNMK3UCDCmvJYH?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                              
-    ## [2,] "https://news.google.com/articles/CBMiTWh0dHBzOi8vYWJjbmV3cy5nby5jb20vSW50ZXJuYXRpb25hbC9saXZlLXVwZGF0ZXMvcnVzc2lhLXVrcmFpbmUvP2lkPTgzOTMxNDQ20gFRaHR0cHM6Ly9hYmNuZXdzLmdvLmNvbS9hbXAvSW50ZXJuYXRpb25hbC9saXZlLXVwZGF0ZXMvcnVzc2lhLXVrcmFpbmUvP2lkPTgzOTMxNDQ2?hl=en-US&gl=US&ceid=US%3Aen"              
-    ## [3,] "https://news.google.com/articles/CBMiUmh0dHBzOi8vd3d3LmNubi5jb20vZXVyb3BlL2xpdmUtbmV3cy91a3JhaW5lLXJ1c3NpYS1wdXRpbi1uZXdzLTA0LTA3LTIyL2luZGV4Lmh0bWzSAVZodHRwczovL2FtcC5jbm4uY29tL2Nubi9ldXJvcGUvbGl2ZS1uZXdzL3VrcmFpbmUtcnVzc2lhLXB1dGluLW5ld3MtMDQtMDctMjIvaW5kZXguaHRtbA?hl=en-US&gl=US&ceid=US%3Aen"
-    ## [4,] "https://news.google.com/articles/CAIiEFVpBC94zEwG22YFHw041XEqFwgEKg4IACoGCAowl6p7MN-zCTDZ4PsF?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                              
-    ## [5,] "https://news.google.com/articles/CAIiEJjnWHse6KDeIoVlWbYV8KAqFggEKg4IACoGCAow3vI9MPeaCDDciw4?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                               
-    ## [6,] "https://news.google.com/articles/CAIiEPDaV1_xn0kEorlvIt0JsDQqGAgEKg8IACoHCAowjtSUCjC30XQwpo69Bg?hl=en-US&gl=US&ceid=US%3Aen"
+    ##      link                                                                                                                                                                                                                                                                                       
+    ## [1,] "https://news.google.com/articles/CAIiEI7VrCNdzk4qGBPa-cONofUqFwgEKg4IACoGCAow9vBNMK3UCDCmvJYH?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                
+    ## [2,] "https://news.google.com/articles/CBMiTWh0dHBzOi8vYWJjbmV3cy5nby5jb20vSW50ZXJuYXRpb25hbC9saXZlLXVwZGF0ZXMvcnVzc2lhLXVrcmFpbmUvP2lkPTgzOTMxNDQ20gFRaHR0cHM6Ly9hYmNuZXdzLmdvLmNvbS9hbXAvSW50ZXJuYXRpb25hbC9saXZlLXVwZGF0ZXMvcnVzc2lhLXVrcmFpbmUvP2lkPTgzOTMxNDQ2?hl=en-US&gl=US&ceid=US%3Aen"
+    ## [3,] "https://news.google.com/articles/CAIiEFVpBC94zEwG22YFHw041XEqFwgEKg4IACoGCAowl6p7MN-zCTDZ4PsF?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                
+    ## [4,] "https://news.google.com/articles/CAIiEJjnWHse6KDeIoVlWbYV8KAqFggEKg4IACoGCAow3vI9MPeaCDDciw4?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                 
+    ## [5,] "https://news.google.com/articles/CAIiENR2Qi6jFDrxFFeeoj_6054qGQgEKhAIACoHCAow2Nb3CjDivdcCMJ_d7gU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                             
+    ## [6,] "https://news.google.com/articles/CAIiEPDaV1_xn0kEorlvIt0JsDQqGAgEKg8IACoHCAowjtSUCjC30XQwn6G5AQ?hl=en-US&gl=US&ceid=US%3Aen"
 
 Now that we have the links to all these web pages, we can just loop
 through and do what we did in the first section to extract all the
@@ -377,7 +367,7 @@ head(colnames(tw))
 tw$text[1]
 ```
 
-    ## [1] "The academy said Smith's behavior was “unacceptable and harmful.” https://t.co/OHOR2ksTfS"
+    ## [1] "Click the link to hear the latest podcast episode of @unstoppable_lrs: https://t.co/TJ28xdi7vO. @L_Sharrock &amp; I\nare discussing the historic confirmation of #KetanjiBrownJackson and the lingering fallout from the #Oscars . #BeUnStoppable #SharrockMediaGroup https://t.co/vs3pFJyisF"
 
 This is already looking cleaner than our news article example, but let’s
 still do a bit of pre-processing. We’ll go more in depth during our week
@@ -398,18 +388,18 @@ tw[, c("screen_name", "text")]
 ```
 
     ## # A tibble: 10 × 2
-    ##    screen_name   text                                                           
-    ##    <chr>         <chr>                                                          
-    ##  1 toledonews    "The academy said Smith's behavior was “unacceptable and harmf…
-    ##  2 ETCanada      ".@TheAcademy has banned #WillSmith from attending the #Oscars…
-    ##  3 GBNEWS        "'How comfortable must he have felt to have got up in the midd…
-    ##  4 sunriseon7    "Will Smith has been banned from the Oscars for 10 years after…
-    ##  5 MikeGwizdala  "The planet is on fire but yes, do go on about Will Smith bein…
-    ##  6 MarketWatch   "Was the academy's decision to ban Will Smith from attending t…
-    ##  7 77WABCradio   "https://t.co/NqA1Ayj4ki\n\nActor Will Smith banned from the O…
-    ##  8 RebeccaOnFOX7 "Oscars slap scandal: The Academy announces Will Smith's punis…
-    ##  9 live955       "Will Smith Gets 10-Year Ban From Oscars https://t.co/TjnxG2kv…
-    ## 10 RobGuaderrama "Will Smith banned from the #Oscars for a decade. Details: htt…
+    ##    screen_name    text                                                          
+    ##    <chr>          <chr>                                                         
+    ##  1 married2game1  "Click the link to hear the latest podcast episode of @unstop…
+    ##  2 NITV           "The decision stopped short of revoking the best actor award …
+    ##  3 ByClaytonDavis "I'm on @ABCNewsLive Prime in 5 minutes - talking about Will …
+    ##  4 pinkvilla      "#WillSmith issues statement after Academy bans him from atte…
+    ##  5 dantelfer      "Maybe the real Oscars slap was the friends you made along th…
+    ##  6 Variety        "Will Will Smith have his #Oscar taken away? \"That's not on …
+    ##  7 KRBCnews       "Will Smith gets ten-year Oscars ban over Chris Rock slap htt…
+    ##  8 IndyArts       "Ricky Gervais responds to Will Smith’s 10 year Oscars ban ht…
+    ##  9 CTVVancouver   "Hollywood's film academy has banned Will Smith from attendin…
+    ## 10 FOX17          "The motion picture academy has banned Will Smith from attend…
 
 ``` r
 # after
@@ -417,12 +407,12 @@ tw_wrds <- unname(sapply(tw$text, clean_text))
 head(tw_wrds)
 ```
 
-    ## [1] "The academy said Smiths behavior “unacceptable harmful” httpstcoOHOR2ksTfS"                                                                                                                                         
-    ## [2] "TheAcademy banned WillSmith attending Oscars 10 years httpstcocLMshtTqO5"                                                                                                                                           
-    ## [3] "How comfortable must felt got middle speech just slap Chris Rock The Headliners react news Will Smith banned The Oscars ten years following slap Chris Rock 🖥 GB News YouTube httpstcoWa58gYGZwF httpstcoBFmztNGe0M"
-    ## [4] "Will Smith banned Oscars 10 years slapped Chris Rock last months Academy Awards httpstcoaqferYf2Id"                                                                                                                 
-    ## [5] "The planet fire yes go Will Smith banned Oscars umpteenth time SMH"                                                                                                                                                 
-    ## [6] "Was academys decision ban Will Smith attending Oscars 10 years fair punishment hitting Chris Rock httpstcoZ1UJdwOkcS"
+    ## [1] "Click link hear latest podcast episode unstoppablelrs httpstcoTJ28xdi7vO LSharrock amp I discussing historic confirmation KetanjiBrownJackson lingering fallout Oscars  BeUnStoppable SharrockMediaGroup httpstcovs3pFJyisF"
+    ## [2] "The decision stopped short revoking best actor award Will Smith won last month King Richard barring future Oscar nominations wins  via SBSNews httpstco57USii55b1"                                                          
+    ## [3] "Im ABCNewsLive Prime 5 minutes  talking Will Smith Oscars ban Give watch WillSmith httpstcoz7yuzMjH1c"                                                                                                                      
+    ## [4] "WillSmith issues statement Academy bans attending Oscars httpstcopGYUgOBmvC"                                                                                                                                                
+    ## [5] "Maybe real Oscars slap friends made along way"                                                                                                                                                                              
+    ## [6] "Will Will Smith Oscar taken away Thats table says cohost ByClaytonDavis Just put context Harvey Weinstein Roman Polanski still Oscars  Variety The Take presented AppleTV httpstcod8d6yLnuQP httpstcoUqjAOgGSS9"
 
 Again, what you do with this data is a different topic. For now, let’s
 do something simple: see which words appear the most often.
@@ -436,12 +426,10 @@ sort(count[count > 1], decreasing = T)
 ```
 
     ## 
-    ##     oscars       will      smith     banned        the      years         10 
-    ##          9          8          7          6          5          5          4 
-    ##      chris       rock    academy       slap  attending        ban       news 
-    ##          4          4          3          3          2          2          2 
-    ## punishment     smiths  willsmith 
-    ##          2          2          2
+    ##    oscars      will     smith   academy        10 attending       ban     chris 
+    ##         9         8         6         5         3         3         3         3 
+    ##      rock      slap       the    banned     oscar willsmith     years 
+    ##         3         3         3         2         2         2         2
 
 The <tt>rtweet</tt> package has lots of other functions that you may
 find useful. If you want to use Twitter for your project, I encourage
@@ -454,8 +442,8 @@ tl <- rtweet::get_timeline(user="UN", n=2)
 tl$text
 ```
 
-    ## [1] "The UN is helping people affected by the war in Ukraine by providing:\n\n🔹 protection &amp; shelter for refugees\n🔹 support for children &amp; families\n🔹 food &amp; water\n🔹 healthcare &amp; much more. \n\nhttps://t.co/eX16SnexeC https://t.co/PndCHZpvGe"
-    ## [2] "🇸🇾#Syria: The victims and their families deserve to know the fate and whereabouts of their missing relatives, says UN Human Rights Chief @mbachelet.\n\nWe need to act NOW.\n\n👉https://t.co/7edfB8nRHy https://t.co/73Z2ifRWNw"
+    ## [1] "Today's strike on a railway station in Ukraine killed &amp; injured scores of civilians waiting to be evacuated, including women, children &amp; the elderly.\n\nThis is a gross violation of international humanitarian &amp; human rights law. Perpetrators must be held accountable."
+    ## [2] "The UN is helping people affected by the war in Ukraine by providing:\n\n🔹 protection &amp; shelter for refugees\n🔹 support for children &amp; families\n🔹 food &amp; water\n🔹 healthcare &amp; much more. \n\nhttps://t.co/eX16SnexeC https://t.co/PndCHZpvGe"
 
 Lastly, we can do all this without the <tt>rtweet</tt> package, though
 it takes considerably more effort. Take a look at the supplement if
