@@ -46,6 +46,16 @@ eg_html <- "<html>
                 <a href=\"\\path\\to\\link2\"> link2 </a>
             </html>"
 
+
+# use \ to escape special characters
+eg_html <- "<html>
+                <p style=\"color:#8C1515\">
+                    text here 
+                    <a href=\"\\path\\to\\link1\"> link1 </a>
+                </p>
+                <a href=\"\\path\\to\\link2\"> link2 </a>
+            </html>"
+
 # what this string looks like 
 cat(eg_html)
 ```
@@ -87,7 +97,7 @@ less verbose.
 eg_doc <- rvest::read_html(eg_html)
 
 # everything inside a p tag, i.e., the p element and all its descendants
-eg_doc %>% rvest::html_elements("p")
+eg_doc %>% rvest::html_elements("p") 
 ```
 
     ## {xml_nodeset (1)}
@@ -258,7 +268,8 @@ links <- html_doc %>% rvest::html_nodes('.VDXfz') %>%  # specify CSS selector: .
 ```
 
 If we take a look at the html code for the webpage, we can see that the
-link is a relative path (the file name, e.g., “index.html”).
+link is a relative path (a path that begins with the current directory,
+e.g., “./index.html”).
 
 <img src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/figures/node_href_crop.png?raw=true">
 
@@ -271,7 +282,7 @@ replace the root.
 links[1]
 ```
 
-    ## [1] "./articles/CAIiEHcAW8Ya6GnDh4Q_U-70fnYqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&gl=US&ceid=US%3Aen"
+    ## [1] "./articles/CAIiEI7VrCNdzk4qGBPa-cONofUqFwgEKg4IACoGCAow9vBNMK3UCDCmvJYH?hl=en-US&gl=US&ceid=US%3Aen"
 
 ``` r
 # we want them instead to begin with the Google News address
@@ -302,19 +313,19 @@ head(df[, c(2:3)])
 ```
 
     ##      truncated_title                              
-    ## [1,] "Ukraine-Russia War: Live News and ..."      
-    ## [2,] "Russia invades Ukraine: Live updates ..."   
-    ## [3,] "Russia-Ukraine war: What happened today ..."
-    ## [4,] "Zelenskyy warns deaths in Bucha, ..."       
-    ## [5,] "Russia faces global outrage over ..."       
-    ## [6,] "Russia-Ukraine war news: Live updates ..."  
+    ## [1,] "Russia-Ukraine war: What happened today ..."
+    ## [2,] "Russia-Ukraine live updates: Russia has ..."
+    ## [3,] "April 7, 2022 Russia-Ukraine news ..."      
+    ## [4,] "Russia-Ukraine war: what we know ..."       
+    ## [5,] "Russia-Ukraine war live: European Union ..."
+    ## [6,] "Latest Russia-Ukraine war news: Live ..."   
     ##      link                                                                                                                                                                                                                                                                                                     
-    ## [1,] "https://news.google.com/articles/CAIiEHcAW8Ya6GnDh4Q_U-70fnYqFwgEKg8IACoHCAowjuuKAzCWrzww5oEY?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                              
-    ## [2,] "https://news.google.com/articles/CBMiUmh0dHBzOi8vd3d3LmNubi5jb20vZXVyb3BlL2xpdmUtbmV3cy91a3JhaW5lLXJ1c3NpYS1wdXRpbi1uZXdzLTA0LTA1LTIyL2luZGV4Lmh0bWzSAVZodHRwczovL2FtcC5jbm4uY29tL2Nubi9ldXJvcGUvbGl2ZS1uZXdzL3VrcmFpbmUtcnVzc2lhLXB1dGluLW5ld3MtMDQtMDUtMjIvaW5kZXguaHRtbA?hl=en-US&gl=US&ceid=US%3Aen"
-    ## [3,] "https://news.google.com/articles/CAIiEJ0j7PdPWTmbEC-929SrPEkqFwgEKg4IACoGCAow9vBNMK3UCDDE2Z4H?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                              
-    ## [4,] "https://news.google.com/articles/CAIiEMnUeMKzq7x9QCeEiHoDLN8qGQgEKhAIACoHCAowvIaCCzDnxf4CMM2F8gU?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                           
-    ## [5,] "https://news.google.com/articles/CAIiEF_eu4gEPwtoCGYOjXW0E6YqGAgEKg8IACoHCAowhO7OATDh9CgwvaadAg?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                            
-    ## [6,] "https://news.google.com/articles/CAIiEPeddoRSEtSMW_LJqkFVEGEqGAgEKg8IACoHCAowjtSUCjC30XQwzqe5AQ?hl=en-US&gl=US&ceid=US%3Aen"
+    ## [1,] "https://news.google.com/articles/CAIiEI7VrCNdzk4qGBPa-cONofUqFwgEKg4IACoGCAow9vBNMK3UCDCmvJYH?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                              
+    ## [2,] "https://news.google.com/articles/CBMiTWh0dHBzOi8vYWJjbmV3cy5nby5jb20vSW50ZXJuYXRpb25hbC9saXZlLXVwZGF0ZXMvcnVzc2lhLXVrcmFpbmUvP2lkPTgzOTMxNDQ20gFRaHR0cHM6Ly9hYmNuZXdzLmdvLmNvbS9hbXAvSW50ZXJuYXRpb25hbC9saXZlLXVwZGF0ZXMvcnVzc2lhLXVrcmFpbmUvP2lkPTgzOTMxNDQ2?hl=en-US&gl=US&ceid=US%3Aen"              
+    ## [3,] "https://news.google.com/articles/CBMiUmh0dHBzOi8vd3d3LmNubi5jb20vZXVyb3BlL2xpdmUtbmV3cy91a3JhaW5lLXJ1c3NpYS1wdXRpbi1uZXdzLTA0LTA3LTIyL2luZGV4Lmh0bWzSAVZodHRwczovL2FtcC5jbm4uY29tL2Nubi9ldXJvcGUvbGl2ZS1uZXdzL3VrcmFpbmUtcnVzc2lhLXB1dGluLW5ld3MtMDQtMDctMjIvaW5kZXguaHRtbA?hl=en-US&gl=US&ceid=US%3Aen"
+    ## [4,] "https://news.google.com/articles/CAIiEFVpBC94zEwG22YFHw041XEqFwgEKg4IACoGCAowl6p7MN-zCTDZ4PsF?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                              
+    ## [5,] "https://news.google.com/articles/CAIiEJjnWHse6KDeIoVlWbYV8KAqFggEKg4IACoGCAow3vI9MPeaCDDciw4?hl=en-US&gl=US&ceid=US%3Aen"                                                                                                                                                                               
+    ## [6,] "https://news.google.com/articles/CAIiEPDaV1_xn0kEorlvIt0JsDQqGAgEKg8IACoHCAowjtSUCjC30XQwpo69Bg?hl=en-US&gl=US&ceid=US%3Aen"
 
 Now that we have the links to all these web pages, we can just loop
 through and do what we did in the first section to extract all the
@@ -339,7 +350,9 @@ devloper](https://developer.twitter.com/).
 We’ll use the <tt>rtweet</tt> package. The <tt>search_tweets()</tt>
 function allows you to search for tweets, and you can specify a number
 of parameters or filters. We can be quite specific with what types of
-tweets we want to query.
+tweets we want to query. The “q” argument uses the syntax of Twitter’s
+[search
+operators](https://developer.twitter.com/en/docs/twitter-api/v1/rules-and-filtering/search-operators).
 
 ``` r
 # tweets that: mention the oscars & are from verified users & are not replies
@@ -364,7 +377,7 @@ head(colnames(tw))
 tw$text[1]
 ```
 
-    ## [1] "I wasn’t - someone has superimposed my image from JPL.  I find the shows are dull but this year was very entertaining.  I think encouraging people to fight for Oscars introduces a nice new element of boxing and wrestling that could really bring back the ratings… https://t.co/xcGJ1tNnyZ"
+    ## [1] "The academy said Smith's behavior was “unacceptable and harmful.” https://t.co/OHOR2ksTfS"
 
 This is already looking cleaner than our news article example, but let’s
 still do a bit of pre-processing. We’ll go more in depth during our week
@@ -385,18 +398,18 @@ tw[, c("screen_name", "text")]
 ```
 
     ## # A tibble: 10 × 2
-    ##    screen_name     text                                                         
-    ##    <chr>           <chr>                                                        
-    ##  1 EricIdle        "I wasn’t - someone has superimposed my image from JPL.  I f…
-    ##  2 TheGameBET      "\"There are ten Rock brothers, you bouta see all of us.\" #…
-    ##  3 TheGameBET      "Zendaya attended Vanity Fair's Oscars party in a cinched-wa…
-    ##  4 BETNews         "\"There are ten Rock brothers, you bouta see all of us.\" #…
-    ##  5 BETNews         "Zendaya attended Vanity Fair's Oscars party in a cinched-wa…
-    ##  6 fairvote        "Can't believe the FairVote Awards are already next week! Jo…
-    ##  7 lifestyle_ie    "\"I drew my inspiration from the immersive power of movies,…
-    ##  8 Daily_Express   "Jada Pinkett Smith ‘wishes Will didn't slap Chris Rock' as …
-    ##  9 BETherTV        "Zendaya attended Vanity Fair's Oscars party in a cinched-wa…
-    ## 10 4biddnKnowledge "https://t.co/cyKogpKJXm Denzel Washington Speaks Out On Wil…
+    ##    screen_name   text                                                           
+    ##    <chr>         <chr>                                                          
+    ##  1 toledonews    "The academy said Smith's behavior was “unacceptable and harmf…
+    ##  2 ETCanada      ".@TheAcademy has banned #WillSmith from attending the #Oscars…
+    ##  3 GBNEWS        "'How comfortable must he have felt to have got up in the midd…
+    ##  4 sunriseon7    "Will Smith has been banned from the Oscars for 10 years after…
+    ##  5 MikeGwizdala  "The planet is on fire but yes, do go on about Will Smith bein…
+    ##  6 MarketWatch   "Was the academy's decision to ban Will Smith from attending t…
+    ##  7 77WABCradio   "https://t.co/NqA1Ayj4ki\n\nActor Will Smith banned from the O…
+    ##  8 RebeccaOnFOX7 "Oscars slap scandal: The Academy announces Will Smith's punis…
+    ##  9 live955       "Will Smith Gets 10-Year Ban From Oscars https://t.co/TjnxG2kv…
+    ## 10 RobGuaderrama "Will Smith banned from the #Oscars for a decade. Details: htt…
 
 ``` r
 # after
@@ -404,12 +417,12 @@ tw_wrds <- unname(sapply(tw$text, clean_text))
 head(tw_wrds)
 ```
 
-    ## [1] "I wasn’t  someone superimposed image JPL I find shows dull year entertaining I think encouraging people fight Oscars introduces nice new element boxing wrestling really bring back ratings… httpstcoxcGJ1tNnyZ"
-    ## [2] "There ten Rock brothers bouta see us BETBuzz httpstcocb1H15lJ2q"                                                                                                                                                
-    ## [3] "Zendaya attended Vanity Fairs Oscars party cinchedwaist power suit long pooling pants via POPSUGAR httpstcoHkgajG801n"                                                                                          
-    ## [4] "There ten Rock brothers bouta see us BETBuzz httpstco2OizK3nsKO"                                                                                                                                                
-    ## [5] "Zendaya attended Vanity Fairs Oscars party cinchedwaist power suit long pooling pants via POPSUGAR httpstcoFOPVjdQXxr"                                                                                          
-    ## [6] "Cant believe FairVote Awards already next week Join us AndrewYang Oscars Democracy NewYorkCity httpstcoLba3r3boXS httpstco3YXXqjBoWi"
+    ## [1] "The academy said Smiths behavior “unacceptable harmful” httpstcoOHOR2ksTfS"                                                                                                                                         
+    ## [2] "TheAcademy banned WillSmith attending Oscars 10 years httpstcocLMshtTqO5"                                                                                                                                           
+    ## [3] "How comfortable must felt got middle speech just slap Chris Rock The Headliners react news Will Smith banned The Oscars ten years following slap Chris Rock 🖥 GB News YouTube httpstcoWa58gYGZwF httpstcoBFmztNGe0M"
+    ## [4] "Will Smith banned Oscars 10 years slapped Chris Rock last months Academy Awards httpstcoaqferYf2Id"                                                                                                                 
+    ## [5] "The planet fire yes go Will Smith banned Oscars umpteenth time SMH"                                                                                                                                                 
+    ## [6] "Was academys decision ban Will Smith attending Oscars 10 years fair punishment hitting Chris Rock httpstcoZ1UJdwOkcS"
 
 Again, what you do with this data is a different topic. For now, let’s
 do something simple: see which words appear the most often.
@@ -423,16 +436,12 @@ sort(count[count > 1], decreasing = T)
 ```
 
     ## 
-    ##       oscars            i        power           us     attended cinchedwaist 
-    ##            6            4            4            4            3            3 
-    ##        fairs         long        pants        party      pooling     popsugar 
-    ##            3            3            3            3            3            3 
-    ##         rock         suit       vanity          via      zendaya      betbuzz 
-    ##            3            3            3            3            3            2 
-    ##        bouta     brothers          see         slap          ten        there 
-    ##            2            2            2            2            2            2 
-    ##         will 
-    ##            2
+    ##     oscars       will      smith     banned        the      years         10 
+    ##          9          8          7          6          5          5          4 
+    ##      chris       rock    academy       slap  attending        ban       news 
+    ##          4          4          3          3          2          2          2 
+    ## punishment     smiths  willsmith 
+    ##          2          2          2
 
 The <tt>rtweet</tt> package has lots of other functions that you may
 find useful. If you want to use Twitter for your project, I encourage
@@ -445,8 +454,8 @@ tl <- rtweet::get_timeline(user="UN", n=2)
 tl$text
 ```
 
-    ## [1] "#ElSalvador must ensure security and justice in compliance with #HumanRights law, while responding to the rise in gang killings, @UNHumanRights says.\n\nhttps://t.co/UKLEg5G8tX"                                                                                                                                      
-    ## [2] "Ukraine:\n\n\"The war was started by choice. \n\nThere is no inevitability to it or to the suffering it is causing. \n\nThe UN is ready to do everything within its means to help bring an end to it.\"\n\n-- UN political chief @DicarloRosemary to Security Council. https://t.co/mlNQp6yk6H https://t.co/ndoPGG4JKS"
+    ## [1] "The UN is helping people affected by the war in Ukraine by providing:\n\n🔹 protection &amp; shelter for refugees\n🔹 support for children &amp; families\n🔹 food &amp; water\n🔹 healthcare &amp; much more. \n\nhttps://t.co/eX16SnexeC https://t.co/PndCHZpvGe"
+    ## [2] "🇸🇾#Syria: The victims and their families deserve to know the fate and whereabouts of their missing relatives, says UN Human Rights Chief @mbachelet.\n\nWe need to act NOW.\n\n👉https://t.co/7edfB8nRHy https://t.co/73Z2ifRWNw"
 
 Lastly, we can do all this without the <tt>rtweet</tt> package, though
 it takes considerably more effort. Take a look at the supplement if

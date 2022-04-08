@@ -161,7 +161,7 @@ The class we want is called "VDXfz" (the CSS selector for class is <tt>.class</t
 links <- html_doc %>% rvest::html_nodes('.VDXfz') %>%  # specify CSS selector: .class
   rvest::html_attr('href')
 ```
-If we take a look at the html code for the webpage, we can see that the link is a relative path (the file name, e.g., "index.html").
+If we take a look at the html code for the webpage, we can see that the link is a relative path (a path that begins with the current directory, e.g., "./index.html").
 
 <img src="https://github.com/albert-chiu/econ-polisci-151-sec/blob/main/rmd_files/w2/figures/node_href_crop.png?raw=true">
 
