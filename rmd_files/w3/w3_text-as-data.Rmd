@@ -226,5 +226,14 @@ stm::plot.STM(stm_out)
 
 
 
+```{r}
+twts <- rtweet::search_tweets(q="ukraine", n=500, lang="en")
 
+twts_proc <- stm::textProcessor(twts$text)
+stm_twts <- stm::stm(twts_proc$documents, twts_proc$vocab, K = 5, max.em.its = 75,
+                     data = twts_proc$meta, verbose = F)
+
+stm::plot.STM(stm_twts, n = 10)
+
+```
 

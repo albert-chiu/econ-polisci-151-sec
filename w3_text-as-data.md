@@ -401,3 +401,26 @@ stm::plot.STM(stm_out)
 ```
 
 ![](w3_text-as-data_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+``` r
+twts <- rtweet::search_tweets(q="ukraine", n=500, lang="en")
+
+twts_proc <- stm::textProcessor(twts$text)
+```
+
+    ## Building corpus... 
+    ## Converting to Lower Case... 
+    ## Removing punctuation... 
+    ## Removing stopwords... 
+    ## Removing numbers... 
+    ## Stemming... 
+    ## Creating Output...
+
+``` r
+stm_twts <- stm::stm(twts_proc$documents, twts_proc$vocab, K = 5, max.em.its = 75,
+                     data = twts_proc$meta, verbose = F)
+
+stm::plot.STM(stm_twts, n = 10)
+```
+
+![](w3_text-as-data_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
