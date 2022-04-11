@@ -1,0 +1,230 @@
+---
+title: "Text as Data (ECON/POLISCI 151, Week 3 Section)"
+author: "Albert Chiu"
+date: ""
+output: 
+    rmarkdown::github_document: 
+        keep_html: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(magrittr)
+```
+
+## Text as Data
+This week's section will introduce some basic ideas and methods for analyzing text as a type of data.
+
+What do we want to learn?
+
+- Characterize a corpus of documents
+    - Overall tone/sentiment
+    - Topics discussed
+- Characterizing individual documents?
+
+
+## Pre-Processing
+We call any body of text (e.g., a tweet, a State of the Union Address, an NGO charter) a _document_. Most literally, a document is just a sequence of words and punctuation: {`Most`, `literally`, `,`, ... }. For us to analyze a document --- just as with any type of data --- we need to identify the features that capture the most vital information. There is single valid answer to this question, but today we will adopt the following framework for pre-processing documents: 
+
+1. Remove capitalization, punctuation, stop words
+2. Remove word order (bag-of-words model)
+3. Define equivalence classes (stem, lemmatization, and/or synonyms)
+    - Stemming/lemmatization: is ~ are ~ be ~ were
+
+<!-- Synonym: angry ~ vexed ~ irate -->
+- (Other simplifications, depending on context)
+
+The result is a _document-term matrix_ <!--$M\in\mathbb{R}^{N\times J}$: each row is a document, each column is a term, and corresponding entry $M_{nj}$ is number of times term $j$ appears in document $n$.-->
+
+First, let's define a function for step 1. This is the same function we used in week 2's Twitter example, except it folds in a step that removes capitalization.
+```{r}
+clean_text <- function(x) {
+  x %>% tm::removeWords(stopwords::stopwords("en")) %>% 
+    tm::stripWhitespace() %>%
+    tm::removePunctuation() %>%
+    tolower()
+}
+```
+
+Let's use MLK's "I Have a Dream" speech as an example.
+```{r}
+dream_url <- "https://www.npr.org/2010/01/18/122701268/i-have-a-dream-speech-in-its-entirety"
+dream_speech <- rvest::read_html(dream_url) %>% 
+  rvest::html_elements("p") %>%
+  rvest::html_text() %>% 
+  .[5:35]  # remove NPR's introduction/ending
+# remove indicator of speaker
+dream_speech[1] <- strsplit(dream_speech[1], ":")[[1]][2]
+
+# before cleaning
+head(dream_speech)
+
+# after cleaning
+dream_speech <- unname(sapply(dream_speech, clean_text))
+head(dream_speech)
+```
+
+
+### _n_-grams and bag-of-words as a dimmensionality reduction technique
+Now let's implement our bag-of-words assumption:
+```{r}
+dream_wrds <- unlist(strsplit(dream_speech, " +"))
+sort(table(dream_wrds), decreasing = T)[1:10]
+```
+
+Our assumptions are very strong, and sometimes they will not make sense or will fail to capture the essence of a document; thus, validation will be key. 
+Word order clearly matters. Consider, for example, the following phrases:
+
+- Peace, no more war
+- War, no more peace
+
+Still, we can often learn a lot about documents even after these simplifications. In this example, even if we knew nothing of MLK's famous speech, we could surmise that a core theme is the freedom (or lack thereof) of black people.
+
+
+<!--We will also briefly discuss the shortcomings of these assumptions and relax the bag-of-words assumption in particular.-->
+
+<!--But the dimension of our data would grow exponentially if we retain word order. In a document with $J$ words, all of them distinct, there are $J!$ ways to arrange them. If there are 100 words, that's about 9e157, which is over a trillion-trillion, ways to arrange them. We _must_ at least partially discard word order to get any traction. 
+-->
+
+We can often at least slightly relax the bag-of-words assumption using _n_-grams, which are sequences of words of length _n_. The bag-of-words assumption effectively reduces a document to unigrams (1-grams). Let's see what the most popular bigrams and trigrams are for the "Dream" speech:
+
+```{r}
+dream_bigrams <- ngram::ngram(paste(dream_speech, collapse=" "), n=2)
+head(ngram::get.phrasetable(dream_bigrams))
+
+dream_trigrams <- ngram::ngram(paste(dream_speech, collapse=" "), n=3)
+head(ngram::get.phrasetable(dream_trigrams))
+```
+
+This gives us a richer picture of the speech, and the messaging becomes clearer. Why don't we always use bigrams, trigrams, or even longer sequences? It goes back to the dimensionality issue. With this one document, there are many repeated phrases, but this won't always be the case. It also often won't be the case that _multiple_ documents share the _same_ repeated phrases. Your matrix will be sparse, with most phrases occuring very few times in very few documents, and you will need to resort to another dimensionality reduction technique to get any traction in your analysis.
+
+### Stemming and Lemmatization
+
+There are a number of stemming and lemmatization algorithms, most of which . We'll use the Snowball algorithm, Martin Porter's extension of his eponymous algorithm.
+```{R}
+dream_stems <- SnowballC::wordStem(dream_wrds)
+sort(table(dream_stems), decreasing = T)[1:10]
+```
+
+You can also try other libraries, often with similar results:
+```{r}
+dream_lemmas <- textstem::lemmatize_words(dream_wrds)
+sort(table(dream_lemmas), decreasing = T)[1:10]
+wordcloud::wordcloud(dream_lemmas)
+```
+
+See [here](https://cran.r-project.org/web/views/NaturalLanguageProcessing.html) for a list of packages.
+
+
+## Sentiment Analysis
+
+
+```{r}
+# scores for each word
+dream_sntmt <- syuzhet::get_sentiment(dream_lemmas, method = "syuzhet")
+head(dream_sntmt)
+
+# average score of words
+mean(dream_sntmt)  # overall positive test
+
+# plot sentiment of sentences through speech
+dream_sntc_stmnt <- syuzhet::get_sentiment(dream_speech, method="syuzhet") 
+ggplot2::ggplot(mapping=ggplot2::aes(x=1:length(dream_sntc_stmnt), y=dream_sntc_stmnt))+
+  ggplot2::geom_point()+
+  ggplot2::geom_smooth(method="lm", se=F)  # positive trajectory?
+
+# you can also make this plot for words, but will be noisy
+ggplot2::ggplot(mapping=ggplot2::aes(x=1:length(dream_sntmt), y=dream_sntmt))+
+  ggplot2::geom_point()+
+  ggplot2::geom_smooth(method="lm", se=F)  # positive trajectory?
+```
+
+Comparing sentiment of two texts:
+
+```{r}
+selma_url <-"https://kinginstitute.stanford.edu/our-god-marching"
+selma_full <- rvest::read_html(selma_url) %>%
+  rvest::html_elements("p") %>%
+  rvest::html_text() %>% 
+  .[3:74] 
+selma_speech <- clean_text(selma_full)
+
+selma_lemmas <- selma_speech %>% 
+  strsplit(split=" +") %>% 
+  unlist() %>% 
+  textstem::lemmatize_words()
+selma_sntmt <- syuzhet::get_sentiment(selma_lemmas, method = "syuzhet")
+mean(selma_sntmt)
+
+# compare trajectories
+dream_binned <- syuzhet::get_percentage_values(dream_sntmt)
+selma_binned <- syuzhet::get_percentage_values(selma_sntmt)
+print(c("dream"=sum(dream_binned), "selma"=sum(selma_binned)))
+
+sntmts <- rbind(cbind.data.frame(bin=1:100, sentiment = dream_binned, speech="dream"),
+                cbind.data.frame(bin=1:100, sentiment = selma_binned, speech="selma"))
+
+ggplot2::ggplot(data=sntmts, mapping=ggplot2::aes(x=bin, y=sentiment, color=speech))+
+  ggplot2::geom_point()+
+  ggplot2::geom_smooth(se=F)  # positive trajectory?
+```
+
+Beyond positive/negative
+[words sorted by eight emotions](http://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm)
+```{r}
+dream_nrc <- syuzhet::get_nrc_sentiment(dream_speech)
+selma_nrc <- syuzhet::get_nrc_sentiment(selma_speech)
+
+dream_tab <- colSums(prop.table(dream_nrc[, 1:8]))
+selma_tab <- colSums(prop.table(selma_nrc[, 1:8]))
+
+emotion_labs <- names(selma_tab)
+
+emtns <- rbind(cbind.data.frame(emotion = emotion_labs,
+                                prop = dream_tab,
+                                speech="dream"),
+               cbind.data.frame(emotion = emotion_labs,
+                                prop=selma_tab,
+                                speech="selma"))
+
+# display in order for dream speech
+emtns$emotion <- factor(emtns$emotion, levels=emotion_labs[order(dream_tab)])
+
+ggplot2::ggplot(data=emtns, mapping=ggplot2::aes(x=emotion, y=prop, fill=speech))+
+  ggplot2::geom_bar(stat="identity", position="dodge")
+
+
+# trust
+head(selma_speech[which(selma_nrc$trust > 0)])
+```
+
+
+
+## Topic Models
+What topics do the documents discuss?
+
+```{r}
+other_url <- "https://www.rev.com/blog/transcripts/the-other-america-speech-transcript-martin-luther-king-jr"
+other <- rvest::read_html(other_url) %>% 
+  rvest::html_elements("p") %>% 
+  rvest::html_text() %>% 
+  .[6:44] %>% 
+  sapply(function(x) strsplit(x, "\n")[[1]][2]) %>%
+  unname() 
+other_proc <- stm::textProcessor(other)
+
+set.seed(123)
+stm_out <- stm::stm(other_proc$documents, other_proc$vocab, K = 10, 
+                    data = other_proc$meta, verbose = F)
+
+# top documents for a select few topics
+other_short <- sapply(other, function(x) paste(strsplit(x, " +")[[1]][1:10], collapse=" ") )
+stm::findThoughts(stm_out, texts=unname(other_short), n=3)
+
+stm::plot.STM(stm_out)
+```
+
+
+
+
+
