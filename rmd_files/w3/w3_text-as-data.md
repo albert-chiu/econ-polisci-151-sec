@@ -41,11 +41,13 @@ used in week 2’s Twitter example, except it folds in a step that removes
 capitalization.
 
 ``` r
-clean_text <- function(x) {
-  x %>% tm::removeWords(stopwords::stopwords("en")) %>% 
+clean_text <- function(x, custom_stopwords=NULL) {
+  x <- x %>% tm::removeWords(stopwords::stopwords("en")) %>% 
+    tm::removeWords(custom_stopwords) %>%
     tm::stripWhitespace() %>%
     tm::removePunctuation() %>%
     tolower()
+  return(x[x!=""])
 }
 ```
 
@@ -53,7 +55,8 @@ Let’s use MLK’s “I Have a Dream” speech as an example.
 
 ``` r
 dream_url <- "https://www.npr.org/2010/01/18/122701268/i-have-a-dream-speech-in-its-entirety"
-dream_speech <- rvest::read_html(dream_url) %>% 
+download.file(dream_url, destfile = "dream.html", quiet=TRUE)
+dream_speech <- rvest::read_html("dream.html") %>% 
   rvest::html_elements("p") %>%
   rvest::html_text() %>% 
   .[5:35]  # remove NPR's introduction/ending
@@ -252,6 +255,9 @@ selma_lemmas <- selma_speech %>%
   strsplit(split=" +") %>% 
   unlist() %>% 
   textstem::lemmatize_words()
+```
+
+``` r
 selma_sntmt <- syuzhet::get_sentiment(selma_lemmas, method = "syuzhet")
 mean(selma_sntmt)
 ```
@@ -279,7 +285,7 @@ ggplot2::ggplot(data=sntmts, mapping=ggplot2::aes(x=bin, y=sentiment, color=spee
 
     ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
 
-![](w3_text-as-data_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](w3_text-as-data_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
 Beyond positive/negative [words sorted by eight
 emotions](http://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm)
@@ -290,7 +296,9 @@ selma_nrc <- syuzhet::get_nrc_sentiment(selma_speech)
 
 dream_tab <- colSums(prop.table(dream_nrc[, 1:8]))
 selma_tab <- colSums(prop.table(selma_nrc[, 1:8]))
+```
 
+``` r
 emotion_labs <- names(selma_tab)
 
 emtns <- rbind(cbind.data.frame(emotion = emotion_labs,
@@ -299,7 +307,9 @@ emtns <- rbind(cbind.data.frame(emotion = emotion_labs,
                cbind.data.frame(emotion = emotion_labs,
                                 prop=selma_tab,
                                 speech="selma"))
+```
 
+``` r
 # display in order for dream speech
 emtns$emotion <- factor(emtns$emotion, levels=emotion_labs[order(dream_tab)])
 
@@ -307,7 +317,7 @@ ggplot2::ggplot(data=emtns, mapping=ggplot2::aes(x=emotion, y=prop, fill=speech)
   ggplot2::geom_bar(stat="identity", position="dodge")
 ```
 
-![](w3_text-as-data_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](w3_text-as-data_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 ``` r
 # trust
@@ -348,7 +358,9 @@ other_proc <- stm::textProcessor(other)
 set.seed(123)
 stm_out <- stm::stm(other_proc$documents, other_proc$vocab, K = 10, 
                     data = other_proc$meta, verbose = F)
+```
 
+``` r
 # top documents for a select few topics
 other_short <- sapply(other, function(x) paste(strsplit(x, " +")[[1]][1:10], collapse=" ") )
 stm::findThoughts(stm_out, texts=unname(other_short), n=3)
@@ -400,13 +412,67 @@ stm::findThoughts(stm_out, texts=unname(other_short), n=3)
 stm::plot.STM(stm_out)
 ```
 
-![](w3_text-as-data_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](w3_text-as-data_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 ``` r
 twts <- rtweet::search_tweets(q="ukraine", n=500, lang="en")
 
-# regular expression for any word starting wit "ukrain"
-twts_proc <- stm::textProcessor(twts$text, customstopwords = c("ukrain.*", "russ.*"))
+# most popular words
+twt_wrds <- sapply(twts$text, function(x) strsplit(x, " +")) %>%
+  sapply(clean_text)
+names(twt_wrds) <- 1:length(twt_wrds)
+
+reshape2::melt(twt_wrds) %>% 
+  group_by(value) %>%
+  tally() %>% 
+  arrange(desc(n))
+```
+
+    ## # A tibble: 3,457 × 2
+    ##    value        n
+    ##    <chr>    <int>
+    ##  1 ukraine    443
+    ##  2 russian    122
+    ##  3 war        114
+    ##  4 russia     112
+    ##  5 the         79
+    ##  6 putin       63
+    ##  7 i           62
+    ##  8 us          59
+    ##  9 weapons     50
+    ## 10 chemical    47
+    ## # … with 3,447 more rows
+
+``` r
+# a bit more sophisticated: tf-idf
+reshape2::melt(twt_wrds) %>% 
+  group_by(L1, value) %>%
+  tally() %>%
+  tidytext::bind_tf_idf(value, L1, n) %>% 
+  group_by(value) %>%
+  summarise(tf_idf_unique = mean(tf_idf)) %>%
+  arrange(tf_idf_unique)
+```
+
+    ## # A tibble: 3,457 × 2
+    ##    value             tf_idf_unique
+    ##    <chr>                     <dbl>
+    ##  1 "ukraine"                0.0157
+    ##  2 " is"                    0.0740
+    ##  3 "afewpoints"             0.0740
+    ##  4 "allowed"                0.0740
+    ##  5 "andrewgarside3"         0.0740
+    ##  6 "andrewknight226"        0.0740
+    ##  7 "bazcarter15"            0.0740
+    ##  8 "begentle50"             0.0740
+    ##  9 "beowulfschaefer"        0.0740
+    ## 10 "boomerish"              0.0740
+    ## # … with 3,447 more rows
+
+``` r
+# regular expressions for any words starting with "ukrain" and "russ"
+twts_proc <- stm::textProcessor(twts$text, 
+    customstopwords = c("ukrain.*", "russ.*"))
 ```
 
     ## Building corpus... 
@@ -425,4 +491,4 @@ stm_twts <- stm::stm(twts_proc$documents, twts_proc$vocab, K = 5, max.em.its = 7
 stm::plot.STM(stm_twts, n = 10)
 ```
 
-![](w3_text-as-data_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](w3_text-as-data_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->

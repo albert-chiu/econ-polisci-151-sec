@@ -9,7 +9,7 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-require(magrittr)
+require(dplyr)
 ```
 
 ## Text as Data
@@ -38,18 +38,21 @@ The result is a _document-term matrix_ <!--$M\in\mathbb{R}^{N\times J}$: each ro
 
 First, let's define a function for step 1. This is the same function we used in week 2's Twitter example, except it folds in a step that removes capitalization.
 ```{r}
-clean_text <- function(x) {
-  x %>% tm::removeWords(stopwords::stopwords("en")) %>% 
+clean_text <- function(x, custom_stopwords=NULL) {
+  x <- x %>% tm::removeWords(stopwords::stopwords("en")) %>% 
+    tm::removeWords(custom_stopwords) %>%
     tm::stripWhitespace() %>%
     tm::removePunctuation() %>%
     tolower()
+  return(x[x!=""])
 }
 ```
 
 Let's use MLK's "I Have a Dream" speech as an example.
 ```{r}
 dream_url <- "https://www.npr.org/2010/01/18/122701268/i-have-a-dream-speech-in-its-entirety"
-dream_speech <- rvest::read_html(dream_url) %>% 
+download.file(dream_url, destfile = "dream.html", quiet=TRUE)
+dream_speech <- rvest::read_html("dream.html") %>% 
   rvest::html_elements("p") %>%
   rvest::html_text() %>% 
   .[5:35]  # remove NPR's introduction/ending
@@ -58,6 +61,7 @@ dream_speech[1] <- strsplit(dream_speech[1], ":")[[1]][2]
 
 # before cleaning
 head(dream_speech)
+
 
 # after cleaning
 dream_speech <- unname(sapply(dream_speech, clean_text))
@@ -153,6 +157,10 @@ selma_lemmas <- selma_speech %>%
   strsplit(split=" +") %>% 
   unlist() %>% 
   textstem::lemmatize_words()
+```
+
+
+```{r}
 selma_sntmt <- syuzhet::get_sentiment(selma_lemmas, method = "syuzhet")
 mean(selma_sntmt)
 
@@ -160,7 +168,9 @@ mean(selma_sntmt)
 dream_binned <- syuzhet::get_percentage_values(dream_sntmt)
 selma_binned <- syuzhet::get_percentage_values(selma_sntmt)
 print(c("dream"=sum(dream_binned), "selma"=sum(selma_binned)))
+```
 
+```{r}
 sntmts <- rbind(cbind.data.frame(bin=1:100, sentiment = dream_binned, speech="dream"),
                 cbind.data.frame(bin=1:100, sentiment = selma_binned, speech="selma"))
 
@@ -177,7 +187,9 @@ selma_nrc <- syuzhet::get_nrc_sentiment(selma_speech)
 
 dream_tab <- colSums(prop.table(dream_nrc[, 1:8]))
 selma_tab <- colSums(prop.table(selma_nrc[, 1:8]))
+```
 
+```{r}
 emotion_labs <- names(selma_tab)
 
 emtns <- rbind(cbind.data.frame(emotion = emotion_labs,
@@ -186,7 +198,9 @@ emtns <- rbind(cbind.data.frame(emotion = emotion_labs,
                cbind.data.frame(emotion = emotion_labs,
                                 prop=selma_tab,
                                 speech="selma"))
+```
 
+```{r}
 # display in order for dream speech
 emtns$emotion <- factor(emtns$emotion, levels=emotion_labs[order(dream_tab)])
 
@@ -216,7 +230,9 @@ other_proc <- stm::textProcessor(other)
 set.seed(123)
 stm_out <- stm::stm(other_proc$documents, other_proc$vocab, K = 10, 
                     data = other_proc$meta, verbose = F)
+```
 
+```{r}
 # top documents for a select few topics
 other_short <- sapply(other, function(x) paste(strsplit(x, " +")[[1]][1:10], collapse=" ") )
 stm::findThoughts(stm_out, texts=unname(other_short), n=3)
@@ -229,8 +245,32 @@ stm::plot.STM(stm_out)
 ```{r}
 twts <- rtweet::search_tweets(q="ukraine", n=500, lang="en")
 
-# regular expression for any word starting wit "ukrain"
-twts_proc <- stm::textProcessor(twts$text, customstopwords = c("ukrain.*", "russ.*"))
+# most popular words
+twt_wrds <- sapply(twts$text, function(x) strsplit(x, " +")) %>%
+  sapply(clean_text)
+names(twt_wrds) <- 1:length(twt_wrds)
+
+reshape2::melt(twt_wrds) %>% 
+  group_by(value) %>%
+  tally() %>% 
+  arrange(desc(n))
+```
+
+```{r}
+# a bit more sophisticated: tf-idf
+reshape2::melt(twt_wrds) %>% 
+  group_by(L1, value) %>%
+  tally() %>%
+  tidytext::bind_tf_idf(value, L1, n) %>% 
+  group_by(value) %>%
+  summarise(tf_idf_unique = mean(tf_idf)) %>%
+  arrange(tf_idf_unique)
+```
+
+```{r}
+# regular expressions for any words starting with "ukrain" and "russ"
+twts_proc <- stm::textProcessor(twts$text, 
+    customstopwords = c("ukrain.*", "russ.*"))
 stm_twts <- stm::stm(twts_proc$documents, twts_proc$vocab, K = 5, max.em.its = 75,
                      data = twts_proc$meta, verbose = F)
 
