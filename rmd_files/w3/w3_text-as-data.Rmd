@@ -34,7 +34,10 @@ We call any body of text (e.g., a tweet, a State of the Union Address, an NGO ch
 <!-- Synonym: angry ~ vexed ~ irate -->
 - (Other simplifications, depending on context)
 
-The result is a _document-term matrix_ <!--$M\in\mathbb{R}^{N\times J}$: each row is a document, each column is a term, and corresponding entry $M_{nj}$ is number of times term $j$ appears in document $n$.-->
+The result is a _document-term matrix_ $M\in\mathbb{R}^{N\times J}$: each row is a document, each column is a term, and corresponding entry $M_{nj}$ is number of times term $j$ appears in document $n$.
+
+- Each document is a vector in $\mathbb{R}^J$, and each term is a dimension
+- Can use methods from linear algebra
 
 First, let's define a function for step 1. This is the same function we used in week 2's Twitter example, except it folds in a step that removes capitalization.
 ```{r}
@@ -51,8 +54,7 @@ clean_text <- function(x, custom_stopwords=NULL) {
 Let's use MLK's "I Have a Dream" speech as an example.
 ```{r}
 dream_url <- "https://www.npr.org/2010/01/18/122701268/i-have-a-dream-speech-in-its-entirety"
-download.file(dream_url, destfile = "dream.html", quiet=TRUE)
-dream_speech <- rvest::read_html("dream.html") %>% 
+dream_speech <- rvest::read_html(dream_url) %>% 
   rvest::html_elements("p") %>%
   rvest::html_text() %>% 
   .[5:35]  # remove NPR's introduction/ending
@@ -61,7 +63,6 @@ dream_speech[1] <- strsplit(dream_speech[1], ":")[[1]][2]
 
 # before cleaning
 head(dream_speech)
-
 
 # after cleaning
 dream_speech <- unname(sapply(dream_speech, clean_text))
@@ -87,8 +88,7 @@ Still, we can often learn a lot about documents even after these simplifications
 
 <!--We will also briefly discuss the shortcomings of these assumptions and relax the bag-of-words assumption in particular.-->
 
-<!--But the dimension of our data would grow exponentially if we retain word order. In a document with $J$ words, all of them distinct, there are $J!$ ways to arrange them. If there are 100 words, that's about 9e157, which is over a trillion-trillion, ways to arrange them. We _must_ at least partially discard word order to get any traction. 
--->
+But the dimension of our data would grow exponentially if we retain word order. In a document with $J$ words, all of them distinct, there are $J!$ ways to arrange them. If there are 100 words, that's about 9e157, which is over a trillion-trillion, ways to arrange them. We _must_ at least partially discard word order to get any traction. 
 
 We can often at least slightly relax the bag-of-words assumption using _n_-grams, which are sequences of words of length _n_. The bag-of-words assumption effectively reduces a document to unigrams (1-grams). Let's see what the most popular bigrams and trigrams are for the "Dream" speech:
 
@@ -217,6 +217,10 @@ head(selma_speech[which(selma_nrc$trust > 0)])
 ## Topic Models
 What topics do the documents discuss?
 
+
+
+Structural Topic Model (STM) extends hierarchical topic models like the Latent Dirichlet Allocation (LDA) model by allowing the incorporation of "metadata"
+
 ```{r}
 other_url <- "https://www.rev.com/blog/transcripts/the-other-america-speech-transcript-martin-luther-king-jr"
 other <- rvest::read_html(other_url) %>% 
@@ -256,12 +260,15 @@ reshape2::melt(twt_wrds) %>%
   arrange(desc(n))
 ```
 
+
+Term frequency - inverse document frequency (tf-idf): $tf \times idf$, where frequency and inverse frequency can be measured/scaled a number of ways.
+
 ```{r}
 # a bit more sophisticated: tf-idf
 reshape2::melt(twt_wrds) %>% 
-  group_by(L1, value) %>%
-  tally() %>%
-  tidytext::bind_tf_idf(value, L1, n) %>% 
+  group_by(L1, value) %>%  # group by document and term
+  tally() %>%  # one row per term-per-document
+  tidytext::bind_tf_idf(value, L1, n) %>%  # idf=log(#docs/#docs contianing term)
   group_by(value) %>%
   summarise(tf_idf_unique = mean(tf_idf)) %>%
   arrange(tf_idf_unique)
@@ -269,11 +276,16 @@ reshape2::melt(twt_wrds) %>%
 
 ```{r}
 # regular expressions for any words starting with "ukrain" and "russ"
-twts_proc <- stm::textProcessor(twts$text, 
-    customstopwords = c("ukrain.*", "russ.*"))
+twts_proc <- stm::textProcessor(documents = twts$text,  
+                                metadata = unname(model.matrix(~ twts$location - 1)), 
+                                customstopwords = c("ukrain.*", "russ.*"))
+twts_proc <- stm::prepDocuments(twts_proc$documents, twts_proc$vocab, meta = twts_proc$meta)  # remove infrequent words
 stm_twts <- stm::stm(twts_proc$documents, twts_proc$vocab, K = 5, max.em.its = 75,
                      data = twts_proc$meta, verbose = F)
 
 stm::plot.STM(stm_twts, n = 10)
+
+stm::labelTopics(stm_twts)
+stm::topicCorr(stm_twts)$cor  # significant correlation between topics
 ```
 

@@ -34,7 +34,18 @@ following framework for pre-processing documents:
 -   (Other simplifications, depending on context)
 
 The result is a *document-term matrix*
-<!--$M\in\mathbb{R}^{N\times J}$: each row is a document, each column is a term, and corresponding entry $M_{nj}$ is number of times term $j$ appears in document $n$.-->
+![M\\in\\mathbb{R}^{N\\times J}](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;M%5Cin%5Cmathbb%7BR%7D%5E%7BN%5Ctimes%20J%7D "M\in\mathbb{R}^{N\times J}"):
+each row is a document, each column is a term, and corresponding entry
+![M\_{nj}](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;M_%7Bnj%7D "M_{nj}")
+is number of times term
+![j](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;j "j")
+appears in document
+![n](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;n "n").
+
+-   Each document is a vector in
+    ![\\mathbb{R}^J](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;%5Cmathbb%7BR%7D%5EJ "\mathbb{R}^J"),
+    and each term is a dimension
+-   Can use methods from linear algebra
 
 First, let’s define a function for step 1. This is the same function we
 used in week 2’s Twitter example, except it folds in a step that removes
@@ -55,8 +66,7 @@ Let’s use MLK’s “I Have a Dream” speech as an example.
 
 ``` r
 dream_url <- "https://www.npr.org/2010/01/18/122701268/i-have-a-dream-speech-in-its-entirety"
-download.file(dream_url, destfile = "dream.html", quiet=TRUE)
-dream_speech <- rvest::read_html("dream.html") %>% 
+dream_speech <- rvest::read_html(dream_url) %>% 
   rvest::html_elements("p") %>%
   rvest::html_text() %>% 
   .[5:35]  # remove NPR's introduction/ending
@@ -114,8 +124,15 @@ famous speech, we could surmise that a core theme is the freedom (or
 lack thereof) of black people.
 
 <!--We will also briefly discuss the shortcomings of these assumptions and relax the bag-of-words assumption in particular.-->
-<!--But the dimension of our data would grow exponentially if we retain word order. In a document with $J$ words, all of them distinct, there are $J!$ ways to arrange them. If there are 100 words, that's about 9e157, which is over a trillion-trillion, ways to arrange them. We _must_ at least partially discard word order to get any traction. 
--->
+
+But the dimension of our data would grow exponentially if we retain word
+order. In a document with
+![J](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;J "J")
+words, all of them distinct, there are
+![J!](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;J%21 "J!")
+ways to arrange them. If there are 100 words, that’s about 9e157, which
+is over a trillion-trillion, ways to arrange them. We *must* at least
+partially discard word order to get any traction.
 
 We can often at least slightly relax the bag-of-words assumption using
 *n*-grams, which are sequences of words of length *n*. The bag-of-words
@@ -335,6 +352,12 @@ head(selma_speech[which(selma_nrc$trust > 0)])
 
 What topics do the documents discuss?
 
+Latent Dirichlet Allocation (LDA) model
+<img src="https://upload.wikimedia.org/wikipedia/commons/4/4d/Smoothed_LDA.png">
+
+Structural Topic Model (STM) extends this, allowing incorporation of
+“metadata”
+
 ``` r
 other_url <- "https://www.rev.com/blog/transcripts/the-other-america-speech-transcript-martin-luther-king-jr"
 other <- rvest::read_html(other_url) %>% 
@@ -428,46 +451,51 @@ reshape2::melt(twt_wrds) %>%
   arrange(desc(n))
 ```
 
-    ## # A tibble: 3,457 × 2
-    ##    value        n
-    ##    <chr>    <int>
-    ##  1 ukraine    443
-    ##  2 russian    122
-    ##  3 war        114
-    ##  4 russia     112
-    ##  5 the         79
-    ##  6 putin       63
-    ##  7 i           62
-    ##  8 us          59
-    ##  9 weapons     50
-    ## 10 chemical    47
-    ## # … with 3,447 more rows
+    ## # A tibble: 3,438 × 2
+    ##    value         n
+    ##    <chr>     <int>
+    ##  1 ukraine     438
+    ##  2 russian     144
+    ##  3 russia      118
+    ##  4 the         106
+    ##  5 us           86
+    ##  6 war          84
+    ##  7 ukrainian    69
+    ##  8 amp          52
+    ##  9 world        50
+    ## 10 i            47
+    ## # … with 3,428 more rows
+
+Term frequency - inverse document frequency (tf-idf):
+![tf \\times idf](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;tf%20%5Ctimes%20idf "tf \times idf"),
+where frequency and inverse frequency can be measured/scaled a number of
+ways.
 
 ``` r
 # a bit more sophisticated: tf-idf
 reshape2::melt(twt_wrds) %>% 
-  group_by(L1, value) %>%
-  tally() %>%
-  tidytext::bind_tf_idf(value, L1, n) %>% 
+  group_by(L1, value) %>%  # group by document and term
+  tally() %>%  # one row per term-per-document
+  tidytext::bind_tf_idf(value, L1, n) %>%  # idf=log(#docs/#docs contianing term)
   group_by(value) %>%
   summarise(tf_idf_unique = mean(tf_idf)) %>%
   arrange(tf_idf_unique)
 ```
 
-    ## # A tibble: 3,457 × 2
-    ##    value             tf_idf_unique
-    ##    <chr>                     <dbl>
-    ##  1 "ukraine"                0.0157
-    ##  2 " is"                    0.0740
-    ##  3 "afewpoints"             0.0740
-    ##  4 "allowed"                0.0740
-    ##  5 "andrewgarside3"         0.0740
-    ##  6 "andrewknight226"        0.0740
-    ##  7 "bazcarter15"            0.0740
-    ##  8 "begentle50"             0.0740
-    ##  9 "beowulfschaefer"        0.0740
-    ## 10 "boomerish"              0.0740
-    ## # … with 3,447 more rows
+    ## # A tibble: 3,438 × 2
+    ##    value     tf_idf_unique
+    ##    <chr>             <dbl>
+    ##  1 ukraine          0.0130
+    ##  2 russian          0.0793
+    ##  3 the              0.0959
+    ##  4 ukrainian        0.0971
+    ##  5 war              0.0979
+    ##  6 russia           0.0982
+    ##  7 since            0.106 
+    ##  8 rt               0.108 
+    ##  9 calls            0.109 
+    ## 10 if               0.109 
+    ## # … with 3,428 more rows
 
 ``` r
 # regular expressions for any words starting with "ukrain" and "russ"
