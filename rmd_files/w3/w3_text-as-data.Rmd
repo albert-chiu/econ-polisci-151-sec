@@ -151,7 +151,7 @@ selma_full <- rvest::read_html(selma_url) %>%
   rvest::html_elements("p") %>%
   rvest::html_text() %>% 
   .[3:74] 
-selma_speech <- clean_text(selma_full)
+selma_speech <- clean_text(selma_full, custom_stopwords = c("sir", "yes"))
 
 selma_lemmas <- selma_speech %>% 
   strsplit(split=" +") %>% 

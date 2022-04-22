@@ -352,10 +352,8 @@ head(selma_speech[which(selma_nrc$trust > 0)])
 
 What topics do the documents discuss?
 
-Latent Dirichlet Allocation (LDA) model
-<img src="https://upload.wikimedia.org/wikipedia/commons/4/4d/Smoothed_LDA.png">
-
-Structural Topic Model (STM) extends this, allowing incorporation of
+Structural Topic Model (STM) extends hierarchical topic models like the
+Latent Dirichlet Allocation (LDA) model by allowing the incorporation of
 “metadata”
 
 ``` r
@@ -451,20 +449,20 @@ reshape2::melt(twt_wrds) %>%
   arrange(desc(n))
 ```
 
-    ## # A tibble: 3,438 × 2
+    ## # A tibble: 3,538 × 2
     ##    value         n
     ##    <chr>     <int>
-    ##  1 ukraine     438
-    ##  2 russian     144
-    ##  3 russia      118
-    ##  4 the         106
-    ##  5 us           86
-    ##  6 war          84
-    ##  7 ukrainian    69
-    ##  8 amp          52
-    ##  9 world        50
-    ## 10 i            47
-    ## # … with 3,428 more rows
+    ##  1 ukraine     458
+    ##  2 war         105
+    ##  3 the          97
+    ##  4 us           95
+    ##  5 russian      91
+    ##  6 russia       83
+    ##  7 i            65
+    ##  8 world        64
+    ##  9 ukrainian    58
+    ## 10 people       49
+    ## # … with 3,528 more rows
 
 Term frequency - inverse document frequency (tf-idf):
 ![tf \\times idf](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;tf%20%5Ctimes%20idf "tf \times idf"),
@@ -482,25 +480,26 @@ reshape2::melt(twt_wrds) %>%
   arrange(tf_idf_unique)
 ```
 
-    ## # A tibble: 3,438 × 2
-    ##    value     tf_idf_unique
-    ##    <chr>             <dbl>
-    ##  1 ukraine          0.0130
-    ##  2 russian          0.0793
-    ##  3 the              0.0959
-    ##  4 ukrainian        0.0971
-    ##  5 war              0.0979
-    ##  6 russia           0.0982
-    ##  7 since            0.106 
-    ##  8 rt               0.108 
-    ##  9 calls            0.109 
-    ## 10 if               0.109 
-    ## # … with 3,428 more rows
+    ## # A tibble: 3,538 × 2
+    ##    value           tf_idf_unique
+    ##    <chr>                   <dbl>
+    ##  1 ukraine                0.0105
+    ##  2 us                     0.0880
+    ##  3 bigteethyouhave        0.0884
+    ##  4 savetheukraine         0.0884
+    ##  5 the                    0.0896
+    ##  6 akuscg                 0.0901
+    ##  7 alshadowdancer         0.0901
+    ##  8 amoneyresists          0.0901
+    ##  9 baby                   0.0901
+    ## 10 blondiefizban          0.0901
+    ## # … with 3,528 more rows
 
 ``` r
 # regular expressions for any words starting with "ukrain" and "russ"
-twts_proc <- stm::textProcessor(twts$text, 
-    customstopwords = c("ukrain.*", "russ.*"))
+twts_proc <- stm::textProcessor(documents = twts$text,  
+                                metadata = unname(model.matrix(~ twts$location - 1)), 
+                                customstopwords = c("ukrain.*", "russ.*"))
 ```
 
     ## Building corpus... 
@@ -513,6 +512,14 @@ twts_proc <- stm::textProcessor(twts$text,
     ## Creating Output...
 
 ``` r
+twts_proc <- stm::prepDocuments(twts_proc$documents, twts_proc$vocab, meta = twts_proc$meta)  # remove infrequent words
+```
+
+    ## Removing 957 of 1479 terms (957 of 3557 tokens) due to frequency 
+    ## Removing 16 Documents with No Words 
+    ## Your corpus now has 443 documents, 522 terms and 2600 tokens.
+
+``` r
 stm_twts <- stm::stm(twts_proc$documents, twts_proc$vocab, K = 5, max.em.its = 75,
                      data = twts_proc$meta, verbose = F)
 
@@ -520,3 +527,44 @@ stm::plot.STM(stm_twts, n = 10)
 ```
 
 ![](w3_text-as-data_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+
+``` r
+stm::labelTopics(stm_twts)
+```
+
+    ## Topic 1 Top Words:
+    ##       Highest Prob: putin, now, announc, uniti, unit, get, million 
+    ##       FREX: putin, announc, uniti, get, million, latest, ban 
+    ##       Lift: latest, announc, get, million, putin, uniti, ⚡️washington 
+    ##       Score: uniti, blow, get, announc, alli, million, latest 
+    ## Topic 2 Top Words:
+    ##       Highest Prob: amp, mariupol, kyiv, will, think, year, day 
+    ##       FREX: mariupol, think, day, left, mani, death, eastern 
+    ##       Lift: day, left, mani, ’ve, across, arc, death 
+    ##       Score: left, mariupol, mani, arc, friendship, starv, meal 
+    ## Topic 3 Top Words:
+    ##       Highest Prob: send, weapon, new, like, near, take, presid 
+    ##       FREX: send, new, air, drone, know, 🇷🇺💥🤛💪🇺🇦❤🇺🇦💪🤜💥🇷🇺, data 
+    ##       Lift: air, drone, know, new, send, ⚡️anoth, 🇷🇺💥🤛💪🇺🇦❤🇺🇦💪🤜💥🇷🇺 
+    ##       Score: air, new, 🇷🇺💥🤛💪🇺🇦❤🇺🇦💪🤜💥🇷🇺, weapon, your, send, drone 
+    ## Topic 4 Top Words:
+    ##       Highest Prob: war, biden, world, peopl, just, arm, back--back--back 
+    ##       FREX: biden, peopl, arm, back--back--back, make, payment, unexplain 
+    ##       Lift: back--back--back, crime, fact, half, ladi, make, need 
+    ##       Score: back--back--back, payment, unexplain, biden, oil, world, let 
+    ## Topic 5 Top Words:
+    ##       Highest Prob: crise, live, white, attent, world, affect, black 
+    ##       FREX: crise, live, white, attent, affect, black, treat 
+    ##       Lift: dollar, equip, offici, parliament, spanish, white, “fraction” 
+    ##       Score: crise, black, affect, “fraction”, humanitarian, unequ, white
+
+``` r
+stm::topicCorr(stm_twts)$cor  # significant correlation between topics
+```
+
+    ##             [,1]        [,2]        [,3]       [,4]       [,5]
+    ## [1,]  1.00000000 -0.08132512 -0.09131849 -0.3120012 -0.4399002
+    ## [2,] -0.08132512  1.00000000  0.02673902 -0.2009623 -0.1980809
+    ## [3,] -0.09131849  0.02673902  1.00000000 -0.1689885 -0.2659637
+    ## [4,] -0.31200121 -0.20096228 -0.16898850  1.0000000 -0.4832799
+    ## [5,] -0.43990023 -0.19808091 -0.26596374 -0.4832799  1.0000000

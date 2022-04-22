@@ -34,18 +34,31 @@ following framework for pre-processing documents:
 -   (Other simplifications, depending on context)
 
 The result is a *document-term matrix*
-<!--$M\in\mathbb{R}^{N\times J}$: each row is a document, each column is a term, and corresponding entry $M_{nj}$ is number of times term $j$ appears in document $n$.-->
+![M\\in\\mathbb{R}^{N\\times J}](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;M%5Cin%5Cmathbb%7BR%7D%5E%7BN%5Ctimes%20J%7D "M\in\mathbb{R}^{N\times J}"):
+each row is a document, each column is a term, and corresponding entry
+![M\_{nj}](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;M_%7Bnj%7D "M_{nj}")
+is number of times term
+![j](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;j "j")
+appears in document
+![n](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;n "n").
+
+-   Each document is a vector in
+    ![\\mathbb{R}^J](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;%5Cmathbb%7BR%7D%5EJ "\mathbb{R}^J"),
+    and each term is a dimension
+-   Can use methods from linear algebra
 
 First, let’s define a function for step 1. This is the same function we
 used in week 2’s Twitter example, except it folds in a step that removes
 capitalization.
 
 ``` r
-clean_text <- function(x) {
-  x %>% tm::removeWords(stopwords::stopwords("en")) %>% 
+clean_text <- function(x, custom_stopwords=NULL) {
+  x <- x %>% tm::removeWords(stopwords::stopwords("en")) %>% 
+    tm::removeWords(custom_stopwords) %>%
     tm::stripWhitespace() %>%
     tm::removePunctuation() %>%
     tolower()
+  return(x[x!=""])
 }
 ```
 
@@ -111,8 +124,15 @@ famous speech, we could surmise that a core theme is the freedom (or
 lack thereof) of black people.
 
 <!--We will also briefly discuss the shortcomings of these assumptions and relax the bag-of-words assumption in particular.-->
-<!--But the dimension of our data would grow exponentially if we retain word order. In a document with $J$ words, all of them distinct, there are $J!$ ways to arrange them. If there are 100 words, that's about 9e157, which is over a trillion-trillion, ways to arrange them. We _must_ at least partially discard word order to get any traction. 
--->
+
+But the dimension of our data would grow exponentially if we retain word
+order. In a document with
+![J](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;J "J")
+words, all of them distinct, there are
+![J!](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;J%21 "J!")
+ways to arrange them. If there are 100 words, that’s about 9e157, which
+is over a trillion-trillion, ways to arrange them. We *must* at least
+partially discard word order to get any traction.
 
 We can often at least slightly relax the bag-of-words assumption using
 *n*-grams, which are sequences of words of length *n*. The bag-of-words
@@ -252,6 +272,9 @@ selma_lemmas <- selma_speech %>%
   strsplit(split=" +") %>% 
   unlist() %>% 
   textstem::lemmatize_words()
+```
+
+``` r
 selma_sntmt <- syuzhet::get_sentiment(selma_lemmas, method = "syuzhet")
 mean(selma_sntmt)
 ```
@@ -279,7 +302,7 @@ ggplot2::ggplot(data=sntmts, mapping=ggplot2::aes(x=bin, y=sentiment, color=spee
 
     ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
 
-![](w3_text-as-data_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](w3_text-as-data_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
 Beyond positive/negative [words sorted by eight
 emotions](http://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm)
@@ -290,7 +313,9 @@ selma_nrc <- syuzhet::get_nrc_sentiment(selma_speech)
 
 dream_tab <- colSums(prop.table(dream_nrc[, 1:8]))
 selma_tab <- colSums(prop.table(selma_nrc[, 1:8]))
+```
 
+``` r
 emotion_labs <- names(selma_tab)
 
 emtns <- rbind(cbind.data.frame(emotion = emotion_labs,
@@ -299,7 +324,9 @@ emtns <- rbind(cbind.data.frame(emotion = emotion_labs,
                cbind.data.frame(emotion = emotion_labs,
                                 prop=selma_tab,
                                 speech="selma"))
+```
 
+``` r
 # display in order for dream speech
 emtns$emotion <- factor(emtns$emotion, levels=emotion_labs[order(dream_tab)])
 
@@ -307,7 +334,7 @@ ggplot2::ggplot(data=emtns, mapping=ggplot2::aes(x=emotion, y=prop, fill=speech)
   ggplot2::geom_bar(stat="identity", position="dodge")
 ```
 
-![](w3_text-as-data_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](w3_text-as-data_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 ``` r
 # trust
@@ -324,6 +351,12 @@ head(selma_speech[which(selma_nrc$trust > 0)])
 ## Topic Models
 
 What topics do the documents discuss?
+
+Latent Dirichlet Allocation (LDA) model
+<img src="https://upload.wikimedia.org/wikipedia/commons/4/4d/Smoothed_LDA.png">
+
+Structural Topic Model (STM) extends this, allowing incorporation of
+“metadata”
 
 ``` r
 other_url <- "https://www.rev.com/blog/transcripts/the-other-america-speech-transcript-martin-luther-king-jr"
@@ -348,7 +381,9 @@ other_proc <- stm::textProcessor(other)
 set.seed(123)
 stm_out <- stm::stm(other_proc$documents, other_proc$vocab, K = 10, 
                     data = other_proc$meta, verbose = F)
+```
 
+``` r
 # top documents for a select few topics
 other_short <- sapply(other, function(x) paste(strsplit(x, " +")[[1]][1:10], collapse=" ") )
 stm::findThoughts(stm_out, texts=unname(other_short), n=3)
@@ -400,13 +435,72 @@ stm::findThoughts(stm_out, texts=unname(other_short), n=3)
 stm::plot.STM(stm_out)
 ```
 
-![](w3_text-as-data_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](w3_text-as-data_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 ``` r
 twts <- rtweet::search_tweets(q="ukraine", n=500, lang="en")
 
-# regular expression for any word starting wit "ukrain"
-twts_proc <- stm::textProcessor(twts$text, customstopwords = c("ukrain.*", "russ.*"))
+# most popular words
+twt_wrds <- sapply(twts$text, function(x) strsplit(x, " +")) %>%
+  sapply(clean_text)
+names(twt_wrds) <- 1:length(twt_wrds)
+
+reshape2::melt(twt_wrds) %>% 
+  group_by(value) %>%
+  tally() %>% 
+  arrange(desc(n))
+```
+
+    ## # A tibble: 3,438 × 2
+    ##    value         n
+    ##    <chr>     <int>
+    ##  1 ukraine     438
+    ##  2 russian     144
+    ##  3 russia      118
+    ##  4 the         106
+    ##  5 us           86
+    ##  6 war          84
+    ##  7 ukrainian    69
+    ##  8 amp          52
+    ##  9 world        50
+    ## 10 i            47
+    ## # … with 3,428 more rows
+
+Term frequency - inverse document frequency (tf-idf):
+![tf \\times idf](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;tf%20%5Ctimes%20idf "tf \times idf"),
+where frequency and inverse frequency can be measured/scaled a number of
+ways.
+
+``` r
+# a bit more sophisticated: tf-idf
+reshape2::melt(twt_wrds) %>% 
+  group_by(L1, value) %>%  # group by document and term
+  tally() %>%  # one row per term-per-document
+  tidytext::bind_tf_idf(value, L1, n) %>%  # idf=log(#docs/#docs contianing term)
+  group_by(value) %>%
+  summarise(tf_idf_unique = mean(tf_idf)) %>%
+  arrange(tf_idf_unique)
+```
+
+    ## # A tibble: 3,438 × 2
+    ##    value     tf_idf_unique
+    ##    <chr>             <dbl>
+    ##  1 ukraine          0.0130
+    ##  2 russian          0.0793
+    ##  3 the              0.0959
+    ##  4 ukrainian        0.0971
+    ##  5 war              0.0979
+    ##  6 russia           0.0982
+    ##  7 since            0.106 
+    ##  8 rt               0.108 
+    ##  9 calls            0.109 
+    ## 10 if               0.109 
+    ## # … with 3,428 more rows
+
+``` r
+# regular expressions for any words starting with "ukrain" and "russ"
+twts_proc <- stm::textProcessor(twts$text, 
+    customstopwords = c("ukrain.*", "russ.*"))
 ```
 
     ## Building corpus... 
@@ -425,4 +519,4 @@ stm_twts <- stm::stm(twts_proc$documents, twts_proc$vocab, K = 5, max.em.its = 7
 stm::plot.STM(stm_twts, n = 10)
 ```
 
-![](w3_text-as-data_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](w3_text-as-data_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
