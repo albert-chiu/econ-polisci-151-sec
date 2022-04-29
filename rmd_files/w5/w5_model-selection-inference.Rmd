@@ -1,0 +1,422 @@
+---
+title: "Model Selection and Selective Inference (ECON/POLISCI 151, Week 3 Section)"
+author: "Albert Chiu"
+date: ""
+output: 
+  rmarkdown::github_document: 
+    keep_html: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(dplyr)
+```
+
+## Model Selection
+Last week's lectures introduced the broad topics of machine learning and causal inference. For any given task under either umbrella, there are potentially many models to choose from. There are several considerations you might face:
+
+- Which method to use (e.g., OLS, logistic regression, LASSO)
+- Which variables to include
+- Parameter tuning (e.g., the penalty parameter in the LASSO)
+
+### What does it mean to be "better?"
+When is one model "better" than another? A loss function is an objective way of measuring how "good" a model is. The basic idea is to penalize your model for its errors. Some notable examples are the 0-1 loss (for classification only) and the quadratic loss. Intuitively, then, you may think of selecting the model that minimizes loss --- or, more generally, some criterion --- but on which data?
+
+### What data do we use?
+
+#### In-sample (training data)
+```{r}
+# data generating process (DGP)
+set.seed(123)
+n <- 10000; p <- 5
+n_train <- n/2
+X <- rnorm(n*p) %>% matrix(nrow=n)
+beta <- rnorm(p)
+beta[5] <- 0
+mu <- plogis(X %*% beta + rnorm(n)) 
+Y <- rbinom(n, size=1, prob=mu)
+
+df <- cbind.data.frame(Y, X)
+colnames(df) <- c("Y", "X1", "X2", "X3", "X4", "X5")
+
+train <- sample(n, n_train)
+
+# Linear probability model
+fit_models <- function(df, ind) {
+  list(lpm_1 = lm(Y ~ ., data=df, subset = ind),
+       lpm_2 = lm(Y ~ X1 + X2 + X3 + X4, data=df, subset = ind))
+}
+
+out <- fit_models(df=df, ind=train)
+
+# compare in sample MSE
+sum(out[[1]]$residuals^2)  # a tiny bit better
+sum(out[[2]]$residuals^2)
+```
+
+#### Validation set
+
+```{r}
+get_loss <- function(models, df, Y, ind) {
+  return(c(sum( (predict(models[[1]], newdata = df[ind, ]) - Y[ind])^2 ),
+           sum( (predict(models[[2]], newdata = df[ind, ]) - Y[ind])^2 )))
+}
+
+# compare in sample MSE
+get_loss(models=out, df=df, Y=Y, ind=-train)  # model 2 slightly better
+```
+
+#### $k$-folds cross-validation
+Interesting paper <a href="https://arxiv.org/pdf/2104.00673.pdf"> on what cross validation is actually estimating</a>.
+
+```{r}
+## caret package
+folds <- caret::createFolds(y=Y, k=10)
+lapply(folds[1:3], head)
+```
+```{r}
+## do it ourselves
+gen_folds <- function(n, k) {
+  pt <- gtools::permute(1:n)
+  lapply(0:(k-1), FUN=function(x) pt[ ( x*round(n/k) + 1 ):( (x+1)*round(n/k) ) ] )
+}
+
+# example
+head(gen_folds(20, 3))
+
+set.seed(123)
+folds <- gen_folds(n=n, k=10)
+```
+
+```{r}
+## CV error
+cv_errors <- c()
+for (i in 1:10) {
+  ## fit on all but one fold
+  out_cv <- fit_models(df=df, ind=-folds[[i]])
+  
+  # evaluate on hold-out fold
+  cv_errors <- rbind(cv_errors, get_loss(models=out_cv, df=df, Y=Y, ind=folds[[i]]))
+}
+
+# avg
+apply(cv_errors, MARGIN=2, mean)
+```
+
+
+### Classification
+
+#### Confusion matrix
+```{r}
+## compare with random forest
+set.seed(123)
+out_rf <- randomForest::randomForest(x=X, y=factor(Y), subset = train, ntree=5)
+
+##
+get_yhat <- function(model, df, ind, cutoff, rf=F) {
+  if (rf) {
+    p <- predict(model, newdata=df[ind, ], type="prob")[, "1"]
+  } else {
+    p <- predict(model, newdata=df[ind, ], type="response") 
+  }
+  return(ifelse(p >= cutoff, yes=1, no=0))
+}
+
+## predict 1 if p>=.5
+yhat_lm <- get_yhat(out[[1]], df, -train, .5)
+yhat_rf <- get_yhat(out_rf, X, -train, .5, rf=T)
+
+caret::confusionMatrix(factor(yhat_lm), factor(Y[-train]))
+caret::confusionMatrix(factor(yhat_rf), factor(Y[-train]))
+# formulas for some of the things you can compute using this table:
+#?caret::confusionMatrix
+```
+#### Receiver operating characteristic (ROC) curve \& Area under the curve (AUC)
+```{r}
+get_tprfpr <- function(yhat, y) {
+  return(c("tpr"=sum(yhat==1 & y==1)/sum(y==1), 
+           "fpr"=sum(yhat==1 & y==0)/sum(y==0)))
+}
+
+stats_lm <- c(); stats_rf <- c();
+for (i in 0:101) {
+  cutoff <- i/100
+  
+  yhat_lm <- get_yhat(out[[1]], df=df, ind = -train, cutoff = cutoff)
+  yhat_rf <- get_yhat(out_rf, df=X, ind = -train, cutoff = cutoff, rf=T)
+
+  stats_lm <- rbind.data.frame(stats_lm, get_tprfpr(yhat_lm, y=Y[-train]))
+  stats_rf <- rbind.data.frame(stats_rf, get_tprfpr(yhat_rf, y=Y[-train]))
+}
+colnames(stats_lm) <- c("tpr", "fpr"); colnames(stats_rf) <- c("tpr", "fpr")
+
+require(ggplot2)
+pdf <- rbind.data.frame(cbind.data.frame(stats_lm, "type"="lm"),
+                        cbind.data.frame(stats_rf, "type"="rf"))
+ggplot(data=pdf, mapping=aes(x=fpr, y=tpr, color=type))+
+  geom_line()
+
+```
+
+```{r}
+DescTools::AUC(x=stats_lm[, "fpr"], y=stats_lm[, "tpr"])
+DescTools::AUC(x=stats_rf[, "fpr"], y=stats_rf[, "tpr"]) 
+
+# only 5 trees, only 5 outcomes
+unique(predict(out_rf, newdata=X[-train, ], type="prob")[, "1"]) %>% sort
+```
+
+#### Brier score
+```{r}
+pred_prob_lm <- predict(out[[1]], newdata = df[-train, ])
+pred_prob_rf <- predict(out_rf, newdata = X[-train, ], type="prob")[, 2]
+
+sum( (Y[-train]-pred_prob_lm)^2 )
+sum( (Y[-train]-pred_prob_rf)^2 )
+```
+
+
+### Regression
+#### Coefficient of determination ("$R^2$")
+```{r}
+# R^2 necessarily is non-increasing w/ number of variables
+lapply(out, function(x) summary(x)$r.squared)
+
+# adjust for this
+lapply(out, function(x) summary(x)$adj.r.squared)
+```
+
+
+#### Akaike Information Criterion (AIC) and Bayesian Information Criterion (BIC)
+```{r}
+lapply(out, AIC)
+```
+
+```{r}
+out_lgst <- glm(Y~., family="binomial", data=df, subset=train)
+AIC(out[[1]], out[[2]], out_lgst)
+```
+
+```{r}
+BIC(out[[1]], out[[2]], out_lgst)
+```
+
+
+### Methods for selecting a model
+#### Covariate selection
+
+##### Step-wise and best subset
+```{r}
+MASS::stepAIC(out_lgst, direction = "both")
+```
+
+```{r}
+out_subs <- leaps::regsubsets(x=X, y=Y, method="exhaustive")
+summary(out_subs)  # best models of different complexities
+```
+##### LASSO
+
+```{r}
+X_hd <- cbind(X, matrix(rnorm(n*10), nrow=n))
+head(X_hd)
+
+### sequence of potential lambdas
+out_lasso <- glmnet::glmnet(X_hd[train, ], Y[train], alpha=1)
+plot(out_lasso)
+```
+#### Parameter tuning
+##### Linear search
+```{r}
+### pick lambda using CV
+set.seed(123)
+glmnet::cv.glmnet(X_hd[train, ], Y[train], alpha=1) %>%
+  coef(s = .$lambda.min)
+```
+
+##### Grid search
+```{r}
+### pick lambda AND alpha using CV
+## fix the folds that we will use for each value of alpha
+set.seed(123)
+fold_id <- sample(rep(seq(10), length = n))  # another way of creating folds
+
+## go through values of alpha
+min_mses <- c(); min_lambdas <- c()
+alphas <- seq(from=0, to=1, by=.05)
+for (alpha in alphas) {
+  out_grid <- glmnet::cv.glmnet(X_hd, Y, foldid = fold_id, alpha=alpha)
+  min_mses <- c(min_mses, min(out_grid$cvm))
+  min_lambdas <- c(min_lambdas, out_grid$lambda.min)
+}
+
+cbind(alphas, min_lambdas)[which.min(min_mses), ]
+```
+
+## Selective Inference
+
+#### Inference after variable selection
+
+```{r}
+## conditioning on selection by lasso distorts sampling dist
+selected <- c(); cis <- c(); coefs <- c()
+n_new <- 100 
+X_new <- X[1:n_new, 1]
+set.seed(123)
+for ( i in 1:1000 ) {
+  # draw new sample from same dgp each time
+  Y_new <- X_new + rnorm(n_new, sd=10)
+  df_new <- cbind.data.frame(Y_new, X_new)
+  
+  selected <- c(selected, 
+                (glmnet::cv.glmnet(cbind(1, X_new), Y_new, alpha=1) %>% 
+    #glmnet::glmnet(X_new, Y_new, alpha=1, lambda = .1) %>%
+    #
+                 coef(s=.$lambda.min) %>%
+                 as.numeric())[3] > 0)
+  out <- lm(Y_new ~ X_new)
+  cis <- rbind(cis, confint(out)[2, ])
+  coefs <- c(coefs, coef(out)[2])
+}
+
+pdf <- rbind.data.frame(cbind.data.frame("est"=coefs, type="all"),
+                        cbind.data.frame("est"=coefs[selected], type="select"))
+require(ggplot2)
+ggplot(data=pdf)+
+  geom_density(aes(x=est, color=type))+
+  geom_vline(aes(xintercept=1))
+```
+
+#### Post selection inference (PoSI)
+Valid for any method of selection; confidence intervals are valid for _any_ sub-model.
+
+```{r}
+# PoSI
+posi <- PoSI::PoSI(X = X)
+summary(posi)
+K <- summary(posi)[1, 1]
+
+# confidence interval = [beta - K*SE(beta), beta + K*SE(beta)] 
+```
+
+#### Selection with the LASSO
+If we restrict our attention to a smaller class of models, we can get more traction. E.g., <a href="https://arxiv.org/pdf/1311.6238.pdf>selection using the LASSO</a>.
+
+#### Also interesting
+
+- Especially for causal inference: <a href="https://academic.oup.com/restud/article/81/2/608/1523757?login=true">double selection using the LASSO</a>.
+- Rank verification: <a href="https://projecteuclid.org/journals/annals-of-statistics/volume-47/issue-2/Rank-verification-for-exponential-families/10.1214/17-AOS1634.full">Who's the winner?</a>.
+
+
+### A Brief Intro to Multiple Testing
+
+#### The multiple testing problem
+```{r}
+n <- 3000
+p <- 500
+alpha <- .2
+set.seed(123)
+X <- matrix(rnorm(n=n*p, mean=0, sd=1/sqrt(n)), ncol=p)
+X <- apply(X, MARGIN=2, FUN=function(x) x/sum(x)) # standardize columns
+beta <- c(rep(3.5, times=35), rep(0, times=p-35))
+y <- X%*%beta + rnorm(n=n)
+
+## the multiple testing problem
+out <- summary(lm(y~X))
+# true discoveries
+trd <- sum(out$coefficients[1:34, 4] < alpha)
+# false discoveries
+fd <- sum(out$coefficients[36:p, 4] < alpha)
+
+# false discovery rate = #{false discoveries}/#{total discoveries}
+fd/(trd+fd)  # the majority of our "discoveries" are false
+```
+
+#### Benjamini-Hocheberg
+```{r}
+require(sgof)
+out_BH <- BH(out$coefficients[, 4])
+out_BH$Rejections  # rejects the first 27 p-values
+out_BH$Adjusted.pvalues
+```
+
+#### Knock-offs
+```{r}
+require(knockoff)
+# functions
+create_W <- function(X, Xtilde, y) stat.glmnet_coefdiff(X, Xtilde, y,
+                                                        glmnet.lambda=c(1.6))
+create_Xtilde_sdp <- function(X) create.fixed(X=X, method="sdp")
+create_Xtilde_equi <- function(X) create.fixed(X=X, method="equi")
+
+out_knockoff <- knockoff.filter(X=X, y=y, knockoffs = create_Xtilde_equi,
+                                   statistic = create_W, fdr = alpha, 
+                                   offset = 1)
+
+length(out_knockoff$selected)
+```
+
+#### A Simulation
+```{r}
+# simulation
+if(FALSE){  # takes a long time to run; don't run when compiling pdf
+knockoff_V <- c(); knockoff_R <- c(); knockoff_p_V <- c(); 
+knockoff_p_R <- c(); bh_V <- c(); bh_R <- c()
+set.seed(123)
+X <- matrix(rnorm(n=n*p, mean=0, sd=1/sqrt(n)), ncol=p)
+X <- apply(X, MARGIN=2, FUN=function(x) x/sum(x))  # standardize columns
+beta <- c(rep(3.5, times=35), rep(0, times=p-35))
+for(t in 1:100){
+  print(t)
+  # create data
+  y <- X%*%beta + rnorm(n=n)  # standard normal errors
+  
+  # knockoffs
+  # equi-correlated is faster
+  #reject_sdp <- knockoff.filter(X=X, y=y, knockoffs = create_Xtilde_sdp, 
+  #                              statistic = create_W, fdr = alpha, offset = 0)$selected
+  #reject_sdp_p <- knockoff.filter(X=X, y=y, knockoffs = create_Xtilde_sdp, 
+  #                                statistic = create_W, fdr = alpha,offset = 1)$selected
+  reject_equi <- knockoff.filter(X=X, y=y, knockoffs = create_Xtilde_equi, 
+                                 statistic = create_W, fdr = alpha, 
+                                 offset = 0)$selected
+  reject_equi_p <- knockoff.filter(X=X, y=y, knockoffs = create_Xtilde_equi,
+                                   statistic = create_W, fdr = alpha, 
+                                   offset = 1)$selected
+  # BH
+  pvals <- summary(lm(y~X))$coefficients[-1, 4]
+  reject_bh <- which(order(pvals) %in% 
+                       1:BH(pvals, alpha)$Rejections)  # indices of rejected
+  bh_V[t] <- sum(reject_bh > 35) 
+  bh_R[t] <- length(reject_bh)
+  
+  # rejections
+  knockoff_V[t] <- sum(reject_equi > 35)  # betas after 35 are null
+  knockoff_R[t] <- length(reject_equi)
+  knockoff_p_V[t] <- sum(reject_equi_p > 35)  # betas after 35 are null
+  knockoff_p_R[t] <- length(reject_equi_p)
+  
+}
+save(knockoff_V, knockoff_R, knockoff_p_V, 
+     knockoff_p_R, bh_V, bh_R, file="knockoff_sim.rda")
+}
+
+load("knockoff_sim.rda")
+## FDR
+# all roughly control FDR
+rbind(c("knockoffs", "knockoffs+", "BHq"),
+      c(mean(knockoff_V/knockoff_R),  # knockoffs
+        mean(knockoff_p_V/knockoff_p_R),  # knockoffs+
+        mean(bh_V/bh_R))  # BHq
+)
+
+## power
+# knockoffs more powerful
+rbind(c("knockoffs", "knockoffs+", "BHq"),
+      # total rejections - false rejections = true rejections
+      c(mean((knockoff_R-knockoff_V)/35),  # knockoffs
+        mean((knockoff_p_R-knockoff_p_V)/35),  # knockoffs+
+        mean((bh_R-bh_V)/35))  # BHq
+)
+```
+
+
