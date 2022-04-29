@@ -261,17 +261,16 @@ cbind(alphas, min_lambdas)[which.min(min_mses), ]
 ## conditioning on selection by lasso distorts sampling dist
 selected <- c(); cis <- c(); coefs <- c()
 n_new <- 100 
-X_new <- X[1:n_new, 1]
+X_new <- X[1:n_new, 1]  # just one variable, and just n_new observations
 set.seed(123)
 for ( i in 1:1000 ) {
   # draw new sample from same dgp each time
-  Y_new <- X_new + rnorm(n_new, sd=10)
+  Y_new <- X_new + rnorm(n_new, sd=10)  # beta=1
   df_new <- cbind.data.frame(Y_new, X_new)
   
   selected <- c(selected, 
-                (glmnet::cv.glmnet(cbind(1, X_new), Y_new, alpha=1) %>% 
-    #glmnet::glmnet(X_new, Y_new, alpha=1, lambda = .1) %>%
-    #
+                (glmnet::cv.glmnet(cbind(1,  # only include intercept
+                                         X_new), Y_new, alpha=1) %>% 
                  coef(s=.$lambda.min) %>%
                  as.numeric())[3] > 0)
   out <- lm(Y_new ~ X_new)
@@ -288,7 +287,7 @@ ggplot(data=pdf)+
 ```
 
 #### Post selection inference (PoSI)
-Valid for any method of selection; confidence intervals are valid for _any_ sub-model.
+Valid for any method of selection --- you can throw darts at a board to pick your variables if you wanted. Confidence intervals are valid for _any_ sub-model.
 
 ```{r}
 # PoSI
@@ -300,7 +299,7 @@ K <- summary(posi)[1, 1]
 ```
 
 #### Selection with the LASSO
-If we restrict our attention to a smaller class of models, we can get more traction. E.g., <a href="https://arxiv.org/pdf/1311.6238.pdf>selection using the LASSO</a>.
+If you're willing to commit to a specific method of selection, we can sometimes get more traction. E.g., <a href="https://arxiv.org/pdf/1311.6238.pdf>selection" using the LASSO</a>.
 
 #### Also interesting
 
@@ -337,7 +336,7 @@ fd/(trd+fd)  # the majority of our "discoveries" are false
 require(sgof)
 out_BH <- BH(out$coefficients[, 4])
 out_BH$Rejections  # rejects the first 27 p-values
-out_BH$Adjusted.pvalues
+head(out_BH$Adjusted.pvalues)
 ```
 
 #### Knock-offs
