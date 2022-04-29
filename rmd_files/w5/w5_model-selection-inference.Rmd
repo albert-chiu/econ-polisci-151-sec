@@ -225,6 +225,7 @@ out_lasso <- glmnet::glmnet(X_hd[train, ], Y[train], alpha=1)
 plot(out_lasso)
 ```
 #### Parameter tuning
+
 ##### Linear search
 ```{r}
 ### pick lambda using CV
