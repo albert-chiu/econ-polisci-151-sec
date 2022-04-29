@@ -578,7 +578,7 @@ posi <- PoSI::PoSI(X = X)
     ##                          Done with bundle 5 / 5    model sz = 5 
     ## p = 5 , d = 5   processed 80 tests in 31 models.  Times in seconds:
     ##    user  system elapsed 
-    ##   0.023   0.000   0.023
+    ##   0.024   0.001   0.024
 
 ``` r
 summary(posi)
@@ -597,8 +597,8 @@ K <- summary(posi)[1, 1]
 #### Selection with the LASSO
 
 If you’re willing to commit to a specific method of selection, we can
-sometimes get more traction. E.g., \<a
-href=“<https://arxiv.org/pdf/1311.6238.pdf>\>selection” using the
+sometimes get more traction. E.g.,
+<a href="https://arxiv.org/pdf/1311.6238.pdf">selection using the
 LASSO</a>.
 
 #### Also interesting
