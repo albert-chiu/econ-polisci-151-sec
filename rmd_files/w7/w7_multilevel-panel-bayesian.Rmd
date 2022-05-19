@@ -1,0 +1,291 @@
+---
+title: "Multilevel and Panel Data and Bayesian Statistics (ECON/POLISCI 151, Week 7 Section)"
+author: "Albert Chiu"
+date: ""
+output: 
+  rmarkdown::github_document: 
+    keep_html: yes
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(dplyr)
+require(tidyverse)
+```
+
+## Data with Structure
+This week will introduce models for multilevel and panel data. Each of these types of data have unique structures for which you may need to account. Many of the models we will consider today will be a sort middle ground between the setting where all observations belong to the lower level and we treat them as independent (which gives us the largest effective N, but which may not be a realistic assumption) and the setting where all observations are agglomerated into a higher level (which gives us the smallest effective N, but which allows arbitrary dependence between lower level units).
+
+<!-- Typically, the goal is to control for confounders that you otherwise may be not be able to address using data without such structure, or for increasing efficiency (by pooling or borrowing information) compared to setting where we analyze . -->
+
+## Multi-level Modelling
+Sometimes our data has multiple "levels," e.g., each observation is a student, who belongs to a class, which is part of a school. For our example, we will use data from LAPOP. Each observation is a respondent, and each respondent lives in a province, which in turn belongs to a country.
+
+```{r}
+load("cleaned_data.RData")
+df2010 <- df[df$wave==2010, ]  # subset to observations from the 2010 survey wave
+colnames(df2010)
+```
+
+Our outcome of interest will be the variable <tt>marriage</tt>, which is the respondent's approval of same-sex marraige (10=strongly approve, 1=strongly disapprove). Consider the two extreme models, one where we ignore the country and one where we allow the slope to vary at the country level, that estimate the relationship between religiosity and approval.
+```{r}
+## individual observations
+m1 <- lm(marriage ~ rel_importance, data=df2010)
+## aggregated to country level
+m2 <- lm(marriage ~ rel_importance:factor(country), data=df2010)
+
+summary(m1)  # much smaller standard error
+sqrt( sum( summary(m2)$coefficients[-1, 2]^2 ) )  # assuming independence
+```
+
+Notice that the standard error is much smaller for the first model. The second model is an example of the <a href="https://www.sciencedirect.com/science/article/pii/030440769401644F">mean groups estimator proposed in Pesaran and Smith (1995)</a>. The former assumes constant effects of religiosity on each individual's approval, while the latter only assumes individuals in the same country have the same effects. Note that the former assumption implies the latter, but the latter does not imply the former. The latter model allows effects to be arbitrarily heterogeneous across countries, so long as the effects end up being constant within country.
+
+Multilevel models can be a middle ground between the two, allowing for specific forms of heterogeneity. E.g., the slope can vary additively by country. (note: this is the same as letting the slopes be arbitrarily different like in <tt>m2</tt>, but will not be once we add additional dimensions, e.g. for time)
+```{r}
+m3 <- lme4::lmer(marriage ~ LARI + (0 + LARI | country), data=df2010)
+summary(m3)
+```
+There are a number of ways to fit this model. The <tt>lme4</tt> package uses mixed effects models, which are composed of "fixed effects" and "random effects." 
+
+```{r}
+## some minor variations
+# random intercept
+lme4::lmer(marriage ~ LARI + (1 + LARI | country), data=df2010)
+lme4::lmer(marriage ~ LARI + (LARI | country), data=df2010)
+
+# random intercept independent of slope
+lme4::lmer(marriage ~ LARI + (1 | country) + (0 + LARI | country), data=df2010)
+```
+## Bayesian Statistics
+Another way of doing multilevel modelling is using Bayesian statistics. In general, Bayesians assume that there is a prior distribution over the parameters and a distribution of the data given the parameters (likelihood), and combine these to get a posterior. 
+
+### <tt>brms</tt>
+```{r}
+df2010_unlabelled <- apply(df2010, MARGIN=2, as.numeric)
+out_brm <- brms::brm(marriage ~ LARI + (1 + LARI | country),
+                     data=df2010_unlabelled[sample(nrow(df2010), 1000), ])
+summary(out_brm)
+```
+
+### <tt>rstan</tt>
+One of the most flexibe ways of fitting Bayesian models is to use <tt>rstan</tt>. Stan models are infinitely customizable and more transparent than <tt>brms</tt>.
+
+#### Simple model
+```{r}
+N <- 100
+
+set.seed(123)
+mu <- rnorm(N)
+sigma <- abs(rcauchy(N))
+y <- rnorm(N, mean=mu, sd=sigma)
+
+simple <-"
+//
+// This Stan program defines a simple model, with a
+// vector of values 'y' modeled as normally distributed
+// with mean 'mu' and standard deviation 'sigma'.
+//
+
+// The input data is a vector 'y' of length 'N'.
+data {
+  int<lower=0> N;
+  vector[N] y;
+}
+
+// The parameters accepted by the model. Our model
+// accepts two parameters 'mu' and 'sigma'.
+parameters {
+  real mu;
+  real<lower=0> sigma;
+}
+
+// The model to be estimated. We model the output
+// 'y' to be normally distributed with mean 'mu'
+// and standard deviation 'sigma'.
+model {
+  y ~ normal(mu, sigma);
+}
+"
+
+dat <- list("N"=N, "y"=y)
+
+out_simple <- rstan::stan(model_code=simple, data=dat, verbose = F)
+print(out_simple)
+```
+
+```{r}
+print(out_simple)
+```
+#### Simple Regression
+```{r}
+simple_reg <- "
+data {
+  int<lower=0> N;
+  vector[N] y;
+  vector[N] x;
+}
+
+parameters {
+  real<lower=0> sigma;
+  real beta;
+}
+
+model {
+  y ~ normal(x*beta, sigma);
+}
+
+generated quantities {
+  real sim_y;
+  sim_y = beta*100; // value of y if x=100
+}
+"
+
+x <- rnorm(N)
+beta <- rnorm(N)
+y <- x*beta
+
+out_simple_reg <- rstan::stan(model_code=simple_reg, 
+                              data=list("N"=N, "y"=y, "x"=x), verbose=F)
+print(out_simple_reg)
+```
+#### Multilevel Regression
+```{r}
+simple_ml <- "
+data {
+  int<lower=0> N;
+  vector[N] y;
+  vector[N] x;
+  int<lower=0> G;  // number of groups
+  int<lower=1, upper=G> group[N];  // ID for group 
+}
+
+parameters {
+  real<lower=0> sigma;  // sd for response
+  
+  real beta;
+  real<lower=0> sigma_b;  // variance for slope
+  
+  vector[G] beta_g;  // group-specific component of slope
+  real<lower=0> sigma_bg;  // variance for group-specific slope
+}
+
+model {
+  sigma ~ gamma(2, .1);  // prior
+  
+  sigma_b ~ cauchy(0, 2.5); // hyperprior 
+  beta ~ normal(0, sigma_b);
+  
+  sigma_bg ~ cauchy(0, 2.5); // hyperprior 
+  for (g in 1:G) {
+    beta_g[g] ~ normal(0, sigma_bg);  // prior 
+  }
+  
+{  // variable declarations have to come at top of block
+  vector[N] mu;
+  for (i in 1:N) {
+    mu[i] = (beta + beta_g[group[i]])*x[i];
+  }
+  y ~ normal(mu, sigma);
+}
+
+}
+"
+
+group <- rep(1:5, each=N/5)
+out_simple_ml <- rstan::stan(model_code=simple_ml, 
+                             data=list("N"=N, "y"=y, "x"=x,
+                                       "G"=5, "group"=group),
+                             verbose=F)
+print(out_simple_ml)
+```
+
+```{r}
+set.seed(123)
+keep <- complete.cases(df2010[, c("marriage", "rel_importance", "country")])
+sub_df2010 <- df2010[keep, ] %>%
+  .[sample(nrow(.), 1000), ]
+out_simple_ml_LAPOP <- rstan::stan(model_code=simple_ml, 
+                             data=list("N"=nrow(sub_df2010), 
+                                       "y"=sub_df2010$marriage,
+                                       "x"=sub_df2010$rel_importance,
+                                       "G"=length(unique(sub_df2010$country)),
+                                       "group"=as.numeric(factor(sub_df2010$country))),
+                             verbose=F)
+print(out_simple_ml_LAPOP)
+```
+
+```{r}
+rstan::plot(out_simple_ml_LAPOP, pars="beta")
+```
+
+```{r}
+rstan::plot(out_simple_ml_LAPOP, pars=paste0("beta_g[", 1:17, "]")) +
+  ggplot2::geom_vline(xintercept=0) +
+  ggplot2::theme_bw()
+```
+
+#### Multilevel Model with Time Dimension
+The main independent variable of interest is the <tt>LARI</tt>, which is an index of the number of LGBTQ rights in that country-year. We allow the slope to vary additively by country and year. Religious importance is now a control instead, along with an indicator for evangelicalism, and their slopes are constant.
+
+```{r}
+set.seed(123)
+keep <- complete.cases(df[, c("marriage", "rel_importance", "evangelical", "LARI", "country", "year")])
+sub_df<- df[keep, ] %>%
+  .[sample(nrow(.), 1000), ]
+dat <- list(y = sub_df$marriage,
+            x = sub_df[, c("rel_importance", "evangelical")],
+            d = sub_df$LARI,
+            gg = as.numeric(factor(sub_df$country)),  # group
+            tt = as.numeric(factor(sub_df$year)),  # time
+            Ti = length(unique(sub_df$year)),  # number of time periods
+            G = length(unique(sub_df$country)),  # number of groups
+            N = nrow(sub_df),
+            K = 2)  # number of controls
+out_ml <- rstan::stan(file="multilevel.stan", data = dat,
+                      seed=123, iter=2000, cores = 4, chains = 4)
+print(out_ml)
+```
+## Panel Data
+### Two-way Fixed Effects
+Panel (or time series cross sectional (TSCS)) data consists of the same observations over time. The most popular model in econ/polisci is the two-way fixed effects model. This model allows you to control for unobserved confounders that are either time invariant or unit invariant (though as a consequence, you also cannot estimate the coefficients for variables that are unit/time invariant). 
+
+```{r}
+fm <- formula(marriage ~ LARI + rel_importance | country + year | 0 | country)
+out_2fe <- lfe::felm(fm, data=df)
+summary(out_2fe)
+```
+You should cluster at the level of "treatment assignment," in this case country. This allows for arbitrary dependence between observations in the same group but assumes independence between groups.
+
+There are some pretty strong assumptions made by this model, including <a href="https://papers.ssrn.com/sol3/Papers.cfm?abstract_id=3979613">strict exogeneity</a> and <a href="https://www.nber.org/system/files/working_papers/w25904/w25904.pdf">homogeneous effects</a>.
+
+Strict exogeneity implies the following:
+
+- No unobserved time-varying confounders,
+- No anticipation (future treatments cannot affect current outcome),
+- No lagged dependent variables (past outcomes do not affect current outcome),
+- No feedback (past outcomes do not affect current treatment),
+- And no carryover (past treatments do not affect current outcome) \citep{imai2019should}.
+
+
+
+Synthetic controls is a popular alternative for when you have only one treated unit and the treatment is binary. Some newer methods include generalized synthetic control and matrix completion (all of which also assume strict exogeneity). The literature in this area is fast growing, though our understanding of the setting with continuous treatment is still quite limited.
+
+### Bootstrapping 
+You should bootstrap to calculate standard errors, <a href="https://direct.mit.edu/rest/article-pdf/90/3/414/1614600/rest.90.3.414.pdf">especially when the number of clusters is small</a>.
+```{r}
+out_boot <- lfe::felm(fm, weights = df$weight1500, data=df,
+                      Nboot=999, bootexpr=quote(est$coef), bootcluster="model",
+                      nostats=structure(FALSE, boot=TRUE))
+sds <- apply(out_boot$boot[, , ], MARGIN=1, FUN=sd)
+sds
+```
+
+### Random Effects
+```{r}
+out_re_time <- lme4::lmer(marriage~ LARI + 
+                            (LARI | country) + 
+                            (LARI | year),
+                          data=df)
+confint(out_re_time, method="Wald")
+```

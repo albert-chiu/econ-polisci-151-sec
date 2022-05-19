@@ -1,5 +1,5 @@
 ---
-title: "Model Selection and Selective Inference (ECON/POLISCI 151, Week 3 Section)"
+title: "Model Selection and Selective Inference (ECON/POLISCI 151, Week 5 Section)"
 author: "Albert Chiu"
 date: ""
 output: 
