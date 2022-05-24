@@ -3,7 +3,7 @@ download.file("http://datasets.americasbarometer.org/database/files/2004-2018%20
 LAPOP <- haven::read_dta(unz(temp, "2004-2018 LAPOP AmericasBarometer Merge (v1.0w).dta"))
 unlink(temp)
 
-changes <- read.csv("rmd_files/w7/LARI_data.csv")
+changes <- read.csv("LARI_data.csv")
 
 ## Subset variables we need -------------------------
 df <- cbind.data.frame("country"=LAPOP$pais, "prov"=LAPOP$prov,

@@ -253,6 +253,7 @@ Panel (or time series cross sectional (TSCS)) data consists of the same observat
 ```{r}
 fm <- formula(marriage ~ LARI + rel_importance | country + year | 0 | country)
 out_2fe <- lfe::felm(fm, data=df)
+
 summary(out_2fe)
 ```
 You should cluster at the level of "treatment assignment," in this case country. This allows for arbitrary dependence between observations in the same group but assumes independence between groups.
